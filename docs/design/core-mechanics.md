@@ -1,12 +1,12 @@
 # Core Mechanics
 
-Status: decided — Layer 1 complete
+Status: decided — Layer 1 complete, pen model complete
 
 ---
 
 ## Game Identity
 
-A creature breeding and management game where the player breeds animals with heritable traits, assigns them to roles, and participates in a market to sell or rent them. The game is completable in single player; multiplayer participation accelerates progression but is never required.
+A creature breeding and management game where the player breeds animals with heritable traits, allocates them across pens, and participates in a market to sell or rent them. The game is completable in single player; multiplayer participation accelerates progression but is never required.
 
 The genetics mechanic uses real Mendelian inheritance. Players are not taught this — they are expected to discover it through play. The mechanic should feel like a natural part of the game, not an educational overlay.
 
@@ -14,13 +14,12 @@ The genetics mechanic uses real Mendelian inheritance. Players are not taught th
 
 ## Core Loop
 
-1. Animals breed passively in pens → offspring inherit traits from parents
-2. Player assigns animals to roles: producer, builder, breeder, or market
-3. Producers generate resources → resources fund pen upgrades and enhancements
-4. Builders consume resources to construct upgrades → better pens, faster breeding, larger capacity
-5. Player fulfills trait-specific orders → earns gold
-6. Gold spent on items and market purchases → better breeding stock → harder orders become reachable
-7. Repeat with increasing complexity
+1. Animals live in pens → they breed, produce resources, and contribute to building simultaneously
+2. Player allocates animals across pens to balance breeding output, resource generation, and construction
+3. Resources fund pen upgrades and enhancements → better pens improve all three affinities
+4. Player fulfills trait-specific orders → earns gold
+5. Gold spent on items and market purchases → better breeding stock → harder orders become reachable
+6. Repeat with increasing complexity
 
 ---
 
@@ -56,19 +55,41 @@ The puzzle is breeding an animal that satisfies the trait requirements. The gene
 
 ---
 
-## Animal Roles
+## Animal Affinities
 
-An animal can be assigned to one role at a time. Traits determine how well an animal performs in each role. The player must balance across roles rather than optimizing for a single one.
+Animals do not have fixed roles. Every animal contributes to all three activities simultaneously based on its traits. The three affinities are:
 
-| Role | What the animal does |
-|------|---------------------|
-| Breeder | Occupies a breeding pen; breeds passively with pen-mates |
-| Producer | Generates resources over time; rate and quality are trait-gated |
-| Builder | Consumes resources to construct or upgrade pens and enhancements |
-| Market (sell) | Listed on the sell market; animal is lost when purchased |
-| Market (rent) | Listed on the rent market; animal is locked in the rented-out pen until the rental period ends |
+| Affinity | What it contributes |
+|----------|-------------------|
+| Breed rate | How quickly and frequently this animal produces offspring |
+| Produce rate | How quickly and how much resource this animal generates |
+| Build rate | How effectively this animal converts resources into pen upgrades |
 
-An animal listed on the market is unavailable for any other role until the listing resolves.
+A pen's total output in each affinity is the sum across all animals in it. The player's strategic decision is how to allocate animals across pens — there is always an opportunity cost. A pen optimized for production breeds slowly; placing a high-affinity animal in a breeding pen means it is not generating resources elsewhere.
+
+Animals listed on the market are the exception: a listed animal is locked and contributes nothing to any pen until the listing resolves.
+
+**On trait concentration:** when animals with similar high-affinity traits share a pen, their offspring tend to inherit and reinforce those traits. Mixing animals with spread-out or mediocre traits produces mediocre offspring. Players are expected to discover this — the game does not explain it.
+
+---
+
+## Pen System
+
+Pens are the primary organizational unit. Each pen has a fixed animal capacity. The player's core strategic question is: what do I want each pen to achieve, and which animals do I put in it to get there?
+
+**Capacity**
+- Each pen has a hard animal cap
+- Capacity is a pen-level upgrade, not a global one — builders can expand individual pens
+- This creates a secondary decision: upgrade an existing pen or build a new one
+
+**Why fixed capacity (not resource limits or diminishing returns)**
+- Resource limits and diminishing returns are valid mechanics but not necessary to make the allocation puzzle work
+- Fixed capacity is simpler to reason about and easier to upgrade — a clean lever for builder progression
+- Resource sustainability and diminishing returns are deferred; may be revisited if playtesting shows the allocation puzzle is too easy
+
+**Pen types**
+- Whether pens are generic (any animal, any purpose) or specialized (breeding pen vs. production pen) is deferred
+- The affinity model does not require specialized pens — any pen can do all three things based on who is in it
 
 ---
 
@@ -93,7 +114,7 @@ Two markets exist, both asynchronous. Listings remain active until purchased by 
 **Sell market**
 - Animal is listed at a player-set price
 - Animal leaves the seller's collection permanently on purchase
-- Creates a genuine "keep vs. sell" decision, especially for high-trait animals
+- Creates a genuine "keep vs. sell" decision, especially for high-affinity animals
 
 **Rent market**
 - Animal is listed at a player-set rental price
@@ -112,6 +133,8 @@ Two markets exist, both asynchronous. Listings remain active until purchased by 
 ## Deferred Decisions
 
 - Pen names and UI terminology (rented-out pen, etc.)
+- Pen types: generic vs. specialized
+- Resource sustainability and diminishing returns mechanics
 - Algorithm for assessing player stock quality (progression inference)
 - Exact trait list and what each trait controls
 - Resource types and what they build
