@@ -19,9 +19,7 @@ Status: decided
 
 ## Rendering
 
-### Why PixiJS over Phaser
-
-Phaser is a full game framework designed for action games. It has its own internal state (scenes, game objects) that conflicts with Redux as the single source of truth — keeping them in sync requires a maintenance-heavy bridge layer. For an idle/management game, most of Phaser's features (physics, cameras, input systems) are unused weight.
+### Why PixiJS
 
 PixiJS is a pure 2D renderer with no internal game state. Redux owns all state. PixiJS renders what Redux says. Clean separation with no competing state.
 
