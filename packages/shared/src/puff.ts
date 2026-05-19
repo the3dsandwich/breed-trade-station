@@ -26,7 +26,7 @@ export interface PuffTraits {
   sex: Sex;
 }
 
-export function deriveTraits(genes: GeneArray): PuffTraits {
+export const deriveTraits = (genes: GeneArray): PuffTraits => {
   const bodySizeSum = genes[0] + genes[1] + genes[2];
   const earSizeSum = genes[5] + genes[6];
   const bodyColorSum = genes[7] + genes[8];
@@ -42,13 +42,13 @@ export function deriveTraits(genes: GeneArray): PuffTraits {
     bodyColor: bodyColorSum === 0 ? "BL" : bodyColorSum <= 3 ? "MX" : "WH",
     sex: genes[9] === 0 ? "F" : "M",
   };
-}
+};
 
-export function createPuff(id: PuffId, genes: GeneArray, bornAt: number): Puff {
-  return { id, genes, bornAt, matured: false };
-}
+export const createPuff = (id: PuffId, genes: GeneArray, bornAt: number): Puff => ({
+  id, genes, bornAt, matured: false,
+});
 
-export function randomGenes(): GeneArray {
-  const gene = () => (Math.floor(Math.random() * 3)) as Gene;
+export const randomGenes = (): GeneArray => {
+  const gene = () => Math.floor(Math.random() * 3) as Gene;
   return [gene(), gene(), gene(), gene(), gene(), gene(), gene(), gene(), gene(), gene()];
-}
+};

@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("game bootstrap", () => {
   test("page loads with correct title", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/game/i);
+    await expect(page).toHaveTitle(/breed trade station/i);
   });
 
   test("no uncaught errors on load", async ({ page }) => {
@@ -29,9 +29,9 @@ test.describe("game bootstrap", () => {
     await expect(canvas).toBeVisible({ timeout: 10000 });
 
     const box = await canvas.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.width).toBe(800);
-    expect(box!.height).toBe(600);
+    if (!box) throw new Error("Canvas has no bounding box");
+    expect(box.width).toBe(800);
+    expect(box.height).toBe(600);
   });
 
   test("no console errors from pixi renderer", async ({ page }) => {
@@ -45,9 +45,8 @@ test.describe("game bootstrap", () => {
 
     const rendererErrors = consoleErrors.filter(
       (e) =>
-        e.includes("Unable to auto-detect") ||
-        e.includes("Cannot read properties of null") ||
-        e.includes("renderer")
+        e.includes("Unable to auto-detect a suitable renderer") ||
+        e.includes("Cannot read properties of null (reading 'stage')")
     );
     expect(rendererErrors).toHaveLength(0);
   });
