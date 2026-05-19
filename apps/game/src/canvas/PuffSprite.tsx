@@ -1,7 +1,8 @@
 import { Graphics } from "@pixi/react";
 import { Graphics as PixiGraphics } from "pixi.js";
 import { useCallback } from "react";
-import { Puff, deriveTraits } from "@bts/shared";
+import type { Puff } from "@bts/shared";
+import { deriveTraits } from "@bts/shared";
 
 const BODY_COLOR_MAP: Record<string, number> = {
   BL: 0x444466,

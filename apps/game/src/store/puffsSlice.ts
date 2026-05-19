@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { Puff, createPuff, randomGenes } from "@bts/shared";
+import type { Puff } from "@bts/shared";
+import { createPuff, randomGenes } from "@bts/shared";
 
 const INITIAL_PUFFS: Puff[] = Array.from({ length: 12 }, (_, i) =>
   createPuff(`puff-${i}`, randomGenes(), Date.now())
