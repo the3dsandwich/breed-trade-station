@@ -5,6 +5,9 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ['pixi.js', '@pixi/react'],
+  },
   resolve: {
     alias: {
       '@bts/shared': path.resolve(__dirname, '../../packages/shared/src/index.ts'),

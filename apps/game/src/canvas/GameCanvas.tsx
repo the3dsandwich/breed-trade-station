@@ -1,3 +1,5 @@
+// side-effect import: registers WebGL and Canvas renderers before Stage mounts
+import "pixi.js";
 import { Stage, Container } from "@pixi/react";
 import { ReactReduxContext } from "react-redux";
 import { useAppSelector } from "../store/hooks";
