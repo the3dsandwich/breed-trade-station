@@ -9,10 +9,18 @@ A creature breeding and trading game. Core mechanics: genetics-based breeding, t
 | `.claude/` | Claude Code config: settings, hooks, permissions. Do not put project content here. |
 | `.github/` | CI/CD workflows and GitHub configuration. |
 | `ai/` | Prompts, agent definitions, and content-generation scripts used as part of the product or dev workflow. |
+| `apps/game/` | React 18 + PixiJS v7 + Redux Toolkit client. Bundled with Vite. |
+| `apps/server/` | Fastify + Socket.IO + TypeScript server. |
+| `packages/shared/` | Shared TypeScript types, genetics logic, and constants. No framework dependencies. Used by both `apps/game` and `apps/server`. |
 | `docs/design/` | Game design decisions: mechanics, systems, economy, creature design. If you are deciding something, it goes here. |
 | `docs/architecture/` | Technical decisions: stack choices, ADRs, infra diagrams, API contracts. |
 | `docs/research/` | Source material and reference analysis. Describes things that already exist. Treated as immutable reference — do not update research docs to reflect new decisions, write a design doc instead. |
-| `game/` | Game source code. Empty until architecture is decided. |
+
+## Monorepo Tooling
+
+- **pnpm** — package manager. All installs go through pnpm. Do not use npm or yarn.
+- **Turborepo** — build orchestration. Run tasks from the root with `turbo run <task>`. `packages/shared` builds before `apps/game` or `apps/server`.
+- Root `package.json` contains dev tooling only. App and package dependencies live in their own `package.json` files.
 
 ## MECE Rule for Docs
 
@@ -27,7 +35,7 @@ Every document belongs in exactly one folder. The deciding question:
 
 ## PR Convention
 
-Any PR that modifies `game/` or `ai/` must also modify at least one file in `docs/design/` or `docs/architecture/`. This is enforced by CI. If your change is too small to warrant a doc update, it likely belongs in an existing doc rather than a new one.
+Any PR that modifies `apps/` or `packages/` or `ai/` must also modify at least one file in `docs/design/` or `docs/architecture/`. This is enforced by CI. If your change is too small to warrant a doc update, it likely belongs in an existing doc rather than a new one.
 
 ## Directory Conventions
 

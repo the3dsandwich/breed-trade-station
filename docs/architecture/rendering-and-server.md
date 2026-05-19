@@ -128,7 +128,6 @@ Fastify (HTTP)
 
 ## Deferred
 
-- Database choice for market listings and player data
 - Authentication strategy (how players identify across devices)
 - Deployment infrastructure (where the server runs)
 - PixiJS v8 / pixi-react v8 upgrade (when Redux docs catch up)
