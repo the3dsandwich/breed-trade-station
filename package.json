@@ -1,0 +1,21 @@
+{
+  "name": "breed-trade-station",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "@playwright/test": "^1.52.0",
+    "typescript": "^5.8.0"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@11.1.3"
+}
