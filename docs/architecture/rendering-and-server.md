@@ -133,3 +133,9 @@ Fastify (HTTP)
 - PixiJS v8 / pixi-react v8 upgrade (when Redux docs catch up)
 - Asset pipeline: sprite sheet format, how Puff sprites are loaded into PixiJS
 - Whether Socket.IO rooms are used for market segmentation
+
+## Implementation Notes
+
+**Renderer registration (Vite 8 / Rolldown):** Vite 8 uses Rolldown which tree-shakes pixi.js renderer side effects. A bare `import "pixi.js"` must appear before the `<Stage>` component mounts to register WebGL/Canvas renderers. Additionally, `pixi.js` and `@pixi/react` must be in `optimizeDeps.include` in `vite.config.ts`.
+
+**Shared package exports (Rolldown):** Rolldown cannot trace TypeScript types through `export *` re-exports when the file is aliased outside the project root. `packages/shared/src/index.ts` must use explicit `export type` / `export` separation, and consuming files must use `import type` for type-only imports.
