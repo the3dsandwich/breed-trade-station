@@ -1,6 +1,6 @@
 services:
   game:
-    image: ${GAME_IMAGE:-bts/game:latest}
+    image: ${GAME_IMAGE:-ghcr.io/the3dsandwich/breed-trade-station/game:latest}
     ports:
       - "${GAME_PORT:-8080}:80"
     depends_on:
