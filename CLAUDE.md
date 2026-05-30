@@ -1,6 +1,6 @@
 # Breed Trade Station
 
-A creature breeding and trading game. Core mechanics: genetics-based breeding, trait inheritance, and a player-driven market. Creature theme TBD.
+A creature breeding and trading game. Core mechanics: genetics-based breeding, trait inheritance, and a player-driven market. The creatures are called **Puffs**. Theme TBD.
 
 ## Folder Structure
 
@@ -33,9 +33,19 @@ Every document belongs in exactly one folder. The deciding question:
 
 `docs/research/` is read-only reference. Decisions that emerge from research go into a new file in `docs/design/` or `docs/architecture/`.
 
+## Commit Style
+
+Conventional commits with PR number suffix: `type(scope): description (#N)`
+
+Types seen in history: `docs`, `feat`, `fix`. Examples:
+```
+docs(architecture): database, monorepo structure, and tooling (#8)
+feat(shared): add meiosis genetics function (#12)
+```
+
 ## PR Convention
 
-Any PR that modifies `apps/` or `packages/` or `ai/` must also modify at least one file in `docs/design/` or `docs/architecture/`. This is enforced by CI. If your change is too small to warrant a doc update, it likely belongs in an existing doc rather than a new one.
+Any PR that modifies `apps/` or `packages/` or `ai/` must also modify at least one file in `docs/design/` or `docs/architecture/`. This is enforced by the `docs-ratchet` CI check. If your change is too small to warrant a doc update, it likely belongs in an existing doc rather than a new one.
 
 ## Directory Conventions
 
