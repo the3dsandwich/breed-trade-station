@@ -6,7 +6,6 @@ on:
     paths:
       - compose.yaml
       - apps/game/Dockerfile
-      - apps/server/Dockerfile
       - .github/workflows/docker-build.yml
   push:
     branches: [main]
