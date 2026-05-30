@@ -4,7 +4,3 @@ dist
 .env
 .env.local
 *.dat
-
-# Docker Compose local overrides
-compose.override.yaml
-docker-compose.override.yml

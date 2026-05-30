@@ -1,8 +1,6 @@
 services:
   game:
-    build:
-      context: .
-      dockerfile: apps/game/Dockerfile
+    image: ${GAME_IMAGE:-bts/game:latest}
     ports:
       - "${GAME_PORT:-8080}:80"
     depends_on:
