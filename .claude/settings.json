@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // .tool_response.filePath' 2>/dev/null); echo \"$file\" | grep -qE '^/home/weiwei/repos/breed-trade-station/(apps|packages)/' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Code file edited in apps/ or packages/. Before marking this task done: (1) run unit tests in the affected package, (2) start or refresh the dev server and visually verify the rendered output is correct. Do not report completion until both pass.\"}}' || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

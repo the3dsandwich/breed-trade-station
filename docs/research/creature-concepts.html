@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Creature Concepts v3</title>
+  <style>
+    body {
+      background: #1a1a2e;
+      font-family: sans-serif;
+      color: #eee;
+      padding: 40px;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    p.sub { color: #aaa; font-size: 0.85rem; margin-top: 0; margin-bottom: 40px; }
+    .section { margin-bottom: 60px; }
+    .section h2 { font-size: 1rem; color: #aaa; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+    .section p.desc { font-size: 0.82rem; color: #888; margin: 0 0 20px 0; }
+    .row { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-end; }
+    .card { text-align: center; }
+    .card p { font-size: 0.78rem; color: #bbb; margin-top: 8px; max-width: 150px; }
+    .card strong { display: block; font-size: 0.88rem; color: #eee; margin-top: 4px; }
+
+    /* idle breathing animation */
+    @keyframes breathe {
+      0%   { d: path("M 70 18 C 70 18 108 56 110 108 C 112 148 94 168 70 168 C 46 168 28 148 30 108 C 32 56 70 18 70 18 Z"); }
+      40%  { d: path("M 70 28 C 70 28 106 58 108 108 C 110 148 94 165 70 165 C 46 165 30 148 32 108 C 34 58 70 28 70 28 Z"); }
+      50%  { d: path("M 70 30 C 70 30 106 60 108 110 C 110 150 94 166 70 166 C 46 166 30 150 32 110 C 34 60 70 30 70 30 Z"); }
+      100% { d: path("M 70 18 C 70 18 108 56 110 108 C 112 148 94 168 70 168 C 46 168 28 148 30 108 C 32 56 70 18 70 18 Z"); }
+    }
+    @keyframes breathe-stroke {
+      0%   { d: path("M 70 18 C 70 18 108 56 110 108 C 112 148 94 168 70 168 C 46 168 28 148 30 108 C 32 56 70 18 70 18 Z"); }
+      40%  { d: path("M 70 28 C 70 28 106 58 108 108 C 110 148 94 165 70 165 C 46 165 30 148 32 108 C 34 58 70 28 70 28 Z"); }
+      50%  { d: path("M 70 30 C 70 30 106 60 108 110 C 110 150 94 166 70 166 C 46 166 30 150 32 110 C 34 60 70 30 70 30 Z"); }
+      100% { d: path("M 70 18 C 70 18 108 56 110 108 C 112 148 94 168 70 168 C 46 168 28 148 30 108 C 32 56 70 18 70 18 Z"); }
+    }
+
+    /* ear sway for upright */
+    @keyframes ear-left-sway {
+      0%   { transform: rotate(0deg);   transform-origin: 48px 62px; }
+      30%  { transform: rotate(-6deg);  transform-origin: 48px 62px; }
+      60%  { transform: rotate(4deg);   transform-origin: 48px 62px; }
+      100% { transform: rotate(0deg);   transform-origin: 48px 62px; }
+    }
+    @keyframes ear-right-sway {
+      0%   { transform: rotate(0deg);   transform-origin: 92px 62px; }
+      30%  { transform: rotate(6deg);   transform-origin: 92px 62px; }
+      60%  { transform: rotate(-4deg);  transform-origin: 92px 62px; }
+      100% { transform: rotate(0deg);   transform-origin: 92px 62px; }
+    }
+
+    /* ear sway for floppy */
+    @keyframes flop-left {
+      0%   { transform: rotate(0deg);  transform-origin: 50px 45px; }
+      35%  { transform: rotate(-8deg); transform-origin: 50px 45px; }
+      65%  { transform: rotate(5deg);  transform-origin: 50px 45px; }
+      100% { transform: rotate(0deg);  transform-origin: 50px 45px; }
+    }
+    @keyframes flop-right {
+      0%   { transform: rotate(0deg);  transform-origin: 90px 45px; }
+      35%  { transform: rotate(8deg);  transform-origin: 90px 45px; }
+      65%  { transform: rotate(-5deg); transform-origin: 90px 45px; }
+      100% { transform: rotate(0deg);  transform-origin: 90px 45px; }
+    }
+
+    /* eye blink */
+    @keyframes blink {
+      0%, 88%, 100% { transform: scaleY(1); }
+      92%            { transform: scaleY(0.08); }
+    }
+
+    .body-anim    { animation: breathe 3s ease-in-out infinite; }
+    .ear-l-upright { animation: ear-left-sway 3s ease-in-out infinite; }
+    .ear-r-upright { animation: ear-right-sway 3s ease-in-out infinite; }
+    .ear-l-floppy  { animation: flop-left 3s ease-in-out infinite; }
+    .ear-r-floppy  { animation: flop-right 3s ease-in-out infinite; }
+    .eye-group     { animation: blink 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  </style>
+</head>
+<body>
+
+<h1>Creature Concepts v3 — Idle Animation</h1>
+<p class="sub">Single teardrop body. Breathes between teardrop and rounder shape. Ears sway independently. Eyes blink.</p>
+
+<!-- SECTION 1: ANIMATED IDLE -->
+<div class="section">
+  <h2>Idle Animation — Live</h2>
+  <p class="desc">CSS animated. Shows the squash/stretch breathe cycle, ear sway, and blink.</p>
+  <div class="row">
+
+    <!-- Upright animated -->
+    <div class="card">
+      <svg width="160" height="210" viewBox="0 0 140 200">
+        <!-- left ear -->
+        <g class="ear-l-upright">
+          <ellipse cx="48" cy="36" rx="10" ry="26" fill="#a8d8a8" stroke="#6ab06a" stroke-width="2"/>
+          <ellipse cx="48" cy="37" rx="5" ry="18" fill="#d4f0d4" opacity="0.6"/>
+        </g>
+        <!-- right ear -->
+        <g class="ear-r-upright">
+          <ellipse cx="92" cy="36" rx="10" ry="26" fill="#a8d8a8" stroke="#6ab06a" stroke-width="2"/>
+          <ellipse cx="92" cy="37" rx="5" ry="18" fill="#d4f0d4" opacity="0.6"/>
+        </g>
+        <!-- body breathing -->
+        <path class="body-anim"
+              d="M 70 18 C 70 18 108 56 110 108 C 112 148 94 168 70 168 C 46 168 28 148 30 108 C 32 56 70 18 70 18 Z"
+              fill="#a8d8a8" stroke="#6ab06a" stroke-width="2"/>
+        <!-- eyes with blink -->
+        <g class="eye-group">
+          <circle cx="53" cy="92" r="8" fill="white"/>
+          <circle cx="87" cy="92" r="8" fill="white"/>
+          <circle cx="54" cy="92" r="4.5" fill="#222"/>
+          <circle cx="88" cy="92" r="4.5" fill="#222"/>
+          <circle cx="55" cy="90" r="1.8" fill="white"/>
+          <circle cx="89" cy="90" r="1.8" fill="white"/>
+        </g>
+        <!-- mouth -->
+        <path d="M 60 110 Q 70 117 80 110" stroke="#6ab06a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Upright — Idle</strong>
+      <p>Breathes teardrop→round→teardrop. Ears sway gently offset. Eyes blink.</p>
+    </div>
+
+    <!-- Floppy animated -->
+    <div class="card">
+      <svg width="160" height="210" viewBox="0 0 140 200">
+        <!-- left floppy ear -->
+        <g class="ear-l-floppy">
+          <path d="M 50 42 Q 18 34 14 10 Q 16 -2 26 4 Q 40 12 48 44" fill="#a8d8a8" stroke="#6ab06a" stroke-width="2"/>
+          <path d="M 47 40 Q 22 32 20 12 Q 21 4 28 8 Q 40 14 46 40" fill="#d4f0d4" opacity="0.6"/>
+        </g>
+        <!-- right floppy ear -->
+        <g class="ear-r-floppy">
+          <path d="M 90 42 Q 122 34 126 10 Q 124 -2 114 4 Q 100 12 92 44" fill="#a8d8a8" stroke="#6ab06a" stroke-width="2"/>
+          <path d="M 93 40 Q 118 32 120 12 Q 119 4 112 8 Q 100 14 94 40" fill="#d4f0d4" opacity="0.6"/>
+        </g>
+        <!-- body breathing -->
+        <path class="body-anim"
+              d="M 70 18 C 70 18 108 56 110 108 C 112 148 94 168 70 168 C 46 168 28 148 30 108 C 32 56 70 18 70 18 Z"
+              fill="#a8d8a8" stroke="#6ab06a" stroke-width="2"/>
+        <!-- eyes with blink -->
+        <g class="eye-group">
+          <circle cx="53" cy="92" r="8" fill="white"/>
+          <circle cx="87" cy="92" r="8" fill="white"/>
+          <circle cx="54" cy="92" r="4.5" fill="#222"/>
+          <circle cx="88" cy="92" r="4.5" fill="#222"/>
+          <circle cx="55" cy="90" r="1.8" fill="white"/>
+          <circle cx="89" cy="90" r="1.8" fill="white"/>
+        </g>
+        <path d="M 60 110 Q 70 117 80 110" stroke="#6ab06a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Floppy — Idle</strong>
+      <p>Same breathe cycle. Ears flop and swing with a slight delay between left and right.</p>
+    </div>
+
+    <!-- Producing animated (happy smiley) -->
+    <div class="card">
+      <svg width="160" height="230" viewBox="0 0 140 220">
+        <!-- ears slightly tilted out, relaxed -->
+        <g style="animation: ear-left-sway 3.5s ease-in-out infinite; transform-origin: 46px 56px;">
+          <ellipse cx="46" cy="34" rx="10" ry="26" fill="#a8d8ea" stroke="#5aafc7" stroke-width="2" transform="rotate(8 46 56)"/>
+          <ellipse cx="46" cy="35" rx="5" ry="18" fill="#d4eef8" opacity="0.6" transform="rotate(8 46 56)"/>
+        </g>
+        <g style="animation: ear-right-sway 3.5s ease-in-out infinite; transform-origin: 94px 56px;">
+          <ellipse cx="94" cy="34" rx="10" ry="26" fill="#a8d8ea" stroke="#5aafc7" stroke-width="2" transform="rotate(-8 94 56)"/>
+          <ellipse cx="94" cy="35" rx="5" ry="18" fill="#d4eef8" opacity="0.6" transform="rotate(-8 94 56)"/>
+        </g>
+        <!-- body -->
+        <path class="body-anim"
+              d="M 70 18 C 70 18 108 56 110 108 C 112 148 94 168 70 168 C 46 168 28 148 30 108 C 32 56 70 18 70 18 Z"
+              fill="#a8d8ea" stroke="#5aafc7" stroke-width="2"/>
+        <!-- happy squint eyes — static, no blink, just squint lines -->
+        <path d="M 44 90 Q 53 84 62 90" stroke="#222" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 78 90 Q 87 84 96 90" stroke="#222" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- big smile -->
+        <path d="M 54 106 Q 70 122 86 106" stroke="#5aafc7" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- resource drops with bobbing animation -->
+        <g style="animation: blink 2.2s ease-in-out infinite; transform-origin: 70px 185px;">
+          <ellipse cx="52" cy="188" rx="7" ry="9" fill="#5aafc7" opacity="0.85"/>
+          <ellipse cx="70" cy="195" rx="7" ry="9" fill="#5aafc7" opacity="0.95"/>
+          <ellipse cx="88" cy="188" rx="7" ry="9" fill="#5aafc7" opacity="0.75"/>
+          <line x1="52" y1="174" x2="52" y2="181" stroke="#5aafc7" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+          <line x1="70" y1="174" x2="70" y2="181" stroke="#5aafc7" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+          <line x1="88" y1="174" x2="88" y2="181" stroke="#5aafc7" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+        </g>
+        <text x="98" y="155" font-size="12" opacity="0.6">✦</text>
+        <text x="22" y="158" font-size="10" opacity="0.5">✦</text>
+      </svg>
+      <strong>Producing — Happy</strong>
+      <p>Still breathes. Happy squint stays fixed. Drops appear and bob at the bottom.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 2: KEYFRAME BREAKDOWN -->
+<div class="section">
+  <h2>Keyframes — Static Breakdown</h2>
+  <p class="desc">Three frames of the idle breathe cycle shown side by side.</p>
+  <div class="row">
+
+    <!-- frame 1: teardrop -->
+    <div class="card">
+      <svg width="130" height="190" viewBox="0 0 120 180">
+        <ellipse cx="38" cy="32" rx="9" ry="22" fill="#c3a8e0" stroke="#9370c4" stroke-width="2"/>
+        <ellipse cx="82" cy="32" rx="9" ry="22" fill="#c3a8e0" stroke="#9370c4" stroke-width="2"/>
+        <path d="M 60 14 C 60 14 96 50 98 96 C 100 132 84 152 60 152 C 36 152 20 132 22 96 C 24 50 60 14 60 14 Z"
+              fill="#c3a8e0" stroke="#9370c4" stroke-width="2"/>
+        <circle cx="46" cy="80" r="7" fill="white"/>
+        <circle cx="74" cy="80" r="7" fill="white"/>
+        <circle cx="47" cy="80" r="4" fill="#222"/>
+        <circle cx="75" cy="80" r="4" fill="#222"/>
+        <path d="M 51 96 Q 60 102 69 96" stroke="#9370c4" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Frame 1</strong>
+      <p>Resting teardrop — tall, pointed top, wider base</p>
+    </div>
+
+    <!-- arrow -->
+    <div class="card" style="font-size:2rem; color:#555; padding-bottom:80px;">→</div>
+
+    <!-- frame 2: mid -->
+    <div class="card">
+      <svg width="130" height="190" viewBox="0 0 120 180">
+        <ellipse cx="38" cy="36" rx="9" ry="22" fill="#c3a8e0" stroke="#9370c4" stroke-width="2" transform="rotate(5 38 56)"/>
+        <ellipse cx="82" cy="36" rx="9" ry="22" fill="#c3a8e0" stroke="#9370c4" stroke-width="2" transform="rotate(-5 82 56)"/>
+        <!-- rounder, lower top point -->
+        <path d="M 60 22 C 60 22 94 52 96 96 C 98 132 84 150 60 150 C 36 150 22 132 24 96 C 26 52 60 22 60 22 Z"
+              fill="#c3a8e0" stroke="#9370c4" stroke-width="2"/>
+        <circle cx="46" cy="82" r="7" fill="white"/>
+        <circle cx="74" cy="82" r="7" fill="white"/>
+        <circle cx="47" cy="82" r="4" fill="#222"/>
+        <circle cx="75" cy="82" r="4" fill="#222"/>
+        <!-- eyes slightly squinting — mid breath -->
+        <path d="M 51 97 Q 60 103 69 97" stroke="#9370c4" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Frame 2</strong>
+      <p>Mid-breath — top flattens, body widens slightly</p>
+    </div>
+
+    <!-- arrow -->
+    <div class="card" style="font-size:2rem; color:#555; padding-bottom:80px;">→</div>
+
+    <!-- frame 3: round -->
+    <div class="card">
+      <svg width="130" height="190" viewBox="0 0 120 180">
+        <ellipse cx="38" cy="38" rx="9" ry="22" fill="#c3a8e0" stroke="#9370c4" stroke-width="2" transform="rotate(10 38 58)"/>
+        <ellipse cx="82" cy="38" rx="9" ry="22" fill="#c3a8e0" stroke="#9370c4" stroke-width="2" transform="rotate(-10 82 58)"/>
+        <!-- nearly round -->
+        <path d="M 60 26 C 60 26 92 54 94 96 C 96 132 84 150 60 150 C 36 150 24 132 26 96 C 28 54 60 26 60 26 Z"
+              fill="#c3a8e0" stroke="#9370c4" stroke-width="2"/>
+        <circle cx="46" cy="84" r="7" fill="white"/>
+        <circle cx="74" cy="84" r="7" fill="white"/>
+        <circle cx="47" cy="84" r="4" fill="#222"/>
+        <circle cx="75" cy="84" r="4" fill="#222"/>
+        <circle cx="48" cy="82" r="1.5" fill="white"/>
+        <circle cx="76" cy="82" r="1.5" fill="white"/>
+        <!-- slight smile from full breath -->
+        <path d="M 50 100 Q 60 107 70 100" stroke="#9370c4" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Frame 3</strong>
+      <p>Full breath — rounder, top nearly flat, ears spread out</p>
+    </div>
+
+    <!-- arrow back -->
+    <div class="card" style="font-size:2rem; color:#555; padding-bottom:80px;">→</div>
+
+    <!-- back to frame 1 label -->
+    <div class="card" style="padding-bottom:80px;">
+      <div style="font-size:0.85rem; color:#666; padding-top:20px;">loops back<br>to Frame 1</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 3: COLOR VARIANTS ANIMATED -->
+<div class="section">
+  <h2>Color Variants — Animated</h2>
+  <p class="desc">All colors with the idle breathe running so you can see how they feel in motion.</p>
+  <div class="row">
+
+    <!-- pink -->
+    <div class="card">
+      <svg width="110" height="180" viewBox="0 0 120 180">
+        <ellipse cx="40" cy="30" rx="9" ry="22" fill="#f4b8c1" stroke="#e07a8f" stroke-width="2" style="animation: ear-left-sway 3s ease-in-out infinite; transform-origin: 40px 50px;"/>
+        <ellipse cx="80" cy="30" rx="9" ry="22" fill="#f4b8c1" stroke="#e07a8f" stroke-width="2" style="animation: ear-right-sway 3s ease-in-out infinite; transform-origin: 80px 50px;"/>
+        <path style="animation: breathe 3s ease-in-out infinite;"
+              d="M 60 14 C 60 14 96 50 98 96 C 100 132 84 152 60 152 C 36 152 20 132 22 96 C 24 50 60 14 60 14 Z"
+              fill="#f4b8c1" stroke="#e07a8f" stroke-width="2"/>
+        <g class="eye-group">
+          <circle cx="46" cy="80" r="7" fill="white"/>
+          <circle cx="74" cy="80" r="7" fill="white"/>
+          <circle cx="47" cy="80" r="4" fill="#222"/>
+          <circle cx="75" cy="80" r="4" fill="#222"/>
+        </g>
+        <path d="M 51 96 Q 60 102 69 96" stroke="#e07a8f" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Pink</strong>
+      <p>Breeder</p>
+    </div>
+
+    <!-- gold -->
+    <div class="card">
+      <svg width="110" height="180" viewBox="0 0 120 180">
+        <ellipse cx="40" cy="30" rx="9" ry="22" fill="#f9d97a" stroke="#d4aa30" stroke-width="2" style="animation: ear-left-sway 3.2s ease-in-out infinite; transform-origin: 40px 50px;"/>
+        <ellipse cx="80" cy="30" rx="9" ry="22" fill="#f9d97a" stroke="#d4aa30" stroke-width="2" style="animation: ear-right-sway 3.2s ease-in-out infinite; transform-origin: 80px 50px;"/>
+        <path style="animation: breathe 3.2s ease-in-out infinite;"
+              d="M 60 14 C 60 14 96 50 98 96 C 100 132 84 152 60 152 C 36 152 20 132 22 96 C 24 50 60 14 60 14 Z"
+              fill="#f9d97a" stroke="#d4aa30" stroke-width="2"/>
+        <g class="eye-group" style="animation-delay: 0.4s;">
+          <circle cx="46" cy="80" r="7" fill="white"/>
+          <circle cx="74" cy="80" r="7" fill="white"/>
+          <circle cx="47" cy="80" r="4" fill="#222"/>
+          <circle cx="75" cy="80" r="4" fill="#222"/>
+        </g>
+        <path d="M 51 96 Q 60 102 69 96" stroke="#d4aa30" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Gold</strong>
+      <p>Producer</p>
+    </div>
+
+    <!-- brown -->
+    <div class="card">
+      <svg width="110" height="180" viewBox="0 0 120 180">
+        <ellipse cx="40" cy="30" rx="9" ry="22" fill="#c49a6c" stroke="#8b5e3c" stroke-width="2" style="animation: ear-left-sway 2.8s ease-in-out infinite; transform-origin: 40px 50px;"/>
+        <ellipse cx="80" cy="30" rx="9" ry="22" fill="#c49a6c" stroke="#8b5e3c" stroke-width="2" style="animation: ear-right-sway 2.8s ease-in-out infinite; transform-origin: 80px 50px;"/>
+        <path style="animation: breathe 2.8s ease-in-out infinite;"
+              d="M 60 14 C 60 14 96 50 98 96 C 100 132 84 152 60 152 C 36 152 20 132 22 96 C 24 50 60 14 60 14 Z"
+              fill="#c49a6c" stroke="#8b5e3c" stroke-width="2"/>
+        <g class="eye-group" style="animation-delay: 1s;">
+          <circle cx="46" cy="80" r="7" fill="white"/>
+          <circle cx="74" cy="80" r="7" fill="white"/>
+          <circle cx="47" cy="80" r="4" fill="#222"/>
+          <circle cx="75" cy="80" r="4" fill="#222"/>
+        </g>
+        <path d="M 51 96 Q 60 102 69 96" stroke="#8b5e3c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Brown</strong>
+      <p>Builder</p>
+    </div>
+
+    <!-- purple -->
+    <div class="card">
+      <svg width="110" height="180" viewBox="0 0 120 180">
+        <ellipse cx="40" cy="30" rx="9" ry="22" fill="#c3a8e0" stroke="#9370c4" stroke-width="2" style="animation: ear-left-sway 3.4s ease-in-out infinite; transform-origin: 40px 50px;"/>
+        <ellipse cx="80" cy="30" rx="9" ry="22" fill="#c3a8e0" stroke="#9370c4" stroke-width="2" style="animation: ear-right-sway 3.4s ease-in-out infinite; transform-origin: 80px 50px;"/>
+        <path style="animation: breathe 3.4s ease-in-out infinite;"
+              d="M 60 14 C 60 14 96 50 98 96 C 100 132 84 152 60 152 C 36 152 20 132 22 96 C 24 50 60 14 60 14 Z"
+              fill="#c3a8e0" stroke="#9370c4" stroke-width="2"/>
+        <g class="eye-group" style="animation-delay: 0.7s;">
+          <circle cx="46" cy="80" r="7" fill="white"/>
+          <circle cx="74" cy="80" r="7" fill="white"/>
+          <circle cx="47" cy="80" r="4" fill="#222"/>
+          <circle cx="75" cy="80" r="4" fill="#222"/>
+        </g>
+        <path d="M 51 96 Q 60 102 69 96" stroke="#9370c4" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Purple</strong>
+      <p>Balanced</p>
+    </div>
+
+    <!-- iridescent -->
+    <div class="card">
+      <svg width="110" height="180" viewBox="0 0 120 180">
+        <defs>
+          <linearGradient id="rareGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#7fffd4"/>
+            <stop offset="50%" style="stop-color:#87ceeb"/>
+            <stop offset="100%" style="stop-color:#da70d6"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="40" cy="30" rx="9" ry="22" fill="url(#rareGrad)" stroke="#5fc4b0" stroke-width="2" style="animation: ear-left-sway 3.6s ease-in-out infinite; transform-origin: 40px 50px;"/>
+        <ellipse cx="80" cy="30" rx="9" ry="22" fill="url(#rareGrad)" stroke="#5fc4b0" stroke-width="2" style="animation: ear-right-sway 3.6s ease-in-out infinite; transform-origin: 80px 50px;"/>
+        <path style="animation: breathe 3.6s ease-in-out infinite;"
+              d="M 60 14 C 60 14 96 50 98 96 C 100 132 84 152 60 152 C 36 152 20 132 22 96 C 24 50 60 14 60 14 Z"
+              fill="url(#rareGrad)" stroke="#5fc4b0" stroke-width="2"/>
+        <g class="eye-group" style="animation-delay: 0.2s;">
+          <circle cx="46" cy="80" r="7" fill="white"/>
+          <circle cx="74" cy="80" r="7" fill="white"/>
+          <circle cx="47" cy="80" r="4" fill="#222"/>
+          <circle cx="75" cy="80" r="4" fill="#222"/>
+        </g>
+        <path d="M 51 96 Q 60 102 69 96" stroke="#5fc4b0" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <strong>Iridescent</strong>
+      <p>Rare</p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
