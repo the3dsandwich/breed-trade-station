@@ -13,6 +13,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,
     fs: {
       // allow serving files from the monorepo root so @bts/shared resolves
       allow: ['../..'],
