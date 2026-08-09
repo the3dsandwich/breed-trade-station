@@ -1,6 +1,6 @@
 # State Management and Tick Engine
 
-Status: decided
+Status: decided — tick engine and `clock`/`puffs` slices implemented in `apps/game/src/store` and `apps/game/src/tick`; remaining slices land as those systems (pens, resources, market, etc.) get designed
 
 ---
 

@@ -1,6 +1,6 @@
 # Rendering and Server Stack
 
-Status: decided
+Status: decided — client rendering (PixiJS, Redux, ContextBridge) implemented in `apps/game`; server stack not yet built
 
 ---
 
@@ -139,3 +139,11 @@ Fastify (HTTP)
 **Renderer registration (Vite 8 / Rolldown):** Vite 8 uses Rolldown which tree-shakes pixi.js renderer side effects. A bare `import "pixi.js"` must appear before the `<Stage>` component mounts to register WebGL/Canvas renderers. Additionally, `pixi.js` and `@pixi/react` must be in `optimizeDeps.include` in `vite.config.ts`.
 
 **Shared package exports (Rolldown):** Rolldown cannot trace TypeScript types through `export *` re-exports when the file is aliased outside the project root. `packages/shared/src/index.ts` must use explicit `export type` / `export` separation, and consuming files must use `import type` for type-only imports.
+
+**ContextBridge:** not exported by `@pixi/react` v7 — it's a small pattern implemented locally at `apps/game/src/canvas/ContextBridge.tsx`, re-providing `ReactReduxContext` inside the `<Stage>` so components rendered by Pixi's custom renderer can still use `useSelector`/`useDispatch`.
+
+**Client ids and secure contexts:** `crypto.randomUUID()` requires a secure context (HTTPS or literally `localhost`) and is `undefined` when the dev server is reached via a LAN IP or forwarded hostname. Client-generated ids (e.g. locally-spawned Puffs) use a plain timestamp+random string instead — see `apps/game/src/store/id.ts`.
+
+**Dev server network access:** `apps/game/vite.config.ts` sets `server.host: true` so the Vite dev server is reachable from outside `localhost` (LAN, port-forwarded remote dev environments), not just from the machine running it.
+
+**Page shell CSS:** `html`/`body` need an explicit `margin: 0` and background color, and the padded root container needs `box-sizing: border-box` — otherwise the browser's default body margin leaves a strip of unstyled background visible, and padding can push content past `100vh` and force unwanted scrolling.
