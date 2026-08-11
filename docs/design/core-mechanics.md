@@ -81,6 +81,7 @@ Pens are the primary organizational unit. Each pen has a fixed animal capacity. 
 - Each pen has a hard animal cap
 - Capacity is a pen-level upgrade, not a global one — builders can expand individual pens
 - This creates a secondary decision: upgrade an existing pen or build a new one
+- A capacity-2 pen can never breed: offspring join the same pen they were born in, so two parents already fill it with no room left for a child. Breeding needs capacity 3+.
 
 **Why fixed capacity (not resource limits or diminishing returns)**
 - Resource limits and diminishing returns are valid mechanics but not necessary to make the allocation puzzle work
