@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { PuffId } from "@bts/shared";
-import { gameTick } from "./clockSlice";
+import { gameTick, gameTickCatchup } from "./clockSlice";
+import { BREEDING_DURATION_MS, isBreedingEligible } from "./breedingRules";
 
 export type PenId = string;
 
@@ -53,16 +54,17 @@ const pensSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(gameTick, (state, action) => {
+    const advanceBreeding = (state: PensState, delta: number) => {
       for (const pen of Object.values(state.byId)) {
-        // Breeding needs two Puffs and stops once the pen is full -- an
-        // older save may also predate this field.
-        const eligible = pen.occupantIds.length >= 2 && pen.occupantIds.length < pen.capacity;
-        if (eligible) {
-          pen.breedingProgress = (pen.breedingProgress ?? 0) + action.payload.delta;
+        // An older save may predate this field.
+        if (isBreedingEligible(pen.occupantIds.length, pen.capacity)) {
+          pen.breedingProgress = Math.min((pen.breedingProgress ?? 0) + delta, BREEDING_DURATION_MS);
         }
       }
-    });
+    };
+
+    builder.addCase(gameTick, (state, action) => advanceBreeding(state, action.payload.delta));
+    builder.addCase(gameTickCatchup, (state, action) => advanceBreeding(state, action.payload.elapsed));
   },
 });
 

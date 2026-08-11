@@ -1,13 +1,11 @@
-import { createListenerMiddleware } from "@reduxjs/toolkit";
+import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { createPuff, deriveTraits, meiosis, type Puff, type PuffId } from "@bts/shared";
 import { createLocalId } from "./id";
-import { gameTick } from "./clockSlice";
+import { gameTick, gameTickCatchup } from "./clockSlice";
 import { puffBorn } from "./puffsSlice";
 import { puffAssignedToPen, breedingProgressReset } from "./pensSlice";
+import { BREEDING_DURATION_MS, isBreedingEligible } from "./breedingRules";
 import type { RootState, AppDispatch } from "./store";
-
-// Placeholder pending playtesting balance (see core-mechanics.md pen system deferrals).
-const BREEDING_DURATION_MS = 8000;
 
 // A pen needs at least one M and one F occupant to breed; same-sex pens
 // hold their progress at the cap until a compatible mate arrives.
@@ -26,17 +24,22 @@ const pickParents = (
 };
 
 export const breedingMiddleware = createListenerMiddleware();
+const startAppListening = breedingMiddleware.startListening.withTypes<RootState, AppDispatch>();
 
-breedingMiddleware.startListening({
-  actionCreator: gameTick,
+// Listens for both the regular tick and offline-catchup actions -- the
+// eligibility check only reads current state, so the same effect handles
+// both without caring which one fired it. One birth per pen per dispatch:
+// a very long catchup gap only credits progress and fires at most one
+// birth per pen, it does not simulate multiple breeding cycles.
+startAppListening({
+  matcher: isAnyOf(gameTick, gameTickCatchup),
   effect: (_action, listenerApi) => {
-    const state = listenerApi.getState() as RootState;
-    const dispatch = listenerApi.dispatch as AppDispatch;
+    const state = listenerApi.getState();
 
     for (const penId of state.pens.order) {
       const pen = state.pens.byId[penId];
       if (pen.breedingProgress < BREEDING_DURATION_MS) continue;
-      if (pen.occupantIds.length < 2 || pen.occupantIds.length >= pen.capacity) continue;
+      if (!isBreedingEligible(pen.occupantIds.length, pen.capacity)) continue;
 
       const parents = pickParents(pen.occupantIds, state.puffs.byId);
       if (!parents) continue;
@@ -44,9 +47,9 @@ breedingMiddleware.startListening({
       const [parentA, parentB] = parents;
       const child = createPuff(createLocalId(), meiosis(parentA.genes, parentB.genes), Date.now());
 
-      dispatch(puffBorn(child));
-      dispatch(puffAssignedToPen({ puffId: child.id, penId }));
-      dispatch(breedingProgressReset({ penId }));
+      listenerApi.dispatch(puffBorn(child));
+      listenerApi.dispatch(puffAssignedToPen({ puffId: child.id, penId }));
+      listenerApi.dispatch(breedingProgressReset({ penId }));
     }
   },
 });

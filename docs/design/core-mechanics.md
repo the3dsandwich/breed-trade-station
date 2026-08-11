@@ -107,7 +107,7 @@ Breeding speed is a trait. Lifespan is a trait. Both are heritable.
 
 There is no freeze mechanic. Animals age and die. Death self-regulates the total population and ensures the player must keep breeding rather than accumulating a static herd.
 
-**Implementation:** true Mendelian meiosis is live in `packages/shared` and wired into `apps/game` — each parent contributes one randomly-segregated allele per gene locus, with a small (placeholder, pending playtesting) per-allele mutation chance. A pen with 2+ occupants and open capacity accumulates breeding progress each tick; on completion it picks one random M and one random F occupant as parents (same-sex pens hold progress at the cap until a compatible mate is placed) and the offspring joins the same pen immediately. Not yet implemented: breeding speed/lifespan as heritable traits, aging, maturity (newborns are immediately breeding-eligible), and death.
+**Implementation:** true Mendelian meiosis is live in `packages/shared` and wired into `apps/game` — each parent contributes one randomly-segregated allele per gene locus, with a small (placeholder, pending playtesting) per-allele mutation chance. A pen with 2+ occupants and open capacity accumulates breeding progress each tick, including offline catchup; on completion it picks one random M and one random F occupant as parents (same-sex pens hold progress at the cap until a compatible mate is placed) and the offspring joins the same pen immediately. A very long catchup gap fires at most one birth per pen — it does not simulate multiple breeding cycles that would have happened in between. Not yet implemented: breeding speed/lifespan as heritable traits, aging, maturity (newborns are immediately breeding-eligible), and death.
 
 ---
 
