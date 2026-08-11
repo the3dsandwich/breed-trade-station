@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { deriveTraits, createPuff, randomGenes } from "./puff";
+import { deriveTraits, createPuff, randomGenes, meiosis } from "./puff";
 import type { GeneArray } from "./puff";
 
 describe("deriveTraits", () => {
@@ -112,5 +112,68 @@ describe("randomGenes", () => {
   it("each gene is 0, 1, or 2", () => {
     const genes = randomGenes();
     genes.forEach((g) => expect([0, 1, 2]).toContain(g));
+  });
+});
+
+describe("meiosis", () => {
+  it("returns an array of 10 genes", () => {
+    const parentA: GeneArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const parentB: GeneArray = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+    expect(meiosis(parentA, parentB, 0)).toHaveLength(10);
+  });
+
+  it("two homozygous-recessive parents always produce homozygous-recessive offspring", () => {
+    const parentA: GeneArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const parentB: GeneArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    for (let i = 0; i < 20; i++) {
+      expect(meiosis(parentA, parentB, 0)).toEqual(parentA);
+    }
+  });
+
+  it("two homozygous-dominant parents always produce homozygous-dominant offspring", () => {
+    const parentA: GeneArray = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+    const parentB: GeneArray = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+    for (let i = 0; i < 20; i++) {
+      expect(meiosis(parentA, parentB, 0)).toEqual(parentA);
+    }
+  });
+
+  it("a homozygous-dominant parent and a homozygous-recessive parent always produce heterozygous offspring", () => {
+    const parentA: GeneArray = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+    const parentB: GeneArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    for (let i = 0; i < 20; i++) {
+      expect(meiosis(parentA, parentB, 0)).toEqual([1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+    }
+  });
+
+  it("two heterozygous parents produce a roughly 1:2:1 genotype ratio over many trials", () => {
+    const parentA: GeneArray = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    const parentB: GeneArray = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    const counts = [0, 0, 0];
+    const trials = 4000;
+    for (let i = 0; i < trials; i++) {
+      counts[meiosis(parentA, parentB, 0)[0]] += 1;
+    }
+    expect(counts[0] / trials).toBeGreaterThan(0.15);
+    expect(counts[0] / trials).toBeLessThan(0.35);
+    expect(counts[1] / trials).toBeGreaterThan(0.4);
+    expect(counts[1] / trials).toBeLessThan(0.6);
+    expect(counts[2] / trials).toBeGreaterThan(0.15);
+    expect(counts[2] / trials).toBeLessThan(0.35);
+  });
+
+  it("a mutation rate of 1 always flips every contributed allele", () => {
+    const parentA: GeneArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const parentB: GeneArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    expect(meiosis(parentA, parentB, 1)).toEqual([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+  });
+
+  it("a mutation rate of 0 never mutates", () => {
+    const parentA: GeneArray = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    const parentB: GeneArray = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    for (let i = 0; i < 50; i++) {
+      const child = meiosis(parentA, parentB, 0);
+      child.forEach((g) => expect([0, 1, 2]).toContain(g));
+    }
   });
 });
