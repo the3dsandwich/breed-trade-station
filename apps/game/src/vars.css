@@ -1,4 +1,14 @@
 :root {
-  --color-bg: #1a1a2e;
-  --color-text: #eeeeee;
+  --color-bg: #1c1c1c;
+  --color-text: whitesmoke;
+
+  /* transitions-dev motion tokens -- shared scale, see
+     https://transitions.dev. Only the base scale is installed since
+     none of the packaged 21 transitions currently match anything in
+     the DOM (most of the app's motion lives in the PixiJS canvas,
+     which CSS can't reach). */
+  --duration-quick: 150ms;
+  --duration-fast: 250ms;
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --scale-tiny: 0.99;
 }
