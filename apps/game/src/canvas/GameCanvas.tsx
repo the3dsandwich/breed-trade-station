@@ -1,9 +1,9 @@
 import { Stage, Graphics } from "@pixi/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type * as PIXI from "pixi.js";
-import { deriveTraits } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { puffAssignedToPen, puffUnassigned } from "../store/pensSlice";
+import { puffSelectionToggled, selectionCleared } from "../store/selectionSlice";
 import { PuffSprite } from "./PuffSprite";
 import { PenView } from "./PenView";
 import { gridSlotInPen } from "./penLayout";
@@ -45,7 +45,7 @@ export const GameCanvas = () => {
   const dispatch = useAppDispatch();
   const puffs = useAppSelector((state) => state.puffs.byId);
   const pens = useAppSelector((state) => state.pens);
-  const [selectedPuffId, setSelectedPuffId] = useState<string | null>(null);
+  const selectedPuffId = useAppSelector((state) => state.selection.selectedPuffId);
 
   const puffToPen = useMemo(() => {
     const map = new Map<string, string>();
@@ -59,22 +59,16 @@ export const GameCanvas = () => {
 
   const handleSelectPuff = useCallback(
     (puffId: string) => {
-      setSelectedPuffId((current) => {
-        const next = current === puffId ? null : puffId;
-        if (next) {
-          console.debug("Puff selected:", puffId, deriveTraits(puffs[puffId].genes));
-        }
-        return next;
-      });
+      dispatch(puffSelectionToggled({ puffId }));
     },
-    [puffs]
+    [dispatch]
   );
 
   const handleClickPen = useCallback(
     (penId: string) => {
       if (!selectedPuffId) return;
       dispatch(puffAssignedToPen({ puffId: selectedPuffId, penId }));
-      setSelectedPuffId(null);
+      dispatch(selectionCleared());
     },
     [dispatch, selectedPuffId]
   );
@@ -84,7 +78,7 @@ export const GameCanvas = () => {
     if (puffToPen.has(selectedPuffId)) {
       dispatch(puffUnassigned({ puffId: selectedPuffId }));
     }
-    setSelectedPuffId(null);
+    dispatch(selectionCleared());
   }, [dispatch, puffToPen, selectedPuffId]);
 
   const drawBackground = useCallback((g: PIXI.Graphics) => {

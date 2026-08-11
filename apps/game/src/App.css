@@ -22,6 +22,12 @@ body {
   margin-bottom: 1rem;
 }
 
+.game-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
 .canvas-frame {
   border-radius: 16px;
   overflow: hidden;
