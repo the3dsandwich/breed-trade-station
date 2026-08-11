@@ -1,0 +1,70 @@
+.puff-inspector {
+  width: 220px;
+  min-height: 200px;
+  background: #262626;
+  border: 1px solid #444444;
+  border-radius: 12px;
+  padding: 1rem;
+  color: var(--color-text);
+  font-family: sans-serif;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
+.puff-inspector-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888888;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.puff-inspector-sex {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.puff-inspector-sex-symbol {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.puff-inspector-sex-male {
+  color: #6fb3ff;
+}
+
+.puff-inspector-sex-female {
+  color: #ff8fc0;
+}
+
+.puff-inspector-traits {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 0.75rem;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.puff-inspector-traits dt {
+  color: #999999;
+}
+
+.puff-inspector-traits dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+
+.puff-inspector-id {
+  margin: 1rem 0 0;
+  font-size: 0.7rem;
+  color: #666666;
+  word-break: break-all;
+}

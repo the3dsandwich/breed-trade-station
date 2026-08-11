@@ -1,5 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { PuffId } from "@bts/shared";
+import { gameTick, gameTickCatchup } from "./clockSlice";
+import { BREEDING_DURATION_MS, isBreedingEligible } from "./breedingRules";
 
 export type PenId = string;
 
@@ -8,6 +10,7 @@ export interface Pen {
   name: string;
   capacity: number;
   occupantIds: PuffId[];
+  breedingProgress: number;
 }
 
 export interface PensState {
@@ -26,7 +29,7 @@ const pensSlice = createSlice({
       action: PayloadAction<{ id: PenId; name: string; capacity: number }[]>
     ) => {
       for (const pen of action.payload) {
-        state.byId[pen.id] = { ...pen, occupantIds: [] };
+        state.byId[pen.id] = { ...pen, occupantIds: [], breedingProgress: 0 };
         state.order.push(pen.id);
       }
     },
@@ -45,8 +48,26 @@ const pensSlice = createSlice({
         pen.occupantIds = pen.occupantIds.filter((id) => id !== action.payload.puffId);
       }
     },
+    breedingProgressReset: (state, action: PayloadAction<{ penId: PenId }>) => {
+      const pen = state.byId[action.payload.penId];
+      if (pen) pen.breedingProgress = 0;
+    },
+  },
+  extraReducers: (builder) => {
+    const advanceBreeding = (state: PensState, delta: number) => {
+      for (const pen of Object.values(state.byId)) {
+        // An older save may predate this field.
+        if (isBreedingEligible(pen.occupantIds.length, pen.capacity)) {
+          pen.breedingProgress = Math.min((pen.breedingProgress ?? 0) + delta, BREEDING_DURATION_MS);
+        }
+      }
+    };
+
+    builder.addCase(gameTick, (state, action) => advanceBreeding(state, action.payload.delta));
+    builder.addCase(gameTickCatchup, (state, action) => advanceBreeding(state, action.payload.elapsed));
   },
 });
 
-export const { pensSeeded, puffAssignedToPen, puffUnassigned } = pensSlice.actions;
+export const { pensSeeded, puffAssignedToPen, puffUnassigned, breedingProgressReset } =
+  pensSlice.actions;
 export const pensReducer = pensSlice.reducer;

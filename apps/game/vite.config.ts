@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
@@ -18,5 +18,8 @@ export default defineConfig({
       // allow serving files from the monorepo root so @bts/shared resolves
       allow: ['../..'],
     },
+  },
+  test: {
+    environment: 'node',
   },
 })

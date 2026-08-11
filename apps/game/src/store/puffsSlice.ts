@@ -18,8 +18,11 @@ const puffsSlice = createSlice({
         state.byId[puff.id] = puff;
       }
     },
+    puffBorn: (state, action: PayloadAction<Puff>) => {
+      state.byId[action.payload.id] = action.payload;
+    },
   },
 });
 
-export const { puffsSpawned } = puffsSlice.actions;
+export const { puffsSpawned, puffBorn } = puffsSlice.actions;
 export const puffsReducer = puffsSlice.reducer;
