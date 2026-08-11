@@ -91,6 +91,8 @@ Pens are the primary organizational unit. Each pen has a fixed animal capacity. 
 - Whether pens are generic (any animal, any purpose) or specialized (breeding pen vs. production pen) is deferred
 - The affinity model does not require specialized pens — any pen can do all three things based on who is in it
 
+**Implementation:** a first pass is live in `apps/game` — 2 generic pens, capacity 4 each (placeholder numbers, not a tuned balance decision). Assignment is tap-to-select a Puff, then tap a pen; drag-and-drop is planned but not yet built. Pen upgrades, capacity progression, and pen-affinity aggregation are not implemented — pens currently only hold Puffs.
+
 ---
 
 ## Breeding
