@@ -1,11 +1,13 @@
 import type { ClockState } from "./clockSlice";
 import type { PuffsState } from "./puffsSlice";
+import type { PensState } from "./pensSlice";
 
 const STORAGE_KEY = "bts:save";
 
 export interface PersistedState {
   puffs: PuffsState;
   clock: ClockState;
+  pens: PensState;
 }
 
 export const loadPersistedState = (): PersistedState | undefined => {
@@ -18,6 +20,23 @@ export const loadPersistedState = (): PersistedState | undefined => {
   }
 };
 
+let saveSuppressed = false;
+
+// Lets a caller (e.g. the dev reset button) prevent the beforeunload
+// autosave in useTickEngine from immediately re-writing the state that
+// clearPersistedState() just removed, during the same reload.
+export const suppressNextSave = () => {
+  saveSuppressed = true;
+};
+
 export const savePersistedState = (state: PersistedState) => {
+  if (saveSuppressed) {
+    saveSuppressed = false;
+    return;
+  }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+};
+
+export const clearPersistedState = () => {
+  localStorage.removeItem(STORAGE_KEY);
 };

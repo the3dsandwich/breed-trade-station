@@ -1,15 +1,30 @@
-import { Stage } from "@pixi/react";
-import { useAppSelector } from "../store/hooks";
+import { Stage, Graphics } from "@pixi/react";
+import { useCallback, useMemo, useState } from "react";
+import type * as PIXI from "pixi.js";
+import { deriveTraits } from "@bts/shared";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { puffAssignedToPen, puffUnassigned } from "../store/pensSlice";
 import { PuffSprite } from "./PuffSprite";
+import { PenView } from "./PenView";
+import { gridSlotInPen } from "./penLayout";
 import { ContextBridge } from "./ContextBridge";
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const CANVAS_BG = 0x1a1a2e;
-const PUFF_MARGIN = 60;
+const CANVAS_BG = 0x262626;
 
-// Puffs don't have a pen/layout system yet, so their on-screen position is
-// derived deterministically from their id rather than tracked as state.
+const PASTURE_MARGIN = 50;
+const PASTURE_BOTTOM = 340;
+
+const PEN_Y = 380;
+const PEN_WIDTH = 340;
+const PEN_HEIGHT = 190;
+const PEN_GAP = 40;
+const PEN_START_X = 40;
+
+// Puffs don't have a pen/layout system-independent position yet, so an
+// unassigned Puff's spot in the pasture is derived deterministically from
+// its id rather than tracked as state.
 const hashString = (value: string): number => {
   let hash = 0;
   for (let i = 0; i < value.length; i++) {
@@ -18,16 +33,66 @@ const hashString = (value: string): number => {
   return Math.abs(hash);
 };
 
-const positionFor = (id: string) => {
+const pasturePositionFor = (id: string) => {
   const hash = hashString(id);
   return {
-    x: PUFF_MARGIN + (hash % (CANVAS_WIDTH - PUFF_MARGIN * 2)),
-    y: PUFF_MARGIN + ((hash * 7) % (CANVAS_HEIGHT - PUFF_MARGIN * 2)),
+    x: PASTURE_MARGIN + (hash % (CANVAS_WIDTH - PASTURE_MARGIN * 2)),
+    y: PASTURE_MARGIN + ((hash * 7) % (PASTURE_BOTTOM - PASTURE_MARGIN)),
   };
 };
 
 export const GameCanvas = () => {
+  const dispatch = useAppDispatch();
   const puffs = useAppSelector((state) => state.puffs.byId);
+  const pens = useAppSelector((state) => state.pens);
+  const [selectedPuffId, setSelectedPuffId] = useState<string | null>(null);
+
+  const puffToPen = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const penId of pens.order) {
+      for (const puffId of pens.byId[penId].occupantIds) {
+        map.set(puffId, penId);
+      }
+    }
+    return map;
+  }, [pens]);
+
+  const handleSelectPuff = useCallback(
+    (puffId: string) => {
+      setSelectedPuffId((current) => {
+        const next = current === puffId ? null : puffId;
+        if (next) {
+          console.debug("Puff selected:", puffId, deriveTraits(puffs[puffId].genes));
+        }
+        return next;
+      });
+    },
+    [puffs]
+  );
+
+  const handleClickPen = useCallback(
+    (penId: string) => {
+      if (!selectedPuffId) return;
+      dispatch(puffAssignedToPen({ puffId: selectedPuffId, penId }));
+      setSelectedPuffId(null);
+    },
+    [dispatch, selectedPuffId]
+  );
+
+  const handleBackgroundTap = useCallback(() => {
+    if (!selectedPuffId) return;
+    if (puffToPen.has(selectedPuffId)) {
+      dispatch(puffUnassigned({ puffId: selectedPuffId }));
+    }
+    setSelectedPuffId(null);
+  }, [dispatch, puffToPen, selectedPuffId]);
+
+  const drawBackground = useCallback((g: PIXI.Graphics) => {
+    g.clear();
+    g.beginFill(CANVAS_BG);
+    g.drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    g.endFill();
+  }, []);
 
   return (
     <ContextBridge
@@ -41,9 +106,54 @@ export const GameCanvas = () => {
         </Stage>
       )}
     >
+      <Graphics
+        draw={drawBackground}
+        interactive
+        cursor="default"
+        pointertap={handleBackgroundTap}
+      />
+
+      {pens.order.map((penId, index) => (
+        <PenView
+          key={penId}
+          pen={pens.byId[penId]}
+          x={PEN_START_X + index * (PEN_WIDTH + PEN_GAP)}
+          y={PEN_Y}
+          width={PEN_WIDTH}
+          height={PEN_HEIGHT}
+          highlighted={Boolean(selectedPuffId) && pens.byId[penId].occupantIds.length < pens.byId[penId].capacity}
+          onClick={() => handleClickPen(penId)}
+        />
+      ))}
+
       {Object.values(puffs).map((puff) => {
-        const { x, y } = positionFor(puff.id);
-        return <PuffSprite key={puff.id} puff={puff} x={x} y={y} />;
+        const penId = puffToPen.get(puff.id);
+        let x: number;
+        let y: number;
+
+        if (penId) {
+          const pen = pens.byId[penId];
+          const slotIndex = pen.occupantIds.indexOf(puff.id);
+          const penX = PEN_START_X + pens.order.indexOf(penId) * (PEN_WIDTH + PEN_GAP);
+          const { dx, dy } = gridSlotInPen(slotIndex, pen.capacity, PEN_WIDTH, PEN_HEIGHT);
+          x = penX + dx;
+          y = PEN_Y + dy;
+        } else {
+          const position = pasturePositionFor(puff.id);
+          x = position.x;
+          y = position.y;
+        }
+
+        return (
+          <PuffSprite
+            key={puff.id}
+            puff={puff}
+            x={x}
+            y={y}
+            selected={selectedPuffId === puff.id}
+            onSelect={() => handleSelectPuff(puff.id)}
+          />
+        );
       })}
     </ContextBridge>
   );

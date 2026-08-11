@@ -17,5 +17,15 @@ body {
 .app-title {
   color: var(--color-text);
   font-family: sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   margin-bottom: 1rem;
+}
+
+.canvas-frame {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }

@@ -1,0 +1,33 @@
+.dev-reset-button {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: #3a3a3a;
+  color: var(--color-text);
+  border: 1px solid #666666;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-smooth-out),
+    background-color var(--duration-fast) var(--ease-smooth-out),
+    border-color var(--duration-fast) var(--ease-smooth-out);
+}
+
+.dev-reset-button:hover {
+  background: #4a4a4a;
+  border-color: #888888;
+  transform: translateY(-1px);
+}
+
+.dev-reset-button:active {
+  transform: translateY(0) scale(var(--scale-tiny));
+  transition-duration: var(--duration-quick);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-reset-button {
+    transition: none;
+  }
+}

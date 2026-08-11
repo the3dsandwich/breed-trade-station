@@ -1,15 +1,12 @@
-import { useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useEffect } from "react";
+import { useAppDispatch } from "../store/hooks";
 import { gameTick, gameTickCatchup, stateSaved } from "../store/clockSlice";
 import { savePersistedState } from "../store/persistence";
-import type { RootState } from "../store/store";
+import { store } from "../store/store";
 import type { TickCommand, TickEvent } from "./tickWorker";
 
 export const useTickEngine = () => {
   const dispatch = useAppDispatch();
-  const state = useAppSelector((s) => s);
-  const stateRef = useRef<RootState>(state);
-  stateRef.current = state;
 
   // Mounted once: creates the worker and starts the tick loop for the
   // lifetime of the app. lastSavedAt is only needed at start, so an
@@ -31,21 +28,21 @@ export const useTickEngine = () => {
           dispatch(gameTickCatchup({ elapsed: event.elapsed }));
           break;
         case "SAVE":
-          savePersistedState(stateRef.current);
+          savePersistedState(store.getState());
           dispatch(stateSaved());
           break;
       }
     };
 
-    post({ type: "START", lastSavedAt: stateRef.current.clock.lastSavedAt });
+    post({ type: "START", lastSavedAt: store.getState().clock.lastSavedAt });
 
     const handleBeforeUnload = () => {
-      savePersistedState(stateRef.current);
+      savePersistedState(store.getState());
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      savePersistedState(stateRef.current);
+      savePersistedState(store.getState());
       post({ type: "STOP" });
       worker.terminate();
       window.removeEventListener("beforeunload", handleBeforeUnload);
