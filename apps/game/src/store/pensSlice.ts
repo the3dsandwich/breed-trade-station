@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { PuffId } from "@bts/shared";
+import { gameTick } from "./clockSlice";
 
 export type PenId = string;
 
@@ -8,6 +9,7 @@ export interface Pen {
   name: string;
   capacity: number;
   occupantIds: PuffId[];
+  breedingProgress: number;
 }
 
 export interface PensState {
@@ -26,7 +28,7 @@ const pensSlice = createSlice({
       action: PayloadAction<{ id: PenId; name: string; capacity: number }[]>
     ) => {
       for (const pen of action.payload) {
-        state.byId[pen.id] = { ...pen, occupantIds: [] };
+        state.byId[pen.id] = { ...pen, occupantIds: [], breedingProgress: 0 };
         state.order.push(pen.id);
       }
     },
@@ -45,8 +47,25 @@ const pensSlice = createSlice({
         pen.occupantIds = pen.occupantIds.filter((id) => id !== action.payload.puffId);
       }
     },
+    breedingProgressReset: (state, action: PayloadAction<{ penId: PenId }>) => {
+      const pen = state.byId[action.payload.penId];
+      if (pen) pen.breedingProgress = 0;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(gameTick, (state, action) => {
+      for (const pen of Object.values(state.byId)) {
+        // Breeding needs two Puffs and stops once the pen is full -- an
+        // older save may also predate this field.
+        const eligible = pen.occupantIds.length >= 2 && pen.occupantIds.length < pen.capacity;
+        if (eligible) {
+          pen.breedingProgress = (pen.breedingProgress ?? 0) + action.payload.delta;
+        }
+      }
+    });
   },
 });
 
-export const { pensSeeded, puffAssignedToPen, puffUnassigned } = pensSlice.actions;
+export const { pensSeeded, puffAssignedToPen, puffUnassigned, breedingProgressReset } =
+  pensSlice.actions;
 export const pensReducer = pensSlice.reducer;

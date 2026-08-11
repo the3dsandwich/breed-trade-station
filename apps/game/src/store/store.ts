@@ -2,7 +2,9 @@ import { configureStore } from "@reduxjs/toolkit";
 import { clockReducer } from "./clockSlice";
 import { puffsReducer, puffsSpawned } from "./puffsSlice";
 import { pensReducer, pensSeeded } from "./pensSlice";
+import { selectionReducer } from "./selectionSlice";
 import { loadPersistedState } from "./persistence";
+import { breedingMiddleware } from "./breedingMiddleware";
 
 const INITIAL_PUFF_COUNT = 8;
 const INITIAL_PENS = [
@@ -17,8 +19,10 @@ export const store = configureStore({
     clock: clockReducer,
     puffs: puffsReducer,
     pens: pensReducer,
+    selection: selectionReducer,
   },
   preloadedState: persisted,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(breedingMiddleware.middleware),
 });
 
 if (!persisted) {
