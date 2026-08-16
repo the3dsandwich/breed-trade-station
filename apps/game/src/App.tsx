@@ -1,6 +1,9 @@
 import { Provider } from "react-redux";
 import { GameCanvas } from "./canvas/GameCanvas";
 import { PuffInspector } from "./PuffInspector";
+import { GoldDisplay } from "./GoldDisplay";
+import { RequestsPanel } from "./RequestsPanel";
+import { ReleaseControls } from "./ReleaseControls";
 import { store } from "./store/store";
 import { useTickEngine } from "./tick/useTickEngine";
 import { DevResetButton } from "./DevTools";
@@ -16,7 +19,12 @@ const Game = () => {
         <div className="canvas-frame">
           <GameCanvas />
         </div>
-        <PuffInspector />
+        <div className="sidebar">
+          <GoldDisplay />
+          <RequestsPanel />
+          <ReleaseControls />
+          <PuffInspector />
+        </div>
       </div>
       {import.meta.env.DEV && <DevResetButton />}
     </div>

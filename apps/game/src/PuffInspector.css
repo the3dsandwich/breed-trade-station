@@ -62,6 +62,47 @@
   font-weight: 600;
 }
 
+.puff-inspector-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.puff-inspector-fulfill-button {
+  background: #2f5233;
+  color: #d5f5d9;
+  border: 1px solid #4ade80;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-smooth-out);
+}
+
+.puff-inspector-fulfill-button:hover {
+  background: #386640;
+}
+
+.puff-inspector-release-button {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  background: #3a3a3a;
+  color: var(--color-text);
+  border: 1px solid #666666;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-smooth-out);
+}
+
+.puff-inspector-release-button:hover {
+  background: #4a4a4a;
+}
+
 .puff-inspector-id {
   margin: 1rem 0 0;
   font-size: 0.7rem;
