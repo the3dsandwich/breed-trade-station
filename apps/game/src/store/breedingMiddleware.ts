@@ -35,7 +35,7 @@ const startAppListening = breedingMiddleware.startListening.withTypes<RootState,
 startAppListening({
   matcher: isAnyOf(gameTick, gameTickCatchup),
   effect: (action, listenerApi) => {
-    const rawDelta = action.type === gameTick.type ? action.payload.delta : action.payload.elapsed;
+    const rawDelta = gameTick.match(action) ? action.payload.delta : gameTickCatchup.match(action) ? action.payload.elapsed : 0;
     const state = listenerApi.getState();
     const multiplier = state.economy.gold <= 0 ? STARVING_BREEDING_MULTIPLIER : 1;
 

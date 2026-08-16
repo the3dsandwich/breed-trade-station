@@ -15,7 +15,7 @@ const startAppListening = economyMiddleware.startListening.withTypes<RootState, 
 startAppListening({
   matcher: isAnyOf(gameTick, gameTickCatchup),
   effect: (action, listenerApi) => {
-    const elapsed = action.type === gameTick.type ? action.payload.delta : action.payload.elapsed;
+    const elapsed = gameTick.match(action) ? action.payload.delta : gameTickCatchup.match(action) ? action.payload.elapsed : 0;
     listenerApi.dispatch(upkeepAccumulatorAdvanced({ delta: elapsed }));
 
     const { upkeepAccumulator } = listenerApi.getState().economy;
