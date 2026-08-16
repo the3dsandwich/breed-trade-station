@@ -17,15 +17,15 @@ The genetics mechanic uses real Mendelian inheritance. Players are not taught th
 1. Animals live in pens → they breed, produce resources, and contribute to building simultaneously
 2. Player allocates animals across pens to balance breeding output, resource generation, and construction
 3. Resources fund pen upgrades and enhancements → better pens improve all three affinities
-4. Player fulfills trait-specific orders → earns gold
-5. Gold spent on items and market purchases → better breeding stock → harder orders become reachable
+4. Player fulfills trait-specific Requests → earns Gold
+5. Gold spent on items and market purchases → better breeding stock → harder Requests become reachable
 6. Repeat with increasing complexity
 
 ---
 
 ## Progression
 
-There is no explicit player level or experience points. The game infers player progression from the quality and rarity of the animals the player has bred. Order difficulty, market dynamics, and available content are all balanced against this inferred progression.
+There is no explicit player level or experience points. The game infers player progression from the quality and rarity of the animals the player has bred. Request difficulty, market dynamics, and available content are all balanced against this inferred progression.
 
 This means:
 - A player cannot grind XP to unlock harder content — they must actually breed better animals
@@ -34,24 +34,53 @@ This means:
 
 **Three-phase arc:**
 
-| Phase | Order source | Market access |
+| Phase | Request source | Market access |
 |-------|-------------|---------------|
-| Early (tutorial) | Scripted NPC orders with fixed requirements | NPC market only |
-| Mid | Procedurally generated NPC orders | NPC market only |
-| Late | Procedural NPC orders + player-to-player listings | Full market |
+| Early (tutorial) | Scripted NPC requests with fixed requirements | NPC market only |
+| Mid | Procedurally generated NPC requests | NPC market only |
+| Late | Procedural NPC requests + player-to-player listings | Full market |
+
+The MVP Request System (below) skips straight to lightweight procedural generation — hand-authored/scripted early-game content is deferred, not rejected; this table is still the eventual intent.
 
 ---
 
-## Order System
+## Request System
 
-Orders specify a target trait combination. Fulfilling an order removes one animal from the player's collection and awards gold.
+Requests specify a target trait combination — a small subset of traits (not the full trait list), each pinned to a specific value. Fulfilling a request removes the matching animal from the player's collection and awards Gold.
 
-Orders are procedurally generated. Each order is assigned a difficulty rating that controls:
-- How often that order appears
-- What reward it carries
-- Whether it appears at the player's current inferred progression level
+Requests are generated on the fly. Each request's difficulty — and therefore its reward — is driven by:
+- **How many traits are specified** — more pinned traits is a narrower, harder target
+- **How rare each requested value is** — e.g. body size XS or XL is a much narrower breeding target than M, since M is the common middle of the distribution; rarer requested values pay more
+- A request pinning a single common trait value (e.g. body size M) is easy and pays accordingly less — but still more than releasing the animal via Release
+
+Eventually, difficulty should also control how often a request appears and whether it appears at the player's current inferred progression level (see Progression above) — that gating is deferred pending the progression-inference algorithm; the MVP's requests aren't yet progression-aware.
 
 The puzzle is breeding an animal that satisfies the trait requirements. The genetics system is the primary tool for solving that puzzle.
+
+**Deferred:** hand-authored/scripted request content (see the three-phase arc above), progression-gated difficulty, and exact tuning numbers for the difficulty→reward formula.
+
+---
+
+## Gold and Upkeep
+
+Gold is the single shared resource spent and earned throughout Requests, Release, and — eventually — the Market. There is no separate upkeep currency.
+
+- Every living animal costs a small, flat amount of Gold in upkeep. This is deducted in a periodic batch on an interval, not continuously every tick — a readable, occasional deduction rather than a constant flicker of tiny ones.
+- Gold is clamped at zero; the player never goes into debt.
+- At zero Gold, animals are **starving**: breeding speeds up rather than stopping or slowing, with a clear UI indicator. This is deliberately self-correcting — Gold is already floored at zero, so animals born during a shortage don't cost anything more right now, and they're exactly the new supply the player needs to Release or fulfill Requests with to earn their way back out. A slowdown was tried first and rejected: it throttled the player's only recovery mechanism precisely when they needed it most.
+- Fulfilling Requests and using Release are the two ways to bring Gold back up.
+
+This Gold/upkeep economy is unrelated to the separate "resource types" that fund pen upgrades (Core Loop step 3, still deferred) — those are a different, still-undecided resource layer.
+
+Exact upkeep cost per animal, the deduction interval, the starting Gold balance, and the starving-rate multiplier are placeholders pending playtesting balance, same as breeding's duration and mutation-rate constants.
+
+---
+
+## Release
+
+Release lets the player remove any animal from their collection at any time, for a small flat Gold return — smaller than a typical Request reward. It's a population-management valve independent of Requests: it works on any animal regardless of whether it matches an open request, for Puffs the player doesn't want to keep or can't place.
+
+Release supports both a single-animal flow (select one, release it) and a bulk flow (select several, confirm once) so clearing out multiple unwanted animals doesn't mean repeating the single-select loop one at a time.
 
 ---
 
@@ -142,7 +171,10 @@ Two markets exist, both asynchronous. Listings remain active until purchased by 
 - Resource sustainability and diminishing returns mechanics
 - Algorithm for assessing player stock quality (progression inference)
 - Exact trait list and what each trait controls
-- Resource types and what they build
+- Resource types and what they build (separate from Gold — see Gold and Upkeep)
 - Rental duration mechanics
 - NPC bot pricing behavior
 - Creature identity and visual trait expression
+- Hand-authored/scripted Request content; progression-gated Request difficulty
+- Exact Gold/upkeep tuning: upkeep cost, deduction interval, starting balance, starving-rate multiplier
+- Exact Request difficulty→reward formula weights
