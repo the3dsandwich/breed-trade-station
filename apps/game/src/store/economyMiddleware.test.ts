@@ -50,4 +50,20 @@ describe("economy middleware", () => {
     store.dispatch(gameTickCatchup({ elapsed: UPKEEP_INTERVAL_MS }));
     expect(store.getState().economy.gold).toBe(STARTING_GOLD - UPKEEP_PER_PUFF);
   });
+
+  it("deducts every interval that elapsed during a long catchup gap, not just one", () => {
+    const store = createTestStore();
+    store.dispatch(puffBorn(createPuff("p1", GENES, 0)));
+    store.dispatch(gameTickCatchup({ elapsed: UPKEEP_INTERVAL_MS * 5 }));
+    expect(store.getState().economy.gold).toBe(STARTING_GOLD - 5 * UPKEEP_PER_PUFF);
+    expect(store.getState().economy.upkeepAccumulator).toBe(0);
+  });
+
+  it("keeps the remainder in the accumulator rather than resetting to zero", () => {
+    const store = createTestStore();
+    store.dispatch(puffBorn(createPuff("p1", GENES, 0)));
+    store.dispatch(gameTickCatchup({ elapsed: UPKEEP_INTERVAL_MS * 2 + 1500 }));
+    expect(store.getState().economy.gold).toBe(STARTING_GOLD - 2 * UPKEEP_PER_PUFF);
+    expect(store.getState().economy.upkeepAccumulator).toBe(1500);
+  });
 });

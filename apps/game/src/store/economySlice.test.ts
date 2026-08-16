@@ -1,11 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  economyReducer,
-  goldAdjusted,
-  upkeepAccumulatorAdvanced,
-  upkeepAccumulatorReset,
-  STARTING_GOLD,
-} from "./economySlice";
+import { economyReducer, goldAdjusted, upkeepAccumulatorAdvanced, STARTING_GOLD } from "./economySlice";
 
 describe("economySlice", () => {
   it("starts with the starting gold balance and zero upkeep accumulator", () => {
@@ -34,9 +28,9 @@ describe("economySlice", () => {
     expect(state.upkeepAccumulator).toBe(1000);
   });
 
-  it("resets the upkeep accumulator", () => {
+  it("can advance the upkeep accumulator by a negative delta (used to subtract elapsed intervals)", () => {
     const advanced = economyReducer(undefined, upkeepAccumulatorAdvanced({ delta: 1000 }));
-    const reset = economyReducer(advanced, upkeepAccumulatorReset());
-    expect(reset.upkeepAccumulator).toBe(0);
+    const reduced = economyReducer(advanced, upkeepAccumulatorAdvanced({ delta: -400 }));
+    expect(reduced.upkeepAccumulator).toBe(600);
   });
 });

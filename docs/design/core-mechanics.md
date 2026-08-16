@@ -65,7 +65,7 @@ The puzzle is breeding an animal that satisfies the trait requirements. The gene
 
 Gold is the single shared resource spent and earned throughout Requests, Release, and — eventually — the Market. There is no separate upkeep currency.
 
-- Every living animal costs a small, flat amount of Gold in upkeep. This is deducted in a periodic batch on an interval, not continuously every tick — a readable, occasional deduction rather than a constant flicker of tiny ones.
+- Every living animal costs a small, flat amount of Gold in upkeep. This is deducted in a periodic batch on an interval, not continuously every tick — a readable, occasional deduction rather than a constant flicker of tiny ones. Unlike breeding's deliberate one-cycle cap on a long offline catchup gap, upkeep is a flat linear cost, so a long gap correctly charges for every interval that elapsed, not just one.
 - Gold is clamped at zero; the player never goes into debt.
 - At zero Gold, animals are **starving**: breeding speeds up rather than stopping or slowing, with a clear UI indicator. This is deliberately self-correcting — Gold is already floored at zero, so animals born during a shortage don't cost anything more right now, and they're exactly the new supply the player needs to Release or fulfill Requests with to earn their way back out. A slowdown was tried first and rejected: it throttled the player's only recovery mechanism precisely when they needed it most.
 - Fulfilling Requests and using Release are the two ways to bring Gold back up.

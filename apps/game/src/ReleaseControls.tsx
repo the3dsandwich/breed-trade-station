@@ -25,7 +25,7 @@ export const ReleaseControls = () => {
           <button
             className="release-controls-confirm"
             disabled={releaseBatch.length === 0}
-            onClick={() => releasePuffs(dispatch, releaseBatch)}
+            onClick={() => dispatch(releasePuffs(releaseBatch))}
           >
             Release {releaseBatch.length || ""}
           </button>

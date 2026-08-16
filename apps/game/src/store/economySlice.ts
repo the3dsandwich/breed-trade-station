@@ -26,16 +26,14 @@ const economySlice = createSlice({
   initialState,
   reducers: {
     goldAdjusted: (state, action: PayloadAction<{ amount: number }>) => {
-      state.gold = Math.max(0, state.gold + action.payload.amount);
+      // An older/malformed save may predate this field.
+      state.gold = Math.max(0, (state.gold ?? 0) + action.payload.amount);
     },
     upkeepAccumulatorAdvanced: (state, action: PayloadAction<{ delta: number }>) => {
-      state.upkeepAccumulator += action.payload.delta;
-    },
-    upkeepAccumulatorReset: (state) => {
-      state.upkeepAccumulator = 0;
+      state.upkeepAccumulator = (state.upkeepAccumulator ?? 0) + action.payload.delta;
     },
   },
 });
 
-export const { goldAdjusted, upkeepAccumulatorAdvanced, upkeepAccumulatorReset } = economySlice.actions;
+export const { goldAdjusted, upkeepAccumulatorAdvanced } = economySlice.actions;
 export const economyReducer = economySlice.reducer;

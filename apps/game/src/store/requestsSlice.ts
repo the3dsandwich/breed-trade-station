@@ -22,6 +22,9 @@ const requestsSlice = createSlice({
     // same slot, so the active request count stays constant.
     requestReplaced: (state, action: PayloadAction<{ oldRequestId: string; newRequest: Request }>) => {
       const { oldRequestId, newRequest } = action.payload;
+      // Already replaced (e.g. a double-fired fulfillment) -- no-op rather
+      // than adding a second replacement and growing the active count.
+      if (!state.byId[oldRequestId]) return;
       delete state.byId[oldRequestId];
       state.byId[newRequest.id] = newRequest;
       const index = state.order.indexOf(oldRequestId);

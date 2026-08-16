@@ -29,4 +29,21 @@ describe("requestsSlice", () => {
     expect(next.byId.r2).toBeUndefined();
     expect(next.byId.r4).toEqual(newRequest);
   });
+
+  it("no-ops if the request being replaced is already gone, instead of growing the order list", () => {
+    const seeded = requestsReducer(undefined, requestsSeeded([makeRequest("r1"), makeRequest("r2")]));
+    const alreadyReplaced = requestsReducer(
+      seeded,
+      requestReplaced({ oldRequestId: "r1", newRequest: makeRequest("r3") })
+    );
+
+    // simulate a duplicate dispatch for the same already-replaced request
+    const duplicate = requestsReducer(
+      alreadyReplaced,
+      requestReplaced({ oldRequestId: "r1", newRequest: makeRequest("r4") })
+    );
+
+    expect(duplicate).toEqual(alreadyReplaced);
+    expect(duplicate.order).toHaveLength(2);
+  });
 });

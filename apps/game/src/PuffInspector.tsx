@@ -64,7 +64,7 @@ export const PuffInspector = () => {
             <button
               key={request.id}
               className="puff-inspector-fulfill-button"
-              onClick={() => fulfillRequest(dispatch, puff.id, request)}
+              onClick={() => dispatch(fulfillRequest(puff.id, request))}
             >
               Fulfill request for {request.reward}g
             </button>
@@ -72,7 +72,7 @@ export const PuffInspector = () => {
         </div>
       )}
 
-      <button className="puff-inspector-release-button" onClick={() => releasePuffs(dispatch, [puff.id])}>
+      <button className="puff-inspector-release-button" onClick={() => dispatch(releasePuffs([puff.id]))}>
         Release
       </button>
 
