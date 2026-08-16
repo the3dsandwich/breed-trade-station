@@ -5,6 +5,7 @@ import { clockReducer, gameTick, gameTickCatchup } from "./clockSlice";
 import { puffsReducer, puffBorn } from "./puffsSlice";
 import { pensReducer, pensSeeded, puffAssignedToPen } from "./pensSlice";
 import { selectionReducer } from "./selectionSlice";
+import { economyReducer, goldAdjusted, STARVING_BREEDING_MULTIPLIER } from "./economySlice";
 import { breedingMiddleware } from "./breedingMiddleware";
 import { BREEDING_DURATION_MS } from "./breedingRules";
 
@@ -19,6 +20,7 @@ const createTestStore = () =>
       puffs: puffsReducer,
       pens: pensReducer,
       selection: selectionReducer,
+      economy: economyReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(breedingMiddleware.middleware),
   });
@@ -34,6 +36,23 @@ const seedPenWithPair = (store: TestStore, capacity = 4) => {
 };
 
 describe("breeding middleware", () => {
+  it("does not advance progress with fewer than 2 occupants", () => {
+    const store = createTestStore();
+    store.dispatch(puffBorn(createPuff("male-1", MALE_GENES, 0)));
+    store.dispatch(pensSeeded([{ id: "pen-1", name: "Pen 1", capacity: 4 }]));
+    store.dispatch(puffAssignedToPen({ puffId: "male-1", penId: "pen-1" }));
+
+    store.dispatch(gameTick({ delta: 1000 }));
+    expect(store.getState().pens.byId["pen-1"].breedingProgress).toBe(0);
+  });
+
+  it("does not advance progress once the pen is already full", () => {
+    const store = createTestStore();
+    seedPenWithPair(store, 2); // 2 occupants == capacity, already full
+    store.dispatch(gameTick({ delta: 1000 }));
+    expect(store.getState().pens.byId["pen-1"].breedingProgress).toBe(0);
+  });
+
   it("does not breed before the progress threshold is reached", () => {
     const store = createTestStore();
     seedPenWithPair(store);
@@ -92,6 +111,28 @@ describe("breeding middleware", () => {
     const store = createTestStore();
     seedPenWithPair(store);
     store.dispatch(gameTickCatchup({ elapsed: BREEDING_DURATION_MS }));
+
+    expect(Object.keys(store.getState().puffs.byId)).toHaveLength(3);
+  });
+
+  it("speeds up breeding progress while starving", () => {
+    const store = createTestStore();
+    seedPenWithPair(store);
+    store.dispatch(goldAdjusted({ amount: -1000 })); // clamps to 0 -> starving
+
+    store.dispatch(gameTick({ delta: 1000 }));
+
+    expect(store.getState().pens.byId["pen-1"].breedingProgress).toBe(1000 * STARVING_BREEDING_MULTIPLIER);
+  });
+
+  it("reaches a birth faster while starving than the same elapsed time normally would", () => {
+    const store = createTestStore();
+    seedPenWithPair(store);
+    store.dispatch(goldAdjusted({ amount: -1000 }));
+
+    // a tick smaller than BREEDING_DURATION_MS still crosses the threshold
+    // once scaled up by the starving multiplier
+    store.dispatch(gameTick({ delta: BREEDING_DURATION_MS / STARVING_BREEDING_MULTIPLIER }));
 
     expect(Object.keys(store.getState().puffs.byId)).toHaveLength(3);
   });

@@ -28,6 +28,12 @@ body {
   gap: 1rem;
 }
 
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .canvas-frame {
   border-radius: 16px;
   overflow: hidden;

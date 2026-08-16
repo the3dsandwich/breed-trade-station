@@ -1,5 +1,6 @@
-import { deriveTraits, type Sex } from "@bts/shared";
-import { useAppSelector } from "./store/hooks";
+import { deriveTraits, puffSatisfiesRequest, type Sex } from "@bts/shared";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { releasePuffs, fulfillRequest } from "./store/gameActions";
 import "./PuffInspector.css";
 
 const SEX_DISPLAY: Record<Sex, { label: string; symbol: string; className: string }> = {
@@ -10,10 +11,21 @@ const SEX_DISPLAY: Record<Sex, { label: string; symbol: string; className: strin
 // Plain React DOM, outside the PixiJS canvas -- reads the same Redux
 // store as GameCanvas via the normal Provider, not the ContextBridge.
 export const PuffInspector = () => {
+  const dispatch = useAppDispatch();
+  const releaseModeActive = useAppSelector((state) => state.selection.releaseModeActive);
   const selectedPuffId = useAppSelector((state) => state.selection.selectedPuffId);
   const puff = useAppSelector((state) =>
     selectedPuffId ? state.puffs.byId[selectedPuffId] : undefined
   );
+  const requests = useAppSelector((state) => state.requests);
+
+  if (releaseModeActive) {
+    return (
+      <aside className="puff-inspector puff-inspector-empty">
+        <p>Release mode: tap Puffs on the canvas to add them to the batch.</p>
+      </aside>
+    );
+  }
 
   if (!puff) {
     return (
@@ -25,6 +37,9 @@ export const PuffInspector = () => {
 
   const traits = deriveTraits(puff.genes);
   const sex = SEX_DISPLAY[traits.sex];
+  const matchingRequests = requests.order
+    .map((id) => requests.byId[id])
+    .filter((request) => puffSatisfiesRequest(traits, request));
 
   return (
     <aside className="puff-inspector">
@@ -42,6 +57,25 @@ export const PuffInspector = () => {
         <dt>Ear size</dt>
         <dd>{traits.earSize}</dd>
       </dl>
+
+      {matchingRequests.length > 0 && (
+        <div className="puff-inspector-matches">
+          {matchingRequests.map((request) => (
+            <button
+              key={request.id}
+              className="puff-inspector-fulfill-button"
+              onClick={() => dispatch(fulfillRequest(puff.id, request))}
+            >
+              Fulfill request for {request.reward}g
+            </button>
+          ))}
+        </div>
+      )}
+
+      <button className="puff-inspector-release-button" onClick={() => dispatch(releasePuffs([puff.id]))}>
+        Release
+      </button>
+
       <p className="puff-inspector-id">{puff.id}</p>
     </aside>
   );
