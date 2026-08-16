@@ -3,8 +3,9 @@ import { createPuff, deriveTraits, meiosis, type Puff, type PuffId } from "@bts/
 import { createLocalId } from "./id";
 import { gameTick, gameTickCatchup } from "./clockSlice";
 import { puffBorn } from "./puffsSlice";
-import { puffAssignedToPen, breedingProgressReset } from "./pensSlice";
+import { puffAssignedToPen, breedingProgressReset, breedingProgressAdvanced } from "./pensSlice";
 import { BREEDING_DURATION_MS, isBreedingEligible } from "./breedingRules";
+import { STARVING_BREEDING_MULTIPLIER } from "./economySlice";
 import type { RootState, AppDispatch } from "./store";
 
 // A pen needs at least one M and one F occupant to breed; same-sex pens
@@ -33,13 +34,19 @@ const startAppListening = breedingMiddleware.startListening.withTypes<RootState,
 // birth per pen, it does not simulate multiple breeding cycles.
 startAppListening({
   matcher: isAnyOf(gameTick, gameTickCatchup),
-  effect: (_action, listenerApi) => {
+  effect: (action, listenerApi) => {
+    const rawDelta = action.type === gameTick.type ? action.payload.delta : action.payload.elapsed;
     const state = listenerApi.getState();
+    const multiplier = state.economy.gold <= 0 ? STARVING_BREEDING_MULTIPLIER : 1;
 
     for (const penId of state.pens.order) {
       const pen = state.pens.byId[penId];
-      if (pen.breedingProgress < BREEDING_DURATION_MS) continue;
       if (!isBreedingEligible(pen.occupantIds.length, pen.capacity)) continue;
+
+      listenerApi.dispatch(breedingProgressAdvanced({ penId, amount: rawDelta * multiplier }));
+
+      const updatedPen = listenerApi.getState().pens.byId[penId];
+      if (updatedPen.breedingProgress < BREEDING_DURATION_MS) continue;
 
       const parents = pickParents(pen.occupantIds, state.puffs.byId);
       if (!parents) continue;
