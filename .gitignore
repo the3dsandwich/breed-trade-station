@@ -6,3 +6,12 @@ dist
 *.dat
 playwright-report
 test-results
+
+# Linux build outputs
+apps/game/src-tauri/target/
+apps/game/src-tauri/gen/
+packaging/linux/staged/
+packaging/linux/build/
+packaging/linux/repo/
+.flatpak-builder/
+artifacts/

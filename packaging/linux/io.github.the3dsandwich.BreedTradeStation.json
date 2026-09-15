@@ -1,0 +1,54 @@
+{
+  "app-id": "io.github.the3dsandwich.BreedTradeStation",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "49",
+  "sdk": "org.gnome.Sdk",
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.rust-stable"
+  ],
+  "command": "breed-trade-station",
+  "finish-args": [
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--share=ipc",
+    "--device=dri"
+  ],
+  "build-options": {
+    "append-path": "/usr/lib/sdk/rust-stable/bin",
+    "env": {
+      "CARGO_HOME": "/run/build/breed-trade-station/cargo-home",
+      "CARGO_NET_OFFLINE": "true"
+    }
+  },
+  "modules": [
+    {
+      "name": "breed-trade-station",
+      "buildsystem": "simple",
+      "build-commands": [
+        "cargo build --manifest-path src-tauri/Cargo.toml --release --locked --offline --features custom-protocol",
+        "install -Dm755 src-tauri/target/release/breed-trade-station /app/bin/breed-trade-station",
+        "install -Dm644 io.github.the3dsandwich.BreedTradeStation.desktop /app/share/applications/io.github.the3dsandwich.BreedTradeStation.desktop",
+        "install -Dm644 io.github.the3dsandwich.BreedTradeStation.metainfo.xml /app/share/metainfo/io.github.the3dsandwich.BreedTradeStation.metainfo.xml",
+        "install -Dm644 io.github.the3dsandwich.BreedTradeStation.svg /app/share/icons/hicolor/scalable/apps/io.github.the3dsandwich.BreedTradeStation.svg"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "staged"
+        },
+        {
+          "type": "file",
+          "path": "io.github.the3dsandwich.BreedTradeStation.desktop"
+        },
+        {
+          "type": "file",
+          "path": "io.github.the3dsandwich.BreedTradeStation.metainfo.xml"
+        },
+        {
+          "type": "file",
+          "path": "io.github.the3dsandwich.BreedTradeStation.svg"
+        }
+      ]
+    }
+  ]
+}

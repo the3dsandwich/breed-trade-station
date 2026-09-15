@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Breed Trade Station
+Comment=Breed Puffs and trade creatures with special traits
+Exec=breed-trade-station
+Icon=io.github.the3dsandwich.BreedTradeStation
+Terminal=false
+Categories=Game;Simulation;
+StartupWMClass=breed-trade-station
