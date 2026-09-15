@@ -13,7 +13,7 @@ async function request(method, path, body) {
     body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(20000),
   }).catch((error) => { throw new Error(`${method} ${path}: ${error.message}`, { cause: error }); });
   const result = await response.json();
-  if (!response.ok || result.value?.error) throw new Error(JSON.stringify(result));
+  if (!response.ok || result.value?.error) throw new Error(`${method} ${path}: ${JSON.stringify(result)}`);
   return result.value;
 }
 const call = (method, path, body) => request(method, `/session/${session}${path}`, body);
@@ -37,8 +37,7 @@ async function launch() {
 async function screenshot(name) {
   execFileSync('import', ['-window', 'root', `${output}/${name}.png`], { timeout: 10000 });
 }
-async function clickCanvas(x, y) {
-  const box = await read('const r=document.querySelector("canvas").getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}');
+async function clickDesktop(x, y) {
   const windowLine = execFileSync('wmctrl', ['-l'], { encoding: 'utf8' })
     .split('\n').find((line) => line.includes('Breed Trade Station'));
   assert.ok(windowLine, 'native window is visible');
@@ -46,13 +45,17 @@ async function clickCanvas(x, y) {
   // Send real desktop mouse events. WebKit's synthetic pointer actions can
   // miss Pixi's pointertap handling even when their WebDriver request succeeds.
   execFileSync('xdotool', ['mousemove', '--sync', '--window', windowId,
-    String(Math.round(box.x + x * box.width / 800)),
-    String(Math.round(box.y + y * box.height / 600)), 'click', '1']);
+    String(Math.round(x)), String(Math.round(y)), 'click', '1']);
   await delay(150);
 }
+async function clickCanvas(x, y) {
+  const box = await read('const r=document.querySelector("canvas").getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}');
+  await clickDesktop(box.x + x * box.width / 800, box.y + y * box.height / 600);
+}
 async function clickElement(selector) {
-  const element = await call('POST', '/element', { using: 'css selector', value: selector });
-  await call('POST', `/element/${element['element-6066-11e4-a52e-4f735466cecf']}/click`, {});
+  const box = await read('const e=document.querySelector(arguments[0]); if (!e || e.disabled) return null; const r=e.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}', [selector]);
+  assert.ok(box, `Enabled button exists: ${selector}`);
+  await clickDesktop(box.x, box.y);
 }
 function position(id) {
   let hash = 0;
