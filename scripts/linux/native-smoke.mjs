@@ -77,11 +77,18 @@ try {
   const initial = await until(() => read('return JSON.parse(localStorage.getItem("bts:save"))'), 'first real autosave');
   const puffs = Object.values(initial.puffs.byId);
   assert.equal(puffs.length, 8, 'isolated profile starts with eight Puffs');
-  const male = puffs.find((puff) => puff.genes[9] !== 0);
-  const female = puffs.find((puff) => puff.genes[9] === 0);
-  assert.ok(male && female);
   await screenshot('loaded');
-  for (const puff of [male, female]) { await selectPuff(puff); await clickCanvas(70, 560); }
+  async function placeParent(candidates) {
+    for (const puff of candidates) {
+      try { await selectPuff(puff); }
+      catch { continue; } // A pasture Puff can be covered by another sprite.
+      await clickCanvas(70, 560);
+      return puff;
+    }
+    throw new Error('No accessible parent of the required sex');
+  }
+  const male = await placeParent(puffs.filter((puff) => puff.genes[9] !== 0));
+  const female = await placeParent(puffs.filter((puff) => puff.genes[9] === 0));
   await until(() => read('return document.querySelector("[aria-label=\"Pen 1 breeding status\"]")?.textContent.includes("3/4 spaces used")'), 'worker-driven birth', 15000);
   await screenshot('birth');
   await clickCanvas(125, 532.5);

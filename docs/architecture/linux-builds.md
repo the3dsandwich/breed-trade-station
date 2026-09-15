@@ -51,7 +51,7 @@ The job:
 4. Creates and installs a `.flatpak` bundle, then runs the native play test.
 5. Uploads the successful bundle and native test results.
 
-The test runs WebKitWebDriver inside the installed app using the matching SDK. It checks WebGL, selects parents through real pointer clicks, waits for a birth, releases the baby, closes the native window through its window manager, and checks the saved pen after reopening. It reads the normal autosave to locate Puffs; it does not inject game state. Screenshots and a JSON result are saved as test artifacts.
+The test runs WebKitWebDriver inside the installed app using the matching SDK. It checks WebGL, selects parents through real pointer clicks, waits for a birth, releases the baby, closes the native window through its window manager, and checks the saved pen after reopening. It reads the normal autosave to locate Puffs; it does not inject game state. It then launches the app using the shipped Platform and normal offline permissions, and captures that window too. Screenshots and a JSON result are saved as test artifacts. The CI display uses X11; Wayland still needs a separate manual check.
 
 The test temporarily allows network access so the local test driver can talk to the app. Run it only in a fresh test account: it refuses to overwrite an existing native save. The shipped app itself has no network permission.
 

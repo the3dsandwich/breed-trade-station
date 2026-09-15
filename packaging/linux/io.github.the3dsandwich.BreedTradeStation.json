@@ -1,5 +1,6 @@
 {
   "app-id": "io.github.the3dsandwich.BreedTradeStation",
+  "branch": "main",
   "runtime": "org.gnome.Platform",
   "runtime-version": "49",
   "sdk": "org.gnome.Sdk",
