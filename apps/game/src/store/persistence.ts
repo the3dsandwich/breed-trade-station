@@ -1,4 +1,4 @@
-import type { ClockState } from "./clockSlice";
+import { stateSaved, type ClockState } from "./clockSlice";
 import type { PuffsState } from "./puffsSlice";
 import type { PensState } from "./pensSlice";
 import type { EconomyState } from "./economySlice";
@@ -43,4 +43,14 @@ export const savePersistedState = (state: PersistedState) => {
 
 export const clearPersistedState = () => {
   localStorage.removeItem(STORAGE_KEY);
+};
+
+// All save triggers stamp the snapshot first, so reload only adds time spent away.
+export const saveGameState = (gameStore: {
+  dispatch: (action: ReturnType<typeof stateSaved>) => unknown;
+  getState: () => PersistedState;
+}) => {
+  gameStore.dispatch(stateSaved());
+  const { puffs, clock, pens, economy, requests } = gameStore.getState();
+  savePersistedState({ puffs, clock, pens, economy, requests });
 };

@@ -1,9 +1,10 @@
-import { generateRequest, type PuffId, type Request } from "@bts/shared";
+import { deriveTraits, puffSatisfiesRequest, generateRequest, type PuffId, type Request } from "@bts/shared";
 import { puffRemoved } from "./puffsSlice";
 import { puffUnassigned } from "./pensSlice";
 import { goldAdjusted, RELEASE_REWARD } from "./economySlice";
 import { requestReplaced } from "./requestsSlice";
 import { selectionCleared, releaseBatchCleared } from "./selectionSlice";
+import { removalBlockedReason } from "./removalRules";
 import { createLocalId } from "./id";
 import type { AppDispatch, RootState } from "./store";
 
@@ -19,7 +20,9 @@ type AppThunk = (dispatch: AppDispatch, getState: () => RootState) => void;
 export const releasePuffs =
   (puffIds: PuffId[]): AppThunk =>
   (dispatch, getState) => {
-    const existingIds = puffIds.filter((puffId) => getState().puffs.byId[puffId]);
+    const state = getState();
+    const existingIds = [...new Set(puffIds)].filter((puffId) => state.puffs.byId[puffId]);
+    if (removalBlockedReason(state.puffs.byId, existingIds)) return;
     if (existingIds.length === 0) return;
 
     for (const puffId of existingIds) {
@@ -40,11 +43,15 @@ export const fulfillRequest =
   (puffId: PuffId, request: Request): AppThunk =>
   (dispatch, getState) => {
     const state = getState();
-    if (!state.puffs.byId[puffId] || !state.requests.byId[request.id]) return;
+    const puff = state.puffs.byId[puffId];
+    const storedRequest = state.requests.byId[request.id];
+    if (!puff || !storedRequest) return;
+    if (!puffSatisfiesRequest(deriveTraits(puff.genes), storedRequest)) return;
+    if (removalBlockedReason(state.puffs.byId, [puffId])) return;
 
     dispatch(puffUnassigned({ puffId }));
     dispatch(puffRemoved({ puffId }));
-    dispatch(goldAdjusted({ amount: request.reward }));
+    dispatch(goldAdjusted({ amount: storedRequest.reward }));
     dispatch(requestReplaced({ oldRequestId: request.id, newRequest: generateRequest(createLocalId()) }));
     dispatch(selectionCleared());
   };

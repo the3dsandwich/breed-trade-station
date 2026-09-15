@@ -165,6 +165,8 @@ Server tick implementation is deferred to backend architecture decisions.
 
 State is serialized to localStorage on every `SAVE` event (every 30 seconds) and immediately on app close. On startup, Redux rehydrates from localStorage before sending `START` to the worker.
 
+Autosave, page unload, and tick-engine cleanup all call `saveGameState`. It updates `clock.lastSavedAt` before taking the snapshot, so a reload does not count time already played as offline time. Only the five saved slices are included; selection stays temporary. The development reset can still suppress the next save.
+
 Only client-owned slices are persisted to localStorage. Market state is always re-fetched from the server on startup.
 
 ---

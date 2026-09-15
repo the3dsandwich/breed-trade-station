@@ -1,5 +1,6 @@
 import { useAppSelector } from "./store/hooks";
 import "./RequestsPanel.css";
+import { TRAIT_LABELS, traitValueLabel } from "./traitLabels";
 
 export const RequestsPanel = () => {
   const requests = useAppSelector((state) => state.requests);
@@ -15,7 +16,7 @@ export const RequestsPanel = () => {
               <div className="requests-panel-requirements">
                 {request.requirements.map((req) => (
                   <span key={req.trait} className="requests-panel-tag">
-                    {req.trait}: {req.value}
+                    {TRAIT_LABELS[req.trait]}: {traitValueLabel(req.trait, req.value)}
                   </span>
                 ))}
               </div>
