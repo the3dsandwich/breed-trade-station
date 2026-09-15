@@ -98,14 +98,14 @@ try {
   }
   const male = await placeParent(puffs.filter((puff) => puff.genes[9] !== 0));
   const female = await placeParent(puffs.filter((puff) => puff.genes[9] === 0));
-  await until(() => read('return document.querySelector("[aria-label=\"Pen 1 breeding status\"]")?.textContent.includes("3/4 spaces used")'), 'worker-driven birth', 15000);
+  await until(() => read('return document.querySelector(arguments[0])?.textContent.includes(arguments[1])', ['[aria-label="Pen 1 breeding status"]', '3/4 spaces used']), 'worker-driven birth', 15000);
   await screenshot('birth');
   await clickCanvas(125, 532.5);
   const childId = await until(() => read('return document.querySelector(".puff-inspector-id")?.textContent'), 'newborn selected');
   assert.ok(!initial.puffs.byId[childId], 'selected Puff is the newborn');
   const actionAt = Date.now();
   await clickElement('.puff-inspector-release-button');
-  await until(() => read('return document.querySelector("[aria-label=\"Pen 1 breeding status\"]")?.textContent.includes("2/4 spaces used")'), 'offspring released');
+  await until(() => read('return document.querySelector(arguments[0])?.textContent.includes(arguments[1])', ['[aria-label="Pen 1 breeding status"]', '2/4 spaces used']), 'offspring released');
   // Ask the window manager to close the real window, exercising onCloseRequested.
   execFileSync('wmctrl', ['-c', 'Breed Trade Station']);
   await until(() => !execFileSync('wmctrl', ['-l'], { encoding: 'utf8' }).includes('Breed Trade Station'), 'window closed');
