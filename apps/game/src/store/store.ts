@@ -35,7 +35,7 @@ export const store = configureStore({
 });
 
 if (!persisted) {
-  store.dispatch(puffsSpawned({ count: INITIAL_PUFF_COUNT }));
+  store.dispatch(puffsSpawned({ count: INITIAL_PUFF_COUNT, starterPair: true }));
 }
 if (!persisted?.pens?.order.length) {
   store.dispatch(pensSeeded(INITIAL_PENS));

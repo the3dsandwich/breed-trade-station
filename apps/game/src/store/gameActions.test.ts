@@ -10,8 +10,8 @@ import { releasePuffs, fulfillRequest } from "./gameActions";
 
 const GENES: GeneArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-const createTestStore = () =>
-  configureStore({
+const createTestStore = () => {
+  const store = configureStore({
     reducer: {
       puffs: puffsReducer,
       pens: pensReducer,
@@ -20,6 +20,12 @@ const createTestStore = () =>
       selection: selectionReducer,
     },
   });
+  const male: GeneArray = [...GENES];
+  male[9] = 1;
+  store.dispatch(puffBorn(createPuff("keep-f", GENES, 0)));
+  store.dispatch(puffBorn(createPuff("keep-m", male, 0)));
+  return store;
+};
 
 const makeRequest = (id: string, reward: number): Request => ({
   id,
@@ -116,5 +122,65 @@ describe("fulfillRequest", () => {
 
     expect(store.getState().economy.gold).toBe(STARTING_GOLD);
     expect(store.getState().requests.byId.r1).toEqual(request);
+  });
+});
+
+
+describe("breeding pair protection and request validation", () => {
+  it("blocks single release of the last male or female without changing state", () => {
+    for (const id of ["keep-f", "keep-m"]) {
+      const store = createTestStore();
+      const before = store.getState();
+      store.dispatch(releasePuffs([id]));
+      expect(store.getState()).toBe(before);
+    }
+  });
+  it("blocks the whole batch instead of removing just the safe Puffs", () => {
+    const store = createTestStore();
+    store.dispatch(puffBorn(createPuff("extra", GENES, 0)));
+    const before = store.getState();
+    store.dispatch(releasePuffs(["extra", "keep-f", "keep-m"]));
+    expect(store.getState()).toBe(before);
+  });
+  it("counts duplicate IDs only once and ignores missing IDs", () => {
+    const store = createTestStore();
+    store.dispatch(puffBorn(createPuff("extra", GENES, 0)));
+    store.dispatch(releasePuffs(["extra", "extra", "missing"]));
+    expect(store.getState().economy.gold).toBe(STARTING_GOLD + RELEASE_REWARD);
+    expect(Object.keys(store.getState().puffs.byId)).toHaveLength(2);
+  });
+  it("blocks request fulfillment of either last parent", () => {
+    for (const id of ["keep-f", "keep-m"]) {
+      const store = createTestStore();
+      const request = makeRequest("r1", 25);
+      store.dispatch(requestsSeeded([request]));
+      const before = store.getState();
+      store.dispatch(fulfillRequest(id, request));
+      expect(store.getState()).toBe(before);
+    }
+  });
+  it("checks stored traits even when caller changes requirements", () => {
+    const store = createTestStore();
+    store.dispatch(puffBorn(createPuff("extra", GENES, 0)));
+    const request: Request = { ...makeRequest("r1", 25), requirements: [{ trait: "bodySize", value: "XL" }] };
+    store.dispatch(requestsSeeded([request]));
+    const before = store.getState();
+    store.dispatch(fulfillRequest("extra", makeRequest("r1", 999)));
+    expect(store.getState()).toBe(before);
+  });
+  it("uses stored reward even when caller changes it", () => {
+    const store = createTestStore();
+    store.dispatch(puffBorn(createPuff("extra", GENES, 0)));
+    store.dispatch(requestsSeeded([makeRequest("r1", 25)]));
+    store.dispatch(fulfillRequest("extra", makeRequest("r1", 999)));
+    expect(store.getState().economy.gold).toBe(STARTING_GOLD + 25);
+  });
+  it("rejects a stale request while the Puff still exists", () => {
+    const store = createTestStore();
+    store.dispatch(puffBorn(createPuff("extra", GENES, 0)));
+    store.dispatch(requestsSeeded([makeRequest("current", 25)]));
+    const before = store.getState();
+    store.dispatch(fulfillRequest("extra", makeRequest("stale", 999)));
+    expect(store.getState()).toBe(before);
   });
 });

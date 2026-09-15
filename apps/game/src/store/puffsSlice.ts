@@ -12,9 +12,12 @@ const puffsSlice = createSlice({
   name: "puffs",
   initialState,
   reducers: {
-    puffsSpawned: (state, action: PayloadAction<{ count: number }>) => {
+    puffsSpawned: (state, action: PayloadAction<{ count: number; starterPair?: boolean }>) => {
       for (let i = 0; i < action.payload.count; i++) {
-        const puff = createPuff(createLocalId(), randomGenes(), Date.now());
+        const genes = randomGenes();
+        // Female 0 and heterozygous male 1 can have offspring of either sex.
+        if (action.payload.starterPair && i < 2) genes[9] = i === 0 ? 0 : 1;
+        const puff = createPuff(createLocalId(), genes, Date.now());
         state.byId[puff.id] = puff;
       }
     },

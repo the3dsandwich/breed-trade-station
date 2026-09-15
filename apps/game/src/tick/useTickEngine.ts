@@ -1,23 +1,9 @@
 import { useEffect } from "react";
 import { useAppDispatch } from "../store/hooks";
-import { gameTick, gameTickCatchup, stateSaved } from "../store/clockSlice";
-import { savePersistedState, type PersistedState } from "../store/persistence";
+import { gameTick, gameTickCatchup } from "../store/clockSlice";
+import { saveGameState } from "../store/persistence";
 import { store } from "../store/store";
 import type { TickCommand, TickEvent } from "./tickWorker";
-
-// Picks only the slices that should survive a reload -- passing the whole
-// RootState would silently persist ephemeral slices (like selection) that
-// aren't declared in PersistedState.
-const persistableState = (): PersistedState => {
-  const state = store.getState();
-  return {
-    puffs: state.puffs,
-    clock: state.clock,
-    pens: state.pens,
-    economy: state.economy,
-    requests: state.requests,
-  };
-};
 
 export const useTickEngine = () => {
   const dispatch = useAppDispatch();
@@ -42,8 +28,7 @@ export const useTickEngine = () => {
           dispatch(gameTickCatchup({ elapsed: event.elapsed }));
           break;
         case "SAVE":
-          savePersistedState(persistableState());
-          dispatch(stateSaved());
+          saveGameState(store);
           break;
       }
     };
@@ -51,12 +36,12 @@ export const useTickEngine = () => {
     post({ type: "START", lastSavedAt: store.getState().clock.lastSavedAt });
 
     const handleBeforeUnload = () => {
-      savePersistedState(persistableState());
+      saveGameState(store);
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      savePersistedState(persistableState());
+      saveGameState(store);
       post({ type: "STOP" });
       worker.terminate();
       window.removeEventListener("beforeunload", handleBeforeUnload);

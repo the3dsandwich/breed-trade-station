@@ -78,7 +78,7 @@ Exact upkeep cost per animal, the deduction interval, the starting Gold balance,
 
 ## Release
 
-Release lets the player remove any animal from their collection at any time, for a small flat Gold return — smaller than a typical Request reward. It's a population-management valve independent of Requests: it works on any animal regardless of whether it matches an open request, for Puffs the player doesn't want to keep or can't place.
+Release lets the player remove animals while keeping at least one male and one female, for a small flat Gold return — smaller than a typical Request reward. It's a population-management valve independent of Requests: it works on animals regardless of whether they match an open request, for Puffs the player doesn't want to keep or can't place.
 
 Release supports both a single-animal flow (select one, release it) and a bulk flow (select several, confirm once) so clearing out multiple unwanted animals doesn't mean repeating the single-select loop one at a time.
 
@@ -178,3 +178,18 @@ Two markets exist, both asynchronous. Listings remain active until purchased by 
 - Hand-authored/scripted Request content; progression-gated Request difficulty
 - Exact Gold/upkeep tuning: upkeep cost, deduction interval, starting balance, starving-rate multiplier
 - Exact Request difficulty→reward formula weights
+
+
+### Breeding help in the prototype
+
+The game shows a short guide: click a Puff, then a pen to move it. Breeding needs a male, a female, and room for a baby. Each pen also has readable text showing its used spaces and what it needs next. A full pen asks the player to make room; an empty or same-sex pen asks for the missing parents. Only a compatible pair with room shows breeding progress and a rough countdown. At zero Gold, the countdown uses the existing three-times-faster breeding rate. These hints do not change breeding rules.
+
+### Keeping a breeding pair (playtest round 2)
+
+This replaces the earlier rule that any Puff can be released at any time. Single release, bulk release, and request fulfillment must keep the last male and last female. Buttons explain why they are disabled. A blocked batch removes nothing. The game also checks these rules when an action is submitted, counts each released Puff only once, and uses the saved request's traits and reward.
+
+New games start with at least one female and one male who can pass on either sex. An older save with no breeding pair offers a confirmed new game in normal builds. Cancel keeps the save. Restart clears the entire save, including Gold, pens, and requests, so it cannot be used to collect extra starter rewards. The development reset stays available.
+
+### Readable controls and small screens
+
+Puff details and sale/release buttons sit directly below Gold in the sidebar. Breeding help and live pen status sit below the play area. Requests and Puff details use full trait names and values, such as “Eye color: Red”; save files and genetics keep their existing codes. The play area keeps its 800×600 shape and shrinks to fit narrow screens, with the sidebar stacked below it.
