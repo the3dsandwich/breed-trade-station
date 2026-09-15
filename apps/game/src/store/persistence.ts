@@ -1,6 +1,8 @@
 import type { ClockState } from "./clockSlice";
 import type { PuffsState } from "./puffsSlice";
 import type { PensState } from "./pensSlice";
+import type { EconomyState } from "./economySlice";
+import type { RequestsState } from "./requestsSlice";
 
 const STORAGE_KEY = "bts:save";
 
@@ -8,6 +10,8 @@ export interface PersistedState {
   puffs: PuffsState;
   clock: ClockState;
   pens: PensState;
+  economy: EconomyState;
+  requests: RequestsState;
 }
 
 export const loadPersistedState = (): PersistedState | undefined => {

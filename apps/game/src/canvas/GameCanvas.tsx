@@ -1,9 +1,14 @@
 import { Stage, Graphics } from "@pixi/react";
 import { useCallback, useMemo } from "react";
 import type * as PIXI from "pixi.js";
+import { deriveTraits, puffSatisfiesRequest } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { puffAssignedToPen, puffUnassigned } from "../store/pensSlice";
-import { puffSelectionToggled, selectionCleared } from "../store/selectionSlice";
+import {
+  puffSelectionToggled,
+  selectionCleared,
+  releaseBatchMembershipToggled,
+} from "../store/selectionSlice";
 import { PuffSprite } from "./PuffSprite";
 import { PenView } from "./PenView";
 import { gridSlotInPen } from "./penLayout";
@@ -46,6 +51,9 @@ export const GameCanvas = () => {
   const puffs = useAppSelector((state) => state.puffs.byId);
   const pens = useAppSelector((state) => state.pens);
   const selectedPuffId = useAppSelector((state) => state.selection.selectedPuffId);
+  const releaseModeActive = useAppSelector((state) => state.selection.releaseModeActive);
+  const releaseBatch = useAppSelector((state) => state.selection.releaseBatch);
+  const requests = useAppSelector((state) => state.requests);
 
   const puffToPen = useMemo(() => {
     const map = new Map<string, string>();
@@ -57,29 +65,38 @@ export const GameCanvas = () => {
     return map;
   }, [pens]);
 
+  const openRequests = useMemo(
+    () => requests.order.map((id) => requests.byId[id]),
+    [requests]
+  );
+
   const handleSelectPuff = useCallback(
     (puffId: string) => {
+      if (releaseModeActive) {
+        dispatch(releaseBatchMembershipToggled({ puffId }));
+        return;
+      }
       dispatch(puffSelectionToggled({ puffId }));
     },
-    [dispatch]
+    [dispatch, releaseModeActive]
   );
 
   const handleClickPen = useCallback(
     (penId: string) => {
-      if (!selectedPuffId) return;
+      if (releaseModeActive || !selectedPuffId) return;
       dispatch(puffAssignedToPen({ puffId: selectedPuffId, penId }));
       dispatch(selectionCleared());
     },
-    [dispatch, selectedPuffId]
+    [dispatch, releaseModeActive, selectedPuffId]
   );
 
   const handleBackgroundTap = useCallback(() => {
-    if (!selectedPuffId) return;
+    if (releaseModeActive || !selectedPuffId) return;
     if (puffToPen.has(selectedPuffId)) {
       dispatch(puffUnassigned({ puffId: selectedPuffId }));
     }
     dispatch(selectionCleared());
-  }, [dispatch, puffToPen, selectedPuffId]);
+  }, [dispatch, releaseModeActive, puffToPen, selectedPuffId]);
 
   const drawBackground = useCallback((g: PIXI.Graphics) => {
     g.clear();
@@ -115,7 +132,11 @@ export const GameCanvas = () => {
           y={PEN_Y}
           width={PEN_WIDTH}
           height={PEN_HEIGHT}
-          highlighted={Boolean(selectedPuffId) && pens.byId[penId].occupantIds.length < pens.byId[penId].capacity}
+          highlighted={
+            !releaseModeActive &&
+            Boolean(selectedPuffId) &&
+            pens.byId[penId].occupantIds.length < pens.byId[penId].capacity
+          }
           onClick={() => handleClickPen(penId)}
         />
       ))}
@@ -138,13 +159,18 @@ export const GameCanvas = () => {
           y = position.y;
         }
 
+        const traits = deriveTraits(puff.genes);
+        const matchesRequest = openRequests.some((request) => puffSatisfiesRequest(traits, request));
+
         return (
           <PuffSprite
             key={puff.id}
             puff={puff}
             x={x}
             y={y}
-            selected={selectedPuffId === puff.id}
+            selected={!releaseModeActive && selectedPuffId === puff.id}
+            releaseSelected={releaseModeActive && releaseBatch.includes(puff.id)}
+            matchesRequest={matchesRequest}
             onSelect={() => handleSelectPuff(puff.id)}
           />
         );

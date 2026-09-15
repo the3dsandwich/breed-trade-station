@@ -35,6 +35,9 @@ const EAR_SIZE_RADIUS: Record<string, number> = {
   L: 8,
 };
 
+const RELEASE_RING_COLOR = 0xe8695f;
+const MATCH_BADGE_COLOR = 0x4ade80;
+
 // Gives each Puff a stable-but-different animation phase so a group of
 // them doesn't bob/breathe in unison.
 const hashString = (value: string): number => {
@@ -50,10 +53,20 @@ interface PuffSpriteProps {
   x: number;
   y: number;
   selected?: boolean;
+  releaseSelected?: boolean;
+  matchesRequest?: boolean;
   onSelect?: () => void;
 }
 
-export const PuffSprite = ({ puff, x, y, selected = false, onSelect }: PuffSpriteProps) => {
+export const PuffSprite = ({
+  puff,
+  x,
+  y,
+  selected = false,
+  releaseSelected = false,
+  matchesRequest = false,
+  onSelect,
+}: PuffSpriteProps) => {
   const traits = deriveTraits(puff.genes);
   const radius = BODY_SIZE_RADIUS[traits.bodySize];
   const earRadius = EAR_SIZE_RADIUS[traits.earSize];
@@ -114,6 +127,23 @@ export const PuffSprite = ({ puff, x, y, selected = false, onSelect }: PuffSprit
     [bodyColor, highlightColor, eyeColor, radius, earRadius]
   );
 
+  const drawMatchBadge = useCallback(
+    (g: PIXI.Graphics) => {
+      const badgeRadius = Math.max(6, radius * 0.35);
+      g.clear();
+      g.lineStyle(1, 0x000000, 0.3);
+      g.beginFill(MATCH_BADGE_COLOR, 1);
+      g.drawCircle(0, 0, badgeRadius);
+      g.endFill();
+
+      g.lineStyle(1.5, 0xffffff, 1);
+      g.moveTo(-badgeRadius * 0.4, 0);
+      g.lineTo(-badgeRadius * 0.05, badgeRadius * 0.35);
+      g.lineTo(badgeRadius * 0.45, -badgeRadius * 0.35);
+    },
+    [radius]
+  );
+
   const handlePointerTap = useCallback(
     (event: PIXI.FederatedPointerEvent) => {
       event.stopPropagation();
@@ -134,6 +164,8 @@ export const PuffSprite = ({ puff, x, y, selected = false, onSelect }: PuffSprit
         pointertap={handlePointerTap}
       />
       {selected && <SelectionRing radius={radius + 6} />}
+      {releaseSelected && <SelectionRing radius={radius + 6} color={RELEASE_RING_COLOR} />}
+      {matchesRequest && <Graphics x={radius * 0.75} y={-radius * 0.95} draw={drawMatchBadge} />}
     </Container>
   );
 };

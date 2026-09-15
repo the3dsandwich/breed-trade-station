@@ -5,9 +5,15 @@ import type { PuffId } from "@bts/shared";
 // state, not something that should survive a reload.
 export interface SelectionState {
   selectedPuffId: PuffId | null;
+  releaseModeActive: boolean;
+  releaseBatch: PuffId[];
 }
 
-const initialState: SelectionState = { selectedPuffId: null };
+const initialState: SelectionState = {
+  selectedPuffId: null,
+  releaseModeActive: false,
+  releaseBatch: [],
+};
 
 const selectionSlice = createSlice({
   name: "selection",
@@ -19,8 +25,27 @@ const selectionSlice = createSlice({
     selectionCleared: (state) => {
       state.selectedPuffId = null;
     },
+    releaseModeToggled: (state) => {
+      state.releaseModeActive = !state.releaseModeActive;
+      state.releaseBatch = [];
+    },
+    releaseBatchMembershipToggled: (state, action: PayloadAction<{ puffId: PuffId }>) => {
+      const { puffId } = action.payload;
+      state.releaseBatch = state.releaseBatch.includes(puffId)
+        ? state.releaseBatch.filter((id) => id !== puffId)
+        : [...state.releaseBatch, puffId];
+    },
+    releaseBatchCleared: (state) => {
+      state.releaseBatch = [];
+    },
   },
 });
 
-export const { puffSelectionToggled, selectionCleared } = selectionSlice.actions;
+export const {
+  puffSelectionToggled,
+  selectionCleared,
+  releaseModeToggled,
+  releaseBatchMembershipToggled,
+  releaseBatchCleared,
+} = selectionSlice.actions;
 export const selectionReducer = selectionSlice.reducer;

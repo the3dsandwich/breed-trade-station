@@ -10,7 +10,13 @@ import type { TickCommand, TickEvent } from "./tickWorker";
 // aren't declared in PersistedState.
 const persistableState = (): PersistedState => {
   const state = store.getState();
-  return { puffs: state.puffs, clock: state.clock, pens: state.pens };
+  return {
+    puffs: state.puffs,
+    clock: state.clock,
+    pens: state.pens,
+    economy: state.economy,
+    requests: state.requests,
+  };
 };
 
 export const useTickEngine = () => {
