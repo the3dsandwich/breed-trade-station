@@ -40,10 +40,16 @@ async function screenshot(name) {
 }
 async function clickCanvas(x, y) {
   const box = await read('const r=document.querySelector("canvas").getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}');
-  await call('POST', '/actions', { actions: [{ type: 'pointer', id: 'mouse', parameters: { pointerType: 'mouse' }, actions: [
-    { type: 'pointerMove', duration: 0, origin: 'viewport', x: Math.round(box.x + x * box.width / 800), y: Math.round(box.y + y * box.height / 600) },
-    { type: 'pointerDown', button: 0 }, { type: 'pointerUp', button: 0 },
-  ] }] });
+  const windowLine = execFileSync('wmctrl', ['-l'], { encoding: 'utf8' })
+    .split('\n').find((line) => line.includes('Breed Trade Station'));
+  assert.ok(windowLine, 'native window is visible');
+  const windowId = windowLine.trim().split(/\s+/)[0];
+  // Send real desktop mouse events. WebKit's synthetic pointer actions can
+  // miss Pixi's pointertap handling even when their WebDriver request succeeds.
+  execFileSync('xdotool', ['mousemove', '--sync', '--window', windowId,
+    String(Math.round(box.x + x * box.width / 800)),
+    String(Math.round(box.y + y * box.height / 600)), 'click', '1']);
+  await delay(150);
 }
 async function clickElement(selector) {
   const element = await call('POST', '/element', { using: 'css selector', value: selector });
@@ -81,7 +87,10 @@ try {
   async function placeParent(candidates) {
     for (const puff of candidates) {
       try { await selectPuff(puff); }
-      catch { continue; } // A pasture Puff can be covered by another sprite.
+      catch (error) {
+        console.warn(`Could not select ${puff.id}: ${error.message}`);
+        continue; // A pasture Puff can be covered by another sprite.
+      }
       await clickCanvas(70, 560);
       return puff;
     }

@@ -5,7 +5,7 @@ report_dir="${BTS_NATIVE_REPORT_DIR:-$PWD/artifacts/native-test}"
 mkdir -p "$report_dir"
 export BTS_NATIVE_REPORT_DIR="$report_dir"
 if [[ -z "${DISPLAY:-}" ]]; then
-  exec dbus-run-session -- xvfb-run -a -s '-screen 0 1280x1024x24' bash "$0"
+  exec xvfb-run -a -s '-screen 0 1280x1024x24' dbus-run-session -- bash "$0"
 fi
 # This script is for a disposable CI/test account: it refuses to overwrite a real save.
 if [[ -d "$HOME/.var/app/$app_id/data" ]]; then
