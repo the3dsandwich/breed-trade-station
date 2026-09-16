@@ -70,3 +70,22 @@ jobs:
           path: artifacts/native-test/
           if-no-files-found: ignore
           retention-days: 14
+
+  release:
+    needs: flatpak
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: BreedTradeStation-linux-x86_64-${{ github.sha }}
+          path: artifacts
+
+      - name: Publish tested Flatpak as a development release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/linux/release.sh

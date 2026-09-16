@@ -8,10 +8,9 @@ The Flatpak app ID is `io.github.the3dsandwich.BreedTradeStation`. The first pac
 
 ## Download and install
 
-1. Open the repository's **Actions** page on GitHub.
-2. Open a successful **Linux Flatpak** run for the commit you want.
-3. Download the `BreedTradeStation-linux-x86_64-<commit>` artifact and unzip it. GitHub requires sign-in to download build artifacts. Artifacts expire after 14 days.
-4. Install Flatpak through your Linux distribution, then run:
+1. Open [GitHub Releases](https://github.com/the3dsandwich/breed-trade-station/releases) and choose the newest Linux development build.
+2. Download `BreedTradeStation-linux-x86_64.flatpak` from its **Assets** section. The optional `.sha256` file lets you check the download. Release files do not have the CI artifact's 14-day expiry.
+3. Install Flatpak through your Linux distribution, then run:
 
 ```sh
 flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -41,7 +40,7 @@ Browser saves and native saves are separate. This build does not import or sync 
 
 ## CI builds
 
-`.github/workflows/linux-flatpak.yml` runs on pull requests to `main`, pushes to `main`, and manual requests. It only needs read access to repository contents.
+`.github/workflows/linux-flatpak.yml` runs on pull requests to `main`, pushes to `main`, and manual requests. The build and PR jobs only need read access. A separate release job has write access and runs only after a successful build on `main` (push/merge or manual run). PRs cannot publish releases.
 
 The job:
 
@@ -49,7 +48,10 @@ The job:
 2. Downloads Rust dependencies using the checked-in `Cargo.lock`, then copies those sources and the built frontend into a staging folder.
 3. Compiles Rust **inside GNOME SDK 49**, using its Rust extension from the 25.08 runtime family. Cargo runs with `--locked --offline`. No remotely built game binary is used.
 4. Creates and installs a `.flatpak` bundle, then runs the native play test.
-5. Uploads the successful bundle and native test results.
+5. Uploads the successful bundle and native test results as CI artifacts (kept for 14 days).
+6. On `main`, downloads that exact tested artifact into a separate job and publishes it with a SHA-256 checksum as a GitHub development prerelease. Each source commit has its own `linux-<full-commit>` tag. Rerunning the same commit updates that release. New releases stay draft until their files are uploaded. These builds do not replace the latest stable release.
+
+PR builds stay available through **Actions**: download and unzip the `BreedTradeStation-linux-x86_64-<commit>` artifact. GitHub requires sign-in for CI artifact downloads. Public release downloads do not require sign-in.
 
 The test runs WebKitWebDriver inside the installed app using the matching SDK. It checks WebGL, selects parents through desktop mouse clicks (xdotool), waits for a birth, releases the baby, closes the native window through its window manager, and checks the saved pen after reopening. It reads the normal autosave to locate Puffs; it does not inject game state. It then launches the app using the shipped Platform and normal offline permissions, and captures that window too. Screenshots and a JSON result are saved as test artifacts. The CI display uses X11; Wayland still needs a separate manual check.
 
@@ -86,3 +88,11 @@ PixiJS needs JavaScript code generation for its shaders, so the app's content se
 The repository has no project license yet. The app metadata marks it `LicenseRef-proprietary` to reflect that no reuse license has been granted. The new metadata description itself is CC0. This does not add a license to the game. A public store release needs a separate licensing decision.
 
 Sources: [Tauri setup](https://v2.tauri.app/start/prerequisites/), [Tauri configuration](https://v2.tauri.app/reference/config/), and [Flatpak Rust build guidance](https://github.com/flatpak/flatpak-builder-tools/blob/master/cargo/README.md).
+
+## Updates through a Flatpak repository
+
+GitHub Releases holds individual bundle downloads. It does not make those downloads a Flatpak update source. For now, download and install a newer bundle to update the game.
+
+GitHub Pages can host the static files of a real Flatpak repository. Flatpak's own [hosting guide](https://docs.flatpak.org/en/latest/hosting-a-repository.html) explicitly supports this. A future setup would publish the app repository and its signed summary, keep a stable signing key in Actions secrets, and provide a `.flatpakrepo` file. Players would add that source once, install the game from it, then receive updates through `flatpak update` or their desktop software app.
+
+That source is not enabled by this release workflow. It also needs Pages setup and a plan to preserve the signing key and repository history. GitHub Pages has [storage and bandwidth limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits); Flathub is another option for a wider release later.
