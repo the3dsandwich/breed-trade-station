@@ -8,6 +8,8 @@ The Flatpak app ID is `io.github.the3dsandwich.BreedTradeStation`. The first pac
 
 ## Download and install
 
+For updates through your software manager, use the [update source](#install-with-an-update-source). Standalone release downloads remain available below.
+
 1. Open [GitHub Releases](https://github.com/the3dsandwich/breed-trade-station/releases) and choose the newest Linux development build.
 2. Download `BreedTradeStation-linux-x86_64.flatpak` from its **Assets** section. The optional `.sha256` file lets you check the download. Release files do not have the CI artifact's 14-day expiry.
 3. Install Flatpak through your Linux distribution, then run:
@@ -89,10 +91,54 @@ The repository has no project license yet. The app metadata marks it `LicenseRef
 
 Sources: [Tauri setup](https://v2.tauri.app/start/prerequisites/), [Tauri configuration](https://v2.tauri.app/reference/config/), and [Flatpak Rust build guidance](https://github.com/flatpak/flatpak-builder-tools/blob/master/cargo/README.md).
 
-## Updates through a Flatpak repository
+## Install with an update source
 
-GitHub Releases holds individual bundle downloads. It does not make those downloads a Flatpak update source. For now, download and install a newer bundle to update the game.
+The [Linux download page](https://the3dsandwich.github.io/breed-trade-station/) offers a signed Flatpak source. Add it once and install the game:
 
-GitHub Pages can host the static files of a real Flatpak repository. Flatpak's own [hosting guide](https://docs.flatpak.org/en/latest/hosting-a-repository.html) explicitly supports this. A future setup would publish the app repository and its signed summary, keep a stable signing key in Actions secrets, and provide a `.flatpakrepo` file. Players would add that source once, install the game from it, then receive updates through `flatpak update` or their desktop software app.
+```sh
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --user --if-not-exists breed-trade-station https://the3dsandwich.github.io/breed-trade-station/breed-trade-station.flatpakrepo
+flatpak install --user breed-trade-station io.github.the3dsandwich.BreedTradeStation
+flatpak run io.github.the3dsandwich.BreedTradeStation
+```
 
-That source is not enabled by this release workflow. It also needs Pages setup and a plan to preserve the signing key and repository history. GitHub Pages has [storage and bandwidth limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits); Flathub is another option for a wider release later.
+Your desktop software manager can check this source for updates. To update by hand:
+
+```sh
+flatpak update --user io.github.the3dsandwich.BreedTradeStation
+```
+
+If you already installed a release bundle, close the game, add the source above, then switch the installation to it:
+
+```sh
+flatpak install --user --reinstall breed-trade-station io.github.the3dsandwich.BreedTradeStation
+```
+
+The app ID stays the same, so the native save stays in place. Do not uninstall with `--delete-data`. This is a development update source; it follows the newest tested `main` build. Browser saves are still separate.
+
+## How source publishing works
+
+A separate `source` job runs after the native build/play test passes on `main`. It downloads that run's exact Flatpak, imports it into an OSTree archive repository, signs the app commit and repository summary, and generates static download files. It checks that the source still matches the current `main` commit before preparing a deployment. PRs cannot run this publishing job.
+
+The job tests a signed install, replaces the source with the new build, and checks that `flatpak update` changes the installed commit. When an older release exists, the check uses that real older bundle. It also checks rejection of a source without a trusted key. These package tests skip runtime downloads and do not run the game; the earlier native play test covers gameplay.
+
+The source publishes through GitHub Pages at `https://the3dsandwich.github.io/breed-trade-station/`. A final check installs from the public HTTPS source and compares its commit with the prepared repository. A `.flatpakrepo` file adds the source; a `.flatpakref` file installs the app and offers its GNOME runtime source. GitHub's `github-pages` environment restricts publishing to `main`; the setup branch is allowed only during the first deployment test.
+
+The source keeps only the newest app commit, plus its signed metadata and downloads. It does not promise rollback history. Previous standalone bundles remain in GitHub Releases. Builds are small enough to download in full, so updates do not depend on preserving old repository objects. Source jobs run one at a time. Main builds are not cancelled midway through publishing; PR builds can still cancel older PR runs.
+
+### Signing key
+
+- Public key: `packaging/linux/flatpak-signing-key.gpg`; its full fingerprint is in the adjacent `.fingerprint` file.
+- Private key: repository Actions secret `FLATPAK_GPG_PRIVATE_KEY`. It is imported into a temporary keyring only for signing, and that keyring is removed before artifact upload.
+- The original key and revocation certificate have a protected local backup at `~/.local/share/breed-trade-station/flatpak-signing/`. Keep that folder private and back it up securely. GitHub cannot return a stored secret later.
+- The key has no automatic expiry. Keep using this same key for updates. Replacing it without a key transition would break existing users' trust in the source.
+
+Do not put the private key in Git, logs, Pages, or release downloads. Only public repository files are uploaded. The signing step verifies that the secret contains the checked-in public key's fingerprint.
+
+### Manual publishing and recovery
+
+The Linux Flatpak workflow has an optional `publish_run_id` input. Leave it empty for a normal build. Provide a successful main build's run number to publish its existing artifact without compiling again. The script rejects failed builds, PR builds, other workflows, and builds that do not match current `main`. This also lets an authorized maintainer retry a deployment. Pages environment rules still apply.
+
+To restore a lost deployment, rerun publishing for the current successful main build. To recover a lost Actions secret, export the original private key from the protected backup and restore that same secret. If the key is compromised, use its revocation certificate and plan a new trusted source; do not silently generate a replacement key.
+
+Sources: [Flatpak repository hosting](https://docs.flatpak.org/en/latest/hosting-a-repository.html), [GitHub Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages), and [Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).

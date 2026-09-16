@@ -6,16 +6,22 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      publish_run_id:
+        description: 'Publish an already passed main build (run number); leave empty to build normally'
+        type: string
+        default: ''
 
 permissions:
   contents: read
 
 concurrency:
   group: linux-flatpak-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   flatpak:
+    if: inputs.publish_run_id == ''
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
@@ -89,3 +95,49 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash scripts/linux/release.sh
+
+  source:
+    needs: flatpak
+    if: >-
+      always() && !cancelled() &&
+      ((github.ref == 'refs/heads/main' && needs.flatpak.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && inputs.publish_run_id != ''))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    concurrency:
+      group: flatpak-pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repository tools
+        run: sudo apt-get update && sudo apt-get install -y flatpak ostree gnupg
+      - name: Fetch only a tested main build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLISH_RUN_ID: ${{ inputs.publish_run_id }}
+        run: python3 scripts/linux/fetch-source.py
+      - name: Sign source and test install and update
+        env:
+          FLATPAK_GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+        run: bash scripts/linux/prepare-source.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-source-test-${{ github.run_id }}
+          path: artifacts/source-test.txt
+          if-no-files-found: error
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: artifacts/pages
+      - name: Publish Flatpak source
+        id: deploy
+        uses: actions/deploy-pages@v4
+      - name: Verify public source
+        run: bash scripts/linux/verify-source.sh
