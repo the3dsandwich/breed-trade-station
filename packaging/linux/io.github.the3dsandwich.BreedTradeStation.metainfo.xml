@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.the3dsandwich.BreedTradeStation</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <name>Breed Trade Station</name>
+  <summary>Breed Puffs and trade creatures with special traits</summary>
+  <description>
+    <p>Raise a herd of Puffs, pair parents in breeding pens, and discover inherited traits. Fill requests to earn Gold and make room for the next generation.</p>
+    <p>This early version plays offline and saves your game on this device.</p>
+  </description>
+  <launchable type="desktop-id">io.github.the3dsandwich.BreedTradeStation.desktop</launchable>
+  <url type="homepage">https://github.com/the3dsandwich/breed-trade-station</url>
+  <url type="bugtracker">https://github.com/the3dsandwich/breed-trade-station/issues</url>
+  <content_rating type="oars-1.1"/>
+  <releases><release version="0.1.0" date="2026-09-15"/></releases>
+</component>

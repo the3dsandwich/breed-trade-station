@@ -16,7 +16,7 @@ The product ships as a native app on each target platform. The web app is an imp
 
 | Surface | Wrapper | User experience |
 |---------|---------|----------------|
-| Linux / Steam Deck | Tauri | Native `.AppImage` or Steam game |
+| Linux / Steam Deck | Tauri | Tauri 2 app; Flatpak on Linux (Steam distribution later) |
 | Android | Capacitor | Play Store app |
 | iPhone | Browser / PWA | Pinned to home screen, full-screen |
 | Web (anyone else) | None | Hosted URL |
@@ -87,6 +87,14 @@ Developer has an existing Google Play developer account. Android distribution vi
 A backend server is required for persistence, the market system, and eventual multiplayer. Server language and framework are deferred — this document covers platform and client architecture only. The client communicates with the server over standard HTTP/WebSocket regardless of which surface it runs on.
 
 ---
+
+## Linux build now available
+
+The Linux wrapper lives in `apps/game/src-tauri`. It opens the built game in a native window using WebKitGTK. It uses Tauri 2, as chosen above. Game code stays in React. The app ID is `io.github.the3dsandwich.BreedTradeStation`; keep it stable so updates keep using the same save location.
+
+Flatpak is the first Linux package format. It supplies a known WebKitGTK version through the GNOME 49 runtime, which avoids relying on each Linux distribution to have the right libraries. The app has display and GPU access, but no network or broad host-file access. Its small Tauri permission list only supports saving before the window closes.
+
+See [Linux builds and installation](linux-builds.md) for CI downloads, local builds, and save details. Windows, macOS, Steam, and mobile packaging are still future work.
 
 ## Deferred
 

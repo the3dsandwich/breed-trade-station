@@ -1,0 +1,72 @@
+name: Linux Flatpak
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-flatpak-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flatpak:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install build and test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder xvfb dbus-x11 openbox wmctrl imagemagick xdotool
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - name: Install Flatpak SDK
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive flathub org.gnome.Platform//49 org.gnome.Sdk//49 org.freedesktop.Sdk.Extension.rust-stable//25.08
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Build frontend and stage locked Rust sources
+        run: pnpm linux:stage
+
+      - name: Build Linux app inside Flatpak SDK
+        run: pnpm linux:build
+
+      - name: Install and play-test Flatpak
+        run: |
+          flatpak install --user --noninteractive artifacts/BreedTradeStation-linux-x86_64.flatpak
+          timeout 240 bash scripts/linux/test-flatpak.sh
+
+      - name: Upload Flatpak
+        uses: actions/upload-artifact@v4
+        with:
+          name: BreedTradeStation-linux-x86_64-${{ github.sha }}
+          path: artifacts/BreedTradeStation-linux-x86_64.flatpak
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload native test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-native-test-${{ github.sha }}
+          path: artifacts/native-test/
+          if-no-files-found: ignore
+          retention-days: 14

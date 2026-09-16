@@ -41,3 +41,11 @@ Independent retest passed: at 1280 × 900 the Release button was at y=399–429 
 All three rounds are complete. Unit tests (63 game and 33 shared source tests), build, lint, typecheck, and all 11 browser tests passed. The shared test runner also runs compiled copies of its tests. Each round had separate play and change agents, followed by an independent browser retest.
 
 Small screens still need vertical scrolling, and Puff tap targets shrink with the canvas. The existing large-bundle warning remains.
+
+## Round 4 — Add an installable Linux app
+
+Review: the project already chose Tauri, but had no desktop wrapper or Linux package. The main risks were bundled game files, WebGL, worker timers, close/save behavior, and matching the Linux runtime used to build and run the app.
+
+Implemented: a Tauri 2 window, a Flatpak package for x86_64, desktop icon and menu entry, and saving before the native window closes. GitHub Actions builds on PRs to main, pushes/merges to main, and manual runs. Rust compiles inside the matching Flatpak SDK with locked, offline dependencies. The installed game has no network or broad filesystem access.
+
+Retest method: install the actual package in CI, check native WebGL and autosave, use desktop mouse clicks to assign parents, wait for a birth, release the baby, then close and reopen to check the save. A second launch checks the shipped runtime with its normal offline permissions. The workflow uploads results and screenshots for review; only a fully passing run uploads the app bundle. Independent review also added overlap handling for random starter Puffs. See [Linux build instructions](../architecture/linux-builds.md) for downloads, saves, and current platform limits.

@@ -12,3 +12,8 @@ Examples of what belongs here:
 - API design
 
 Does not belong here: game mechanics (→ `docs/design/`), source analysis (→ `docs/research/`).
+
+## Platform guides
+
+- [Platform choices](platform.md)
+- [Linux builds and installation](linux-builds.md)
