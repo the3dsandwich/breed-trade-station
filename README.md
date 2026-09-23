@@ -72,6 +72,16 @@ pnpm test:e2e
 
 The browser test command starts the local game server for you.
 
+## Daily development loop
+
+The project has a small Codex/Claude workflow for one tested game improvement at
+a time, with before/after screenshots and a PR for human review. You can also
+follow up on a PR immediately. Daily scheduling stays disabled until the pilot
+passes and the runner is merged.
+
+See the [daily loop guide](docs/architecture/daily-loop.md) for setup, limits,
+reports, and the current security limits.
+
 ## What is built
 
 - Puff traits and inheritance, breeding pens, and breeding progress.

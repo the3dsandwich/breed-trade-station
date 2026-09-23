@@ -1,0 +1,16 @@
+{
+  "timezone": "Asia/Taipei",
+  "start": "09:30",
+  "ai_cutoff": "14:30",
+  "report_cutoff": "17:30",
+  "max_open_prs": 2,
+  "max_model_calls": 6,
+  "max_ai_seconds": 3600,
+  "max_input_tokens": 400000,
+  "max_repairs": 2,
+  "max_changed_files": 8,
+  "max_changed_lines": 600,
+  "max_file_bytes": 40000,
+  "goal": "Make the first successful breeding lead naturally to another interesting breeding goal. Favor meaningful choices, discovery, and attachment. Respect documented game decisions; explain any proposed change to them. Avoid login streaks or punishments for being away. Developer improvements should remove an observed obstacle.",
+  "max_context_files": 20
+}
