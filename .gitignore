@@ -15,3 +15,6 @@ packaging/linux/build/
 packaging/linux/repo/
 .flatpak-builder/
 artifacts/
+
+# Local Python runner cache
+__pycache__/

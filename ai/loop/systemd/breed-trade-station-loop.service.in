@@ -1,0 +1,19 @@
+[Unit]
+Description=One Breed Trade Station development round
+
+[Service]
+Type=exec
+WorkingDirectory=@REPO@
+Environment=@PATH_ENV@
+ExecStartPre=@PYTHON@ @RUNNER@ enable-check
+ExecStart=@PYTHON@ @RUNNER@ run --scheduled
+RuntimeMaxSec=90min
+TimeoutStopSec=30s
+KillMode=control-group
+SendSIGKILL=yes
+Restart=no
+UMask=0077
+PrivateUsers=yes
+InaccessiblePaths=@INACCESSIBLE@
+StandardOutput=journal
+StandardError=journal
