@@ -6,6 +6,7 @@ import io
 import json
 from pathlib import Path
 import tempfile
+import time
 import unittest
 from unittest.mock import Mock, patch
 
@@ -102,6 +103,17 @@ class RunnerTests(unittest.TestCase):
         saved = runner.load_record(record["id"])
         self.assertEqual(saved["model_calls"], 1)
         self.assertGreaterEqual(saved["ai_seconds"], 0)
+
+    def test_large_prompt_to_stalled_reader_times_out(self):
+        # This harmless local child never reads stdin. Its pipe fills immediately;
+        # timeout enforcement must still work rather than wait for the child.
+        started = time.monotonic()
+        with self.assertRaisesRegex(runner.StopRun, "timed out"):
+            runner.command(self.record,
+                [runner.sys.executable, "-c", "import time; time.sleep(30)"],
+                "stalled-input", prompt="x" * 2_000_000, timeout=0.15, model=True)
+        self.assertLess(time.monotonic() - started, 3)
+        self.assertEqual(runner.load_record(self.record["id"])["model_calls"], 1)
 
     def git_for_publish(self, *, lines=2, staged=False):
         def fake(*args, **kwargs):

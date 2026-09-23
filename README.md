@@ -79,7 +79,7 @@ a time, with before/after screenshots and a PR for human review. You can also
 follow up on a PR immediately. Daily scheduling stays disabled until the pilot
 passes and the runner is merged.
 
-See the [daily loop guide](docs/development/daily-loop.md) for setup, limits,
+See the [daily loop guide](docs/architecture/daily-loop.md) for setup, limits,
 reports, and the current security limits.
 
 ## What is built

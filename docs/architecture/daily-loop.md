@@ -132,6 +132,8 @@ Resume a stopped round using its ID from `status`:
 python3 ai/loop/run.py resume --interactive --run RUN_ID
 ```
 
+The next scheduled start can resume a wait for CI or a pause caused by the time cutoff. Review blocks, failed checks, and exhausted limits need attention; they do not trigger repeated automatic attempts.
+
 Resume keeps that round's existing budget counters. It does not reset exhausted
 limits. For a new manual round with a different focus:
 

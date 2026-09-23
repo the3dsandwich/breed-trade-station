@@ -119,15 +119,23 @@ def command(run, args, name, cwd=None, timeout=300, prompt=None, model=False, en
             stdin=subprocess.PIPE if prompt is not None else subprocess.DEVNULL,
             stdout=stream, stderr=subprocess.STDOUT, env=env, start_new_session=True)
         try:
-            if prompt is not None:
-                process.stdin.write(prompt.encode())
-                process.stdin.close()
+            pending_input = prompt.encode() if prompt is not None else None
             while process.poll() is None:
                 if time.monotonic() >= deadline:
                     raise StopRun(f"{name} timed out; see {log.name}")
                 if model and run["scheduled"] and not in_window(CONFIG):
                     raise StopRun("Stopped model work at the Taipei cutoff")
-                time.sleep(0.5)
+                if prompt is not None:
+                    # communicate multiplexes a large input instead of blocking
+                    # on a full pipe. Retries retain its unsent input internally.
+                    try:
+                        process.communicate(input=pending_input,
+                            timeout=min(0.5, max(0.001, deadline - time.monotonic())))
+                    except subprocess.TimeoutExpired:
+                        pass
+                    pending_input = None
+                else:
+                    time.sleep(0.5)
             if process.returncode:
                 tail = log.read_text(errors="replace")[-2500:]
                 if model and re.search(r"rate.?limit|usage limit|limit reached|not logged in|authentication|session expired", tail, re.I):
@@ -141,6 +149,9 @@ def command(run, args, name, cwd=None, timeout=300, prompt=None, model=False, en
                 except subprocess.TimeoutExpired:
                     os.killpg(process.pid, signal.SIGKILL)
                     process.wait()
+            if prompt is not None and process.stdin is not None:
+                with contextlib.suppress(BrokenPipeError):
+                    process.stdin.close()
             if model:
                 run["ai_seconds"] = run.get("ai_seconds", 0) + time.monotonic() - started
                 save(run)
@@ -286,6 +297,10 @@ def setup_run(args, repo):
         run = load_record(args.run)
         if run["status"] == "complete":
             raise StopRun("This round is already complete")
+        current_runner = git("rev-parse", "HEAD")
+        if current_runner != run["runner_commit"]:
+            run.setdefault("resumed_versions", []).append({"previous": run["runner_commit"], "current": current_runner, "phase": run["phase"]})
+            run["runner_commit"] = current_runner
         run["scheduled"] = not args.interactive
         run["status"] = "running"
         run.pop("error", None)
@@ -490,12 +505,16 @@ PLAY REPORT: {json.dumps(before)}
             prompt = f"""Implement ONE small game experiment as complete replacement file contents in the requested JSON. No tools. Work only from supplied source and plan. Use exact old_sha256 values supplied (null only for a new file). Do not omit existing code or use placeholders. No deletions, dependency/CI/runner changes, generated images, eval/new Function, network calls, or shell commands. Preserve save compatibility and tests; do not weaken existing assertions. Add focused tests when behavior changes and update a design doc. If additional source is essential, return empty changes and explain; never invent unseen interfaces. Keep within {CONFIG['max_changed_files']} files and {CONFIG['max_changed_lines']} changed lines. Plain English.
 PLAN: {json.dumps(run['plan'])}
 SOURCE: {json.dumps(context)}
+READ-ONLY TEST SETUP: {json.dumps({name: (worktree / name).read_text() for name in ['apps/game/package.json', 'apps/game/vite.config.ts', 'apps/game/src/store/requestsSlice.test.ts']})}
+There is no separate Vitest configuration in this repository. Follow the supplied existing test style. These setup files are context only, not added edit permissions.
 REPAIR FEEDBACK: {run.get('repair_feedback', 'none')}
 """
             proposal = provider(run, "codex", f"build-{attempt}", prompt, CHANGE_SCHEMA)
+            if not proposal["changes"]:
+                raise StopRun("Builder needs more context: " + proposal["summary"])
             if not {c["path"] for c in proposal["changes"]} <= set(run["plan"]["files"]):
                 raise ValueError("Builder changed files outside the selected plan")
-            if not any(c["path"].startswith("docs/design/") for c in proposal["changes"]):
+            if attempt == 0 and not any(c["path"].startswith("docs/design/") for c in proposal["changes"]):
                 raise ValueError("Game changes need a design note")
             apply_changes(worktree, proposal["changes"], CONFIG)
             run.update(proposal=proposal, phase="verify")
@@ -638,6 +657,16 @@ def main():
         (STATE / "active.json").unlink(missing_ok=True)
         repo = repository()
         run = None
+        if args.command == "run" and not args.interactive:
+            # Continue a CI wait or time-cutoff pause; never silently retry a review block.
+            for path in reversed(records()):
+                old = json.loads(path.read_text())
+                time_pause = any(reason in old.get("error", "") for reason in
+                    ("Taipei cutoff", "Taipei AI window", "report cutoff", "CI is still pending"))
+                budget_left = old.get("model_calls", 0) < CONFIG["max_model_calls"] and old.get("ai_seconds", 0) < CONFIG["max_ai_seconds"] and old.get("input_tokens", 0) < CONFIG["max_input_tokens"]
+                if old["status"] == "paused" and time_pause and (old["phase"] == "ci" or budget_left):
+                    args.command, args.run = "resume", old["id"]
+                    break
         try:
             run = setup_run(args, repo)
             atomic_json(STATE / "active.json", {"run": run["id"], "pid": os.getpid()})
