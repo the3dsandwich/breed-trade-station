@@ -229,5 +229,12 @@ class RunnerTests(unittest.TestCase):
                 self.assertFalse(any(c.args[:2] == ("pr", "ready") for c in github.call_args_list))
 
 
+class UsageTests(unittest.TestCase):
+    def test_cached_input_counted_once_for_each_provider(self):
+        self.assertEqual(runner.reported_input_tokens([
+            {"provider": "codex", "input_tokens": 100, "cached_input_tokens": 60},
+            {"provider": "claude", "input_tokens": 2, "cache_creation_input_tokens": 30, "cache_read_input_tokens": 50},
+        ]), 182)
+
 if __name__ == "__main__":
     unittest.main()

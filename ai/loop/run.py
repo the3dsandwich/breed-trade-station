@@ -157,6 +157,14 @@ def command(run, args, name, cwd=None, timeout=300, prompt=None, model=False, en
                 save(run)
     return log
 
+def reported_input_tokens(entries):
+    total = 0
+    for entry in entries:
+        total += entry.get("input_tokens", 0)
+        if entry["provider"] == "claude":
+            total += entry.get("cache_creation_input_tokens", 0) + entry.get("cache_read_input_tokens", 0)
+    return total
+
 def provider(run, kind, name, prompt, schema, images=()):
     directory = STATE / "runs" / run["id"]
     schema_path = directory / f"{name}.schema.json"
@@ -183,10 +191,10 @@ def provider(run, kind, name, prompt, schema, images=()):
                 item = json.loads(line)
                 if item.get("type") == "turn.completed":
                     usage = item.get("usage", {})
-                    run["input_tokens"] = run.get("input_tokens", 0) + usage.get("input_tokens", 0)
                     run.setdefault("usage", []).append({"stage": name, "provider": kind, **usage})
             except json.JSONDecodeError:
                 pass
+        run["input_tokens"] = reported_input_tokens(run.get("usage", []))
         save(run)
         value = json.loads(result_path.read_text())
     else:
@@ -200,8 +208,8 @@ def provider(run, kind, name, prompt, schema, images=()):
         if value is None:
             value = json.loads(data["result"])
         usage = data.get("usage", {})
-        run["input_tokens"] = run.get("input_tokens", 0) + usage.get("input_tokens", 0)
         run.setdefault("usage", []).append({"stage": name, "provider": kind, **usage})
+        run["input_tokens"] = reported_input_tokens(run.get("usage", []))
         save(run)
         atomic_json(directory / f"{name}.json", value)
     if set(value) != set(schema["properties"]):
@@ -301,6 +309,7 @@ def setup_run(args, repo):
         if current_runner != run["runner_commit"]:
             run.setdefault("resumed_versions", []).append({"previous": run["runner_commit"], "current": current_runner, "phase": run["phase"]})
             run["runner_commit"] = current_runner
+        run["input_tokens"] = reported_input_tokens(run.get("usage", [])) if run.get("usage") else run.get("input_tokens", 0)
         run["scheduled"] = not args.interactive
         run["status"] = "running"
         run.pop("error", None)
@@ -376,6 +385,10 @@ def evidence_publish(run):
     target.mkdir(exist_ok=True)
     for name in ("before", run["after_dir"]):
         shutil.copytree(directory / name, target / name, dirs_exist_ok=True)
+    if (directory / "extra-evidence").exists():
+        shutil.copytree(directory / "extra-evidence", target / "extra-evidence", dirs_exist_ok=True)
+    atomic_json(target / "plan.json", run["plan"])
+    atomic_json(target / "review.json", run["review"])
     write_report(run)
     shutil.copyfile(directory / "report.md", target / "report.md")
     git("add", "--", run["id"], cwd=checkout)
@@ -400,6 +413,10 @@ def pr_body(run):
         if images:
             path = images[min(1, len(images)-1)]
             body += f"### {label}\n\n![{label}: actual game capture]({base}/{folder}/{path}?raw=true)\n\n"
+    extra = STATE / "runs" / run["id"] / "extra-evidence/targeted-comparison-report.json"
+    if extra.exists():
+        body += f"## Supervised UI checks\n\n[Targeted check report]({base}/extra-evidence/targeted-comparison-report.json). Prepared test saves checked selection, release mode, removal, last-parent protection, and 390px layout. This is a display check, not evidence of player enjoyment.\n\n"
+        body += f"![Selected Puff comparison on desktop]({base}/extra-evidence/desktop-selected-comparison.png?raw=true)\n\n[Mobile screenshot]({base}/extra-evidence/mobile-selected-comparison.png)\n\n"
     body += f"## Next play session\n\n{run['review']['next_session']}\n\nRun `{run['id']}`. Follow up now with `pnpm loop follow-up --pr NUMBER --interactive --instruction 'your feedback'`.\n"
     return body
 
