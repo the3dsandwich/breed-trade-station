@@ -413,10 +413,8 @@ def pr_body(run):
         if images:
             path = images[min(1, len(images)-1)]
             body += f"### {label}\n\n![{label}: actual game capture]({base}/{folder}/{path}?raw=true)\n\n"
-    extra = STATE / "runs" / run["id"] / "extra-evidence/targeted-comparison-report.json"
-    if extra.exists():
-        body += f"## Supervised UI checks\n\n[Targeted check report]({base}/extra-evidence/targeted-comparison-report.json). Prepared test saves checked selection, release mode, removal, last-parent protection, and 390px layout. This is a display check, not evidence of player enjoyment.\n\n"
-        body += f"![Selected Puff comparison on desktop]({base}/extra-evidence/desktop-selected-comparison.png?raw=true)\n\n[Mobile screenshot]({base}/extra-evidence/mobile-selected-comparison.png)\n\n"
+    if (STATE / "runs" / run["id"] / "extra-evidence").exists():
+        body += f"## Extra supervised checks\n\n[Additional screenshots and reports]({base}/extra-evidence). These checks were added during supervised review; the daily capture does not run them automatically.\n\n"
     body += f"## Next play session\n\n{run['review']['next_session']}\n\nRun `{run['id']}`. Follow up now with `pnpm loop follow-up --pr NUMBER --interactive --instruction 'your feedback'`.\n"
     return body
 
