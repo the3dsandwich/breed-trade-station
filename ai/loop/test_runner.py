@@ -89,6 +89,55 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(runner.StopRun, "Paused"):
             runner.gate(self.record)
 
+    def test_scheduled_run_resumes_pending_ci_without_resetting_usage(self):
+        self.record.update(status="paused", phase="ci", pr=42,
+            error="CI is still pending; resume this round to check again",
+            model_calls=runner.CONFIG["max_model_calls"], ai_seconds=123,
+            input_tokens=456)
+        runner.save(self.record)
+        with patch.object(runner.sys, "argv", ["run.py", "run", "--scheduled"]), \
+             patch.object(runner.signal, "signal"), \
+             patch.object(runner, "in_window", return_value=True), \
+             patch.object(runner, "repository", return_value="owner/game"), \
+             patch.object(runner, "git", return_value="tested-runner"), \
+             patch.object(runner, "execute") as execute, \
+             contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(runner.main(), 0)
+        resumed = execute.call_args.args[0]
+        self.assertEqual(resumed["id"], self.record["id"])
+        self.assertEqual(resumed["phase"], "ci")
+        self.assertTrue(resumed["scheduled"])
+        self.assertEqual(resumed["model_calls"], runner.CONFIG["max_model_calls"])
+        self.assertEqual(resumed["ai_seconds"], 123)
+        self.assertEqual(resumed["input_tokens"], 456)
+
+    def test_scheduled_run_does_not_resume_review_block_or_exhausted_build(self):
+        cases = [
+            {"phase": "review", "error": "Independent review blocked the experiment: broken save"},
+            {"phase": "build", "error": "Stopped model work at the Taipei cutoff",
+             "model_calls": runner.CONFIG["max_model_calls"]},
+        ]
+        for changes in cases:
+            with self.subTest(changes=changes):
+                self.record.update(status="paused", model_calls=0)
+                self.record.update(changes)
+                runner.save(self.record)
+                with patch.object(runner.sys, "argv", ["run.py", "run", "--scheduled"]), \
+                     patch.object(runner.signal, "signal"), \
+                     patch.object(runner, "in_window", return_value=True), \
+                     patch.object(runner, "repository", return_value="owner/game"), \
+                     patch.object(runner, "git", return_value="head"), \
+                     patch.object(runner, "gh", return_value="[]"), \
+                     patch.object(runner, "command"), \
+                     patch.object(runner, "execute") as execute, \
+                     contextlib.redirect_stdout(io.StringIO()), \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(runner.main(), 2)
+                execute.assert_not_called()
+                saved = runner.load_record(self.record["id"])
+                self.assertEqual(saved["status"], "paused")
+                self.assertEqual(saved["error"], changes["error"])
+
     def test_inflight_model_is_terminated_at_cutoff_and_call_count_saved(self):
         process = Mock(pid=12345, returncode=None)
         process.poll.return_value = None
