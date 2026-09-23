@@ -49,3 +49,17 @@ Review: the project already chose Tauri, but had no desktop wrapper or Linux pac
 Implemented: a Tauri 2 window, a Flatpak package for x86_64, desktop icon and menu entry, and saving before the native window closes. GitHub Actions builds on PRs to main, pushes/merges to main, and manual runs. Rust compiles inside the matching Flatpak SDK with locked, offline dependencies. The installed game has no network or broad filesystem access.
 
 Retest method: install the actual package in CI, check native WebGL and autosave, use desktop mouse clicks to assign parents, wait for a birth, release the baby, then close and reopen to check the save. A second launch checks the shipped runtime with its normal offline permissions. The workflow uploads results and screenshots for review; only a fully passing run uploads the app bundle. Independent review also added overlap handling for random starter Puffs. See [Linux build instructions](../architecture/linux-builds.md) for downloads, saves, and current platform limits.
+
+## Experiment — Compare a selected Puff with requests
+
+Observed gap: both scripted runs saw a birth and fulfilled a request using a starter Puff. Neither shows that inspecting the newborn prompted another breeding goal. Requests showed targets, while Puff details showed only complete matches. Both runs ended with Pen 1 full and Pen 2 empty; existing guidance already explains making room. The returning profile reused a new-game save, so it offers no evidence of long-term engagement.
+
+Experiment: each request now labels its comparison “Selected Puff” and marks every required trait “Matches” or “Different”. Differences include the selected Puff's actual value using readable labels. Without a valid selection, the list shows a selection hint. Bulk release mode hides both comparisons and the hint. Requirements and rewards remain visible, with wrapping text for narrow panels.
+
+Hypothesis: seeing shared traits and remaining differences will help a player choose a next breeding target and consider keeping useful offspring. These are observations of visible traits, not predictions of inheritance or breeding success. Helpfulness for an established herd remains untested.
+
+No existing design decision changes. The comparison adds no fulfillment action, parent ranking, allele display, or breeding probability. Passive breeding, request generation, rewards, breeding-pair protection, and saved data retain their existing behavior.
+
+Next session: after the first birth, ask the player to inspect the baby, choose a request to work toward, and explain which Puff they would keep or move and why. Observe whether they independently arrange another breeding attempt. Record confusion and choices; another birth alone is not proof of enjoyment.
+
+Validation pending: focused tests cover complete, partial, and zero matches, readable actual values, changing selected traits, and a replacement request. No tests or browser checks were run while preparing this source-only change. Manually check switching and clearing selection, removing the selected Puff, entering and leaving bulk release mode, and request replacement. Check readable requirements, comparisons, and rewards at 390px and 800px without sideways overflow. Confirm a partial match offers no fulfillment action and the last male and female remain protected.
