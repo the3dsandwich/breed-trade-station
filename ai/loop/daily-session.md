@@ -66,7 +66,10 @@ finding, or concrete blocker. A missing source file or broken tool must not
 be silently reported as a successful “no change” day. Explain what you tried,
 what remains, and what the next session should do.
 
-Also write a short Markdown summary outside the worktree and save the result:
+Also write a short Markdown summary outside the worktree. Use `finish_command`
+from the begin receipt and append the outcome, summary path, and optional PR.
+It preserves the correct state folder even when a custom folder is configured.
+For example, with the default state folder:
 
 ```sh
 python3 /home/weiwei/breed-trade-station/ai/loop/session.py finish \

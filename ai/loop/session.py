@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import shlex
 import subprocess
 import sys
 import uuid
@@ -55,10 +56,15 @@ def record_path(day):
     return STATE / 'days' / (day + '.json')
 
 
+def task_command(action, record):
+    return shlex.join(['env', 'BTS_LOOP_STATE=' + str(STATE), sys.executable,
+        str(HERE / 'session.py'), action, '--day', record['day'], '--dispatch', record['id']])
+
+
 def message(record):
     return f'''[Scheduled game development — {record['day']} Taipei; dispatch {record['id']}]
 This is the user's authorized daily task in THIS existing project conversation.
-First run: python3 {HERE / 'session.py'} begin --day {record['day']} --dispatch {record['id']}
+First run: {task_command('begin', record)}
 If begin refuses, report its reason here and stop this scheduled task. Do not override it or start another session.
 Then read {HERE / 'daily-session.md'} and the returned deadline. Use your normal full project tools, permissions, and conversation context. Read files you need; there is no fixed source bundle.
 Current focus: {STATE / 'visual-direction/focus.md'} (if present). Review prior daily results in {STATE / 'days'}.
@@ -141,7 +147,8 @@ def begin(day, dispatch_id):
         write(path, record)
         print(record['summary']); return 2
     deadline = min(datetime.fromisoformat(record['expires_at']), moment + timedelta(minutes=CONFIG['work_minutes']))
-    record.update(status='started', started_at=moment.isoformat(), work_deadline=deadline.isoformat())
+    record.update(status='started', started_at=moment.isoformat(), work_deadline=deadline.isoformat(),
+        finish_command=task_command('finish', record))
     write(path, record)
     print(json.dumps(record, indent=2))
     return 0

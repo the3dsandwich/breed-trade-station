@@ -3,6 +3,7 @@ from datetime import datetime
 import io
 import json
 import os
+import shlex
 from pathlib import Path
 import subprocess
 import tempfile
@@ -137,6 +138,16 @@ class SessionTests(unittest.TestCase):
         with self.assertRaises(ValueError): loop.finish(record['day'], record['id'], 'pr', summary)
         loop.finish(record['day'], record['id'], 'pr', summary, 'https://github.com/the3dsandwich/breed-trade-station/pull/24')
         self.assertEqual(loop.read(loop.record_path(record['day']))['status'], 'pr')
+
+    def test_queued_commands_preserve_custom_state_and_quote_paths(self):
+        record = {'day': '2026-09-25', 'id': 'dispatch-id', 'expires_at': '2026-09-25T14:30:00+08:00'}
+        custom = self.state / "folder with spaces $literal"
+        with patch.object(loop, 'STATE', custom):
+            command = loop.task_command('begin', record)
+            args = shlex.split(command)
+            self.assertEqual(args[1], 'BTS_LOOP_STATE=' + str(custom))
+            self.assertEqual(args[-4:], ['--day', record['day'], '--dispatch', record['id']])
+            self.assertIn(command, loop.message(record))
 
     def test_systemd_quoting_handles_paths_and_rejects_newlines(self):
         self.assertEqual(quoted('/tmp/a b%file'), '"/tmp/a b%%file"')
