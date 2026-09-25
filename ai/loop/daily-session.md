@@ -48,9 +48,14 @@ Do not change these limits, the schedule, or the runner as part of a game task.
    motion in the browser. Save an animation recording when feasible; screenshots
    alone do not prove motion quality. Say exactly what was and was not checked.
 8. Open/update the PR with the player problem, change, test results, screenshots,
-   limits, and a useful question for the next session. The existing
-   `development-evidence` branch can hold generated screenshots and reports;
-   use immutable commit links and publish only project evidence, never secrets.
+   limits, and a useful question for the next session. Attach images and videos
+   directly to the PR with a current GitHub CLI
+   (`gh pr edit --attach`), and put review notes in its description. Do not
+   create an evidence branch. Use CI artifacts for test logs when available;
+   keep raw local saves/reports in the run folder and say where they are.
+   Verify uploaded links work before deleting local evidence. Publish only
+   project evidence, never secrets. See the attachment examples in
+   `docs/architecture/daily-loop.md`.
    Check web and native CI. If time runs out, leave a clearly marked draft and
    report the remaining checks rather than pretending completion.
 

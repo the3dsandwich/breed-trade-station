@@ -118,3 +118,50 @@ Unit tests cover time boundaries, duplicate prevention, ambiguous delivery,
 thread ownership, late starts, deadlines, and truthful completion records.
 A queued delivery test is not a full daily-development test: first observe its
 acknowledgement in the target chat, then inspect the first real scheduled run.
+
+### Screenshots and clips belong in the PR
+
+Upload images and videos as GitHub attachments, rather than committing them to
+a branch. Put the review notes in the PR description. Keep raw test saves and
+logs in the local run folder; use CI artifacts when the workflow provides them,
+and link the actual artifact/run. Be clear about artifact expiry.
+
+First check `gh pr edit --help` for `--attach`. The local Homebrew GitHub CLI
+2.101.0 supports it; the older apt 2.45.0 does not. Check `command -v gh` if an
+installed update is not being used. This uses the existing GitHub sign-in.
+
+Write a body file with local image paths, then pass the same paths as attachments:
+
+```markdown
+## Before and after
+
+![Before](./evidence/before.png)
+![After](./evidence/after.png)
+
+## Motion
+
+![](./evidence/motion.webm)
+```
+
+```sh
+gh pr edit NUMBER --body-file /absolute/path/pr-body.md \
+  --attach ./evidence/before.png \
+  --attach ./evidence/after.png \
+  --attach ./evidence/motion.webm
+```
+
+Use `gh pr create` with the same attachment flags when opening a PR. With
+`--body-file`, supply the complete desired description: it replaces the existing
+body. For an existing PR, read its latest body first and preserve review context.
+The CLI replaces matching local paths with hosted URLs. A video reference in
+its own paragraph becomes an embedded player. Keep large galleries inside a
+`<details>` block so the main review is easy to scan.
+
+Read the saved PR body back and check every uploaded URL. A command can upload
+some attachments and fail on others; on any failure inspect the current body
+before retrying. Never delete the source files or a legacy evidence branch
+until the replacement links are verified. Preserve a local archive of old
+reports and test saves before retiring old storage.
+
+The previous evidence branch was retired after migrating PRs #22, #23 and #25.
+Future runs should not recreate it. [GitHub attachment documentation](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli).
