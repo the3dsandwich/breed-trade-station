@@ -33,6 +33,8 @@ export const PuffInspector = () => {
   if (!puff) {
     return (
       <aside className="puff-inspector puff-inspector-empty">
+        <span className="inspector-star" aria-hidden="true">✦</span>
+        <h2>Your next little wonder</h2>
         <p>Select a Puff to see its details.</p>
       </aside>
     );
@@ -46,6 +48,7 @@ export const PuffInspector = () => {
 
   return (
     <aside className="puff-inspector">
+      <h2 className="panel-kicker">Puff journal</h2>
       <div className={`puff-inspector-sex ${sex.className}`}>
         <span className="puff-inspector-sex-symbol">{sex.symbol}</span>
         <span>{sex.label}</span>

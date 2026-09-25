@@ -1,117 +1,158 @@
 .puff-inspector {
-  width: 220px;
-  min-height: 200px;
-  background: #262626;
-  border: 1px solid #444444;
-  border-radius: 12px;
-  padding: 1rem;
-  color: var(--color-text);
-  font-family: sans-serif;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  box-sizing: border-box;
+  padding: 18px;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  border: 3px solid #b8a17d;
+  box-shadow: 0 3px 0 #100e1a, inset 0 0 0 1px #fff2d2;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .puff-inspector-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888888;
-  font-size: 0.9rem;
+  min-height: 168px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.puff-inspector-empty h2 {
+  font: 700 13px var(--font-label);
+  margin: 10px 0 4px;
+}
+
+.puff-inspector-empty p {
+  margin: 4px 0;
+  color: #675444;
+}
+
+.inspector-star {
+  color: #846538;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.puff-inspector .panel-kicker {
+  color: #695542;
+  margin: 0 0 12px;
+  font-weight: 400;
 }
 
 .puff-inspector-sex {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  padding-bottom: 0.75rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid #3a3a3a;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 750;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #b8a17d;
 }
 
 .puff-inspector-sex-symbol {
-  font-size: 1.6rem;
+  font-size: 24px;
   line-height: 1;
 }
 
 .puff-inspector-sex-male {
-  color: #6fb3ff;
+  color: #305670;
 }
 
 .puff-inspector-sex-female {
-  color: #ff8fc0;
+  color: #833f5b;
 }
 
 .puff-inspector-traits {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.35rem 0.75rem;
+  gap: 6px 12px;
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 13px;
 }
 
 .puff-inspector-traits dt {
-  color: #999999;
+  color: #675444;
 }
 
 .puff-inspector-traits dd {
   margin: 0;
   text-align: right;
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .puff-inspector-matches {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 0.85rem;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.puff-inspector button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 0;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
 }
 
 .puff-inspector-fulfill-button {
-  background: #2f5233;
-  color: #d5f5d9;
-  border: 1px solid #4ade80;
-  border-radius: 6px;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-smooth-out);
+  background: #3a5947;
+  color: #f3f1d6;
+  border: 1px solid #233e30;
+  box-shadow: 0 2px 0 #233e30, inset 0 1px 0 #66876d;
 }
 
 .puff-inspector-fulfill-button:hover:not(:disabled) {
-  background: #386640;
+  background: #294b38;
 }
 
-.puff-inspector-release-button {
+.puff-inspector-release-button, .herd-recovery button {
   display: block;
   width: 100%;
-  margin-top: 0.75rem;
-  background: #3a3a3a;
-  color: var(--color-text);
-  border: 1px solid #666666;
-  border-radius: 6px;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-smooth-out);
+  margin-top: 12px;
+  background: transparent;
+  color: #6f3934;
+  border: 1px solid #947456;
 }
 
-.puff-inspector-release-button:hover:not(:disabled) {
-  background: #4a4a4a;
+.puff-inspector-release-button:hover:not(:disabled), .herd-recovery button:hover {
+  background: #dfc8a7;
+}
+
+.puff-inspector button:focus-visible {
+  outline-color: #382d40;
+}
+
+.puff-inspector button:disabled {
+  color: #6c6156;
+  background: #d8caac;
+  border-color: #b6a88f;
+  box-shadow: none;
+  cursor: default;
 }
 
 .puff-inspector-id {
-  margin: 1rem 0 0;
-  font-size: 0.7rem;
-  color: #666666;
+  margin: 14px 0 0;
+  font: 11px var(--font-label);
+  color: #65533f;
   word-break: break-all;
 }
 
-.puff-inspector-fulfill-button:disabled,
-.puff-inspector-release-button:disabled {
-  opacity: 0.45;
-  cursor: default;
+@media (max-width: 1180px) {
+  .puff-inspector-empty {
+    min-height: 100px;
+    padding: 14px;
+  }
+
+  .inspector-star {
+    display: none;
+  }
+
+  .puff-inspector-empty h2 {
+    margin-top: 0;
+  }
+
 }

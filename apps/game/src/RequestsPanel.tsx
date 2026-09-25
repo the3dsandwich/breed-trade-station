@@ -15,7 +15,7 @@ export const RequestsPanel = () => {
 
   return (
     <div className="requests-panel">
-      <p className="requests-panel-title">Requests</p>
+      <div className="requests-panel-heading"><h2 className="requests-panel-title">Requests</h2><span className="panel-kicker">Trade board</span></div>
       {!releaseModeActive && !traits && (
         <p className="requests-panel-hint">Select a Puff to compare its traits with requests.</p>
       )}
@@ -45,7 +45,7 @@ export const RequestsPanel = () => {
                   );
                 })}
               </div>
-              <span className="requests-panel-reward">{request.reward}g</span>
+              <span className="requests-panel-reward"><span>Reward</span> {request.reward}g</span>
             </div>
           );
         })}
