@@ -1,210 +1,120 @@
-# Daily development loop
+# Daily work in the main Codex conversation
 
-The loop aims to leave one small, tested game improvement ready to review before
-18:00 Taipei time. It does not merge PRs or decide that a game is fun on its own.
-You can ask for a follow-up at any time without waiting for tomorrow's run.
+The daily timer sends a prompt to the user's **existing project conversation**
+with `codex queue`. That conversation keeps its normal tools, full permissions,
+project context, and ability to read files. Its progress and final reply appear
+in the same conversation, where the user can follow up immediately.
 
-## What one round does
+This replaces the original proposal-only pipeline. On September 24 and 25,
+2026, that pipeline supplied three fixed UI files to a tool-less planner. The
+visual task required canvas source, so it returned `no_change` twice. The old
+runner incorrectly treated missing context as successful completion and left
+only local reports. That approach is retired; historical reports are preserved.
 
-1. Check the review queue and create a separate Git working copy.
-2. Build the current game and capture a short play session for a new player and a returning player.
-3. Give Codex the game docs, selected source, play observations, and screenshots. Ask for one small plan.
-4. Ask Codex for proposed file changes. The controller checks their size and allowed paths before applying them.
-5. Run checks and capture the changed game using the same starting saves.
-6. Ask Claude to review the selected code, change, and play reports independently.
-7. Open a draft PR with evidence, then check GitHub CI before marking it ready.
+## What runs where
 
-A round can decide that no change is justified. Failed checks or review findings
-can lead to a repair, within the round's limits. Work and reports are saved when
-the round stops. No automatic merge or paid API fallback is used.
+- **systemd timer:** fires at 09:30 Asia/Taipei and skips missed starts.
+- **session.py:** checks time/pause state, saves a receipt, and queues one prompt
+  for the bound conversation. It does not start a separate model worker.
+- **Main Codex conversation:** explores the project, plays and changes the game,
+  delegates where useful, asks Claude for input, verifies work, opens a PR, and
+  reports here. The task guide is [daily-session.md](../../ai/loop/daily-session.md).
+- **Local records:** `~/.local/state/breed-trade-station-loop/days/DATE.json`
+  separates dispatch, start, and outcome. A completed run also has `DATE.md`.
 
-This first version uses **proposals**: the models return structured plans and file
-contents. The controller owns file writes, commands, Git operations, and PRs.
-Models cannot run their own shell commands. Only game/shared source and game
-design docs are eligible for automatic edits. Dependencies, CI, release files,
-and the runner itself require a separate developer change.
+**Keep this local Codex session open**, and the computer awake and online.
+`codex queue` confirms a queued message; it does not prove a turn ran. If Codex
+is closed, work can remain queued until the conversation is resumed. Late
+prompts must run `begin` first; it records a skip and refuses game work outside
+the allowed day/window. There is no promise of an automatic wake-up while the
+Codex client is closed. Keep the session's normal shell and browser access.
 
 ## Schedule and limits
 
-All scheduled times use `Asia/Taipei`, regardless of the computer's timezone.
+The timer queues at 09:30 Taipei. Delivery and `begin` refuse work outside
+09:30–14:30. Each started task receives a deadline of 90 minutes from start,
+or 14:30, whichever is earlier. The goal remains a reviewable PR before 18:00.
 
-| Time | Meaning |
-| --- | --- |
-| 09:30 | Daily timer starts one round |
-| 14:30 | Scheduled AI work stops; no evening catch-up |
-| 17:30 | Report deadline; the controller stops starting further work at this cutoff |
-| 18:00 | Target time for you to have something to review |
-| 20:00–23:00 | Reserved for your own work; no scheduled agent work |
+The **full agent follows the work deadline and repair/PR limits as instructions**.
+The dispatcher does not forcibly interrupt this shared conversation, count all
+model calls, or police its file access. Killing the main session could also kill
+manual user work. The earlier worker's mechanical model-call/token caps no
+longer apply. Remaining subscription allowance is unknown; stop on provider
+limits and never switch to paid API credentials. A delayed turn still uses some
+model input to read the prompt and report the skip; it must not start game work.
 
-The timer skips missed starts. The machine must be awake, online, and have its
-user service manager running. It does not wake the computer. The service also
-has a 90-minute total limit, so a normal morning round ends much earlier than
-the afternoon deadlines.
+The guide asks for one small PR, at most two open repository PRs, and at most two
+repair attempts. Eight files/600 lines are a planning guide, not a restriction on
+what the agent can inspect. Missing files should be read. Every run should leave
+a PR, a useful finding, or a clear blocker in this chat and a local report.
 
-Current limits in [config.json](../../ai/loop/config.json):
+## Bind and install
 
-- At most two open repository PRs before new work is blocked.
-- At most one loop PR waiting for review. Use a follow-up to change that PR.
-- Six model calls, one hour of model runtime, and two repair attempts per round.
-- A reported input-token limit of 400,000 per round.
-- At most eight changed files and 600 added/deleted lines per proposal and across the whole round.
-- Up to 20 source files supplied as context; only eight may change.
-- One active controller run at a time.
-
-**Remaining account allowance is unknown.** These local counters are not Codex's
-or Claude's five-hour or weekly balance. They cannot guarantee a full evening
-allowance. The afternoon cutoff leaves a buffer, while rate-limit and login
-errors stop the round. The runner does not automatically buy extra API usage.
-An explicit `--interactive` run can use your allowance outside the scheduled
-window; use it only when you want work now.
-
-## First setup and supervised pilot
-
-Use the project's normal Node/pnpm setup, Python 3 with `zoneinfo`, Git, GitHub
-CLI, Codex CLI, Claude Code CLI, and Playwright Chromium. Both model tools and
-GitHub must already be signed in. The installer does not copy login tokens.
-
-From the repository root:
+From the project root, in the intended Codex conversation:
 
 ```sh
-python3 ai/loop/run.py doctor
-python3 ai/loop/run.py run --interactive --pilot
-python3 ai/loop/run.py status
+pnpm loop bind                 # uses CODEX_THREAD_ID
+pnpm loop check
+pnpm loop dispatch --dry-run   # prints a prompt only, within the daytime window
+pnpm loop:timer --enable
 ```
 
-The pilot is real work: it can create a working copy, call the models, run the
-game, and open a PR. Read its results before enabling daily starts.
-
-Install the timer, initially disabled:
+Outside Codex, supply the exact existing conversation UUID:
 
 ```sh
-python3 ai/loop/install_timer.py
+pnpm loop bind --thread SESSION_UUID
 ```
 
-After a successful pilot and after the tested runner is merged into `main`:
+The installer validates the units and migrates the old `50-visual-focus.conf`
+override into the local `retired/` folder. The full agent reads the existing
+`visual-direction/focus.md` directly, including the Opus 5.5 art proposal. It
+must still check that proposal against real source and rendered screenshots.
+The installer without `--enable` leaves the timer disabled.
+
+A real dispatch uses the same path as the timer:
 
 ```sh
-python3 ai/loop/run.py enable-check
-python3 ai/loop/install_timer.py --enable
+pnpm loop dispatch
+```
+
+One delivery record is allowed per Taipei day. A failed or ambiguous delivery
+is not automatically resent; inspect the Codex queue and receipt first. This
+avoids duplicate turns when a process stops after queuing but before recording
+its reply. There is no direct editing of Codex's internal database.
+
+## Follow up and inspect
+
+Simply reply in this conversation to change the plan or follow up on a PR.
+The scheduler does not own a second hidden development session.
+
+```sh
+pnpm loop status
+pnpm loop pause
+pnpm loop unpause
 systemctl --user list-timers breed-trade-station-loop.timer
+journalctl --user -u breed-trade-station-loop.service
 ```
 
-The installer and scheduled service check readiness. The tested runner files
-must match merged `main`; an untested local change cannot silently become the
-daily runner. See the [timer guide](../../ai/loop/systemd/README.md) for machine
-setup, disabling the timer, and service logs.
+Pause blocks future deliveries and starts; it does not interrupt an active turn.
+An explicit user request can authorize manual work outside the daily window.
+`queued` means accepted by the CLI, not executed. `started` means the agent called
+`begin`, not that tests passed. If a session crashes before `finish`, the record
+stays `started`, making the incomplete run visible. Dispatch failures exit
+nonzero and remain in the receipt and journal.
 
-## Follow up now
+Full access is the access the user explicitly requested for this main session.
+It is not filesystem isolation. Do not read or send unrelated files, credentials,
+or signing keys to model services. No PR is merged automatically.
 
-In chat, say something like:
+## Evidence and verification
 
-> Look at PR #24. The breeding panel feels crowded. Simplify it and update that PR.
+Reuse `capture.mjs` for a repeatable initial browser sample, then explore the
+actual task. Use separate saves, inspect screenshots, and verify motion directly
+when changing animation. The old `runs/` and `saves/` remain available; a carried
+save should only come from merged work. The old runner no longer promotes saves
+automatically, so verify the source PR was merged before updating the baseline.
 
-The assistant can read the saved context and run a follow-up immediately. The
-same operation is available from the command line:
-
-```sh
-python3 ai/loop/run.py follow-up --interactive --pr 24 \
-  --instruction "Simplify the breeding panel and keep the next goal visible."
-```
-
-This supports open `loop/` PRs from this repository with a saved local run record.
-It updates the existing branch. If another round owns the working copy, the
-follow-up requests a pause and exits; it does not edit alongside that worker.
-After the active phase finishes, unpause and retry. Unfinished local edits must
-be handled by resuming their run first.
-
-Pause at a phase boundary:
-
-```sh
-python3 ai/loop/run.py pause
-```
-
-Allow work again; this does not start a task:
-
-```sh
-python3 ai/loop/run.py unpause
-```
-
-Resume a stopped round using its ID from `status`:
-
-```sh
-python3 ai/loop/run.py resume --interactive --run RUN_ID
-```
-
-The next scheduled start can resume a wait for CI or a pause caused by the time cutoff. Review blocks, failed checks, and exhausted limits need attention; they do not trigger repeated automatic attempts.
-
-Resume keeps that round's existing budget counters. It does not reset exhausted
-limits. For a new manual round with a different focus:
-
-```sh
-python3 ai/loop/run.py run --interactive \
-  --goal "Make the first baby suggest a useful next breeding choice."
-```
-
-## Reports, screenshots, and shared memory
-
-The default local state folder is:
-
-```text
-~/.local/state/breed-trade-station-loop/
-  runs/RUN_ID/       Run record, report, model logs, checks, and play evidence
-  worktrees/        Separate working copies
-  saves/            Returning-player progress from merged rounds
-```
-
-`BTS_LOOP_STATE` can select a different state folder, useful for testing. Keep a
-consistent folder for normal use so follow-ups can find earlier runs.
-
-The PR links to selected evidence published on the repository's
-`development-evidence` branch. Full local logs remain available for debugging.
-The short report explains the player problem, the proposed improvement, the
-result, and the question for the next session.
-
-**Background logs do not automatically appear in the original chat session.**
-The PR and local records are shared memory. Ask the assistant to read today's
-run or a specific PR; you do not need to restate the whole task. This works in a
-new conversation too, as long as the records are available on the machine.
-
-Each play capture includes:
-
-- A desktop screenshot at the start, during breeding, after waiting, and at the end.
-- A request-choice screenshot when an enabled request sale is available.
-- The starting and resulting save, browser errors, and observed UI text.
-- Observed facts kept separate from questions for the player/reviewer.
-
-The new-player input comes from a real blank-browser game and is reused for the
-before/after pair. Returning input carries real progress from earlier rounds,
-but is promoted **only after its PR is merged**, not merely opened. Each round
-uses a private copy of these inputs. Personal browser and Flatpak saves are not
-used or changed.
-
-On load, only the save timestamp is refreshed to prevent offline catch-up from
-changing the comparison. Birth randomness and animation remain live. Until
-merged rounds build up progress, the returning profile is another early-game
-save, not evidence of a late-game experience.
-
-The capture is a bounded script using real canvas clicks and visible buttons.
-Its layout assumptions can become outdated. A completed capture does not prove
-every gameplay goal worked; inspect the action facts. Screenshots prove what
-was displayed, not that the mechanic is enjoyable. Claude reviews the text
-reports and selected code; Codex receives the selected screenshots. A human
-play session remains important for pacing, attachment, and whether to return.
-
-## Security limits on this machine
-
-The current Linux host does not provide a working filesystem sandbox for this
-workflow. The user service's attempt to hide the local signing-key folder was
-also not enforced on this host. The diagnostics state this limitation.
-
-Removing model shell access and checking allowed edit paths reduces what a
-model can directly request. **It is not security isolation.** The controller
-runs tests and builds that execute proposed game code as your user. That code
-can have the same access to local files and the network as other programs run
-by your account. Selected prompts must never contain signing keys or credentials.
-
-For a stronger boundary, move the runner and its checks to a separate account
-or machine without personal files or signing keys, or establish a verified
-container/VM boundary. Do not assume a separate Git working copy protects those
-files. The current proposal-only approach is a bounded development workflow,
-not a secure environment for untrusted code.
+Unit tests cover time boundaries, duplicate prevention, ambiguous delivery,
+thread ownership, late starts, deadlines, and truthful completion records.
+A queued delivery test is not a full daily-development test: first observe its
+acknowledgement in the target chat, then inspect the first real scheduled run.
