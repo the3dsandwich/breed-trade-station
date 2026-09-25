@@ -1,35 +1,43 @@
 .gold-display {
-  width: 220px;
-  background: #262626;
-  border: 1px solid #444444;
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
-  color: var(--color-text);
-  font-family: sans-serif;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  box-sizing: border-box;
+  padding: 16px 18px;
+  background: #3c3140;
+  border: 1px solid #9c8058;
+  box-shadow: var(--pixel-frame);
 }
 
 .gold-display-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .gold-display-label {
-  font-size: 0.85rem;
-  color: #999999;
+  font: 12px var(--font-label);
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gold-display-label::before {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 16px;
+  background: #f5d780;
+  border-inline: 3px solid #b89552;
+  box-shadow: 0 -2px #f5d780, 0 2px #b89552, inset 2px 0 #fff0b2;
 }
 
 .gold-display-amount {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #f5d76e;
+  font: 700 24px var(--font-label);
+  color: var(--color-gold);
 }
 
 .gold-display-starving {
-  margin-top: 0.4rem;
-  font-size: 0.75rem;
-  color: #e8695f;
-  font-weight: 600;
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-coral);
 }

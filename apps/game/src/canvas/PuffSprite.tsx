@@ -1,52 +1,12 @@
 import { Container, Graphics, useTick } from "@pixi/react";
-import { useCallback, useMemo, useRef, useState } from "react";
-import type * as PIXI from "pixi.js";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import * as PIXI from "pixi.js";
 import { deriveTraits, type Puff } from "@bts/shared";
 import { SelectionRing } from "./SelectionRing";
+import { BODY_RADIUS, drawPixels, puffHitArea, puffPixels, INK } from "./pixelPuff";
+import { useReducedMotion } from "./useReducedMotion";
 
-const BODY_COLOR_HEX: Record<string, number> = {
-  BL: 0x3a3a4a,
-  MX: 0x9a6a48,
-  WH: 0xf5f0e8,
-};
-
-const BODY_HIGHLIGHT_HEX: Record<string, number> = {
-  BL: 0x5c5c78,
-  MX: 0xc79363,
-  WH: 0xffffff,
-};
-
-const EYE_COLOR_HEX: Record<string, number> = {
-  RD: 0xe8695f,
-  BR: 0x5a3a22,
-};
-
-const BODY_SIZE_RADIUS: Record<string, number> = {
-  XS: 10,
-  S: 14,
-  M: 18,
-  L: 22,
-  XL: 26,
-};
-
-const EAR_SIZE_RADIUS: Record<string, number> = {
-  S: 4,
-  M: 6,
-  L: 8,
-};
-
-const RELEASE_RING_COLOR = 0xe8695f;
-const MATCH_BADGE_COLOR = 0x4ade80;
-
-// Gives each Puff a stable-but-different animation phase so a group of
-// them doesn't bob/breathe in unison.
-const hashString = (value: string): number => {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash * 31 + value.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash);
-};
+const MATCH_BADGE_HIT_AREA = new PIXI.Rectangle(-8, -8, 16, 16);
 
 interface PuffSpriteProps {
   puff: Puff;
@@ -58,114 +18,58 @@ interface PuffSpriteProps {
   onSelect?: () => void;
 }
 
-export const PuffSprite = ({
-  puff,
-  x,
-  y,
-  selected = false,
-  releaseSelected = false,
-  matchesRequest = false,
-  onSelect,
-}: PuffSpriteProps) => {
-  const traits = deriveTraits(puff.genes);
-  const radius = BODY_SIZE_RADIUS[traits.bodySize];
-  const earRadius = EAR_SIZE_RADIUS[traits.earSize];
-  const bodyColor = BODY_COLOR_HEX[traits.bodyColor];
-  const highlightColor = BODY_HIGHLIGHT_HEX[traits.bodyColor];
-  const eyeColor = EYE_COLOR_HEX[traits.eyeColor];
+export const PuffSprite = ({ puff, x, y, selected = false, releaseSelected = false, matchesRequest = false, onSelect }: PuffSpriteProps) => {
+  const traits = useMemo(() => deriveTraits(puff.genes), [puff.genes]);
+  const radius = BODY_RADIUS[traits.bodySize];
+  const reduced = useReducedMotion();
+  const body = useRef<PIXI.Container>(null);
+  const awake = useRef<PIXI.Graphics>(null);
+  const asleep = useRef<PIXI.Graphics>(null);
+  const phase = useMemo(() => [...puff.id].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 0) % 420, [puff.id]);
+  const elapsed = useRef(0);
+  const hitArea = useMemo(() => puffHitArea(traits), [traits]);
 
-  const phase = useMemo(() => ((hashString(puff.id) % 1000) / 1000) * Math.PI * 2, [puff.id]);
-  const elapsed = useRef(phase * 10);
-  const [bobY, setBobY] = useState(0);
-  const [breathScale, setBreathScale] = useState(1);
+  useEffect(() => {
+    if (body.current) body.current.y = 0;
+    if (awake.current) awake.current.visible = true;
+    if (asleep.current) asleep.current.visible = false;
+  }, [reduced]);
 
   useTick((delta) => {
+    if (reduced) return;
     elapsed.current += delta;
-    setBobY(Math.sin(elapsed.current * 0.05 + phase) * 3);
-    setBreathScale(1 + Math.sin(elapsed.current * 0.04 + phase) * 0.03);
+    const time = (elapsed.current + phase) % 420;
+    if (body.current) body.current.y = time > 80 && time < 106 ? -2 : 0;
+    const blink = time > 280 && time < 289;
+    if (awake.current) awake.current.visible = !blink;
+    if (asleep.current) asleep.current.visible = blink;
   });
 
-  const drawShadow = useCallback(
-    (g: PIXI.Graphics) => {
-      g.clear();
-      g.beginFill(0x000000, 0.25);
-      g.drawEllipse(0, radius * 0.85, radius * 0.75, radius * 0.25);
-      g.endFill();
-    },
-    [radius]
-  );
-
-  const drawBody = useCallback(
-    (g: PIXI.Graphics) => {
-      g.clear();
-
-      g.beginFill(bodyColor);
-      g.drawCircle(-radius * 0.6, -radius * 0.7, earRadius);
-      g.drawCircle(radius * 0.6, -radius * 0.7, earRadius);
-      g.endFill();
-
-      g.lineStyle(1.5, 0x000000, 0.2);
-      g.beginFill(bodyColor);
-      g.drawCircle(0, 0, radius);
-      g.endFill();
-
-      g.lineStyle(0);
-      g.beginFill(highlightColor, 0.35);
-      g.drawEllipse(-radius * 0.3, -radius * 0.35, radius * 0.45, radius * 0.3);
-      g.endFill();
-
-      g.beginFill(eyeColor);
-      g.drawCircle(-radius * 0.35, -radius * 0.1, radius * 0.15);
-      g.drawCircle(radius * 0.35, -radius * 0.1, radius * 0.15);
-      g.endFill();
-
-      g.beginFill(0xffffff, 0.85);
-      g.drawCircle(-radius * 0.3, -radius * 0.15, radius * 0.05);
-      g.drawCircle(radius * 0.4, -radius * 0.15, radius * 0.05);
-      g.endFill();
-    },
-    [bodyColor, highlightColor, eyeColor, radius, earRadius]
-  );
-
-  const drawMatchBadge = useCallback(
-    (g: PIXI.Graphics) => {
-      const badgeRadius = Math.max(6, radius * 0.35);
-      g.clear();
-      g.lineStyle(1, 0x000000, 0.3);
-      g.beginFill(MATCH_BADGE_COLOR, 1);
-      g.drawCircle(0, 0, badgeRadius);
-      g.endFill();
-
-      g.lineStyle(1.5, 0xffffff, 1);
-      g.moveTo(-badgeRadius * 0.4, 0);
-      g.lineTo(-badgeRadius * 0.05, badgeRadius * 0.35);
-      g.lineTo(badgeRadius * 0.45, -badgeRadius * 0.35);
-    },
-    [radius]
-  );
-
-  const handlePointerTap = useCallback(
-    (event: PIXI.FederatedPointerEvent) => {
-      event.stopPropagation();
-      onSelect?.();
-    },
-    [onSelect]
-  );
+  const drawBody = useCallback((g: PIXI.Graphics) => drawPixels(g, puffPixels(traits)), [traits]);
+  const drawBlink = useCallback((g: PIXI.Graphics) => drawPixels(g, puffPixels(traits, true)), [traits]);
+  const drawShadow = useCallback((g: PIXI.Graphics) => {
+    g.clear().beginFill(INK, 0.55).drawRect(-radius + 2, radius - 2, radius * 2, 4).drawRect(-radius + 6, radius + 2, radius * 2 - 8, 2).endFill();
+  }, [radius]);
+  const drawMatchBadge = useCallback((g: PIXI.Graphics) => {
+    g.clear().beginFill(INK).drawRect(-8, -8, 16, 16).endFill();
+    g.beginFill(0xb6e3ad).drawRect(-6, -6, 12, 12).endFill();
+    g.beginFill(INK).drawRect(-4, 0, 2, 2).drawRect(-2, 2, 2, 2).drawRect(0, 0, 2, 2).drawRect(2, -2, 2, 2).endFill();
+  }, []);
+  const handlePointerTap = useCallback((event: PIXI.FederatedPointerEvent) => {
+    event.stopPropagation();
+    onSelect?.();
+  }, [onSelect]);
 
   return (
     <Container x={x} y={y}>
-      <Graphics draw={drawShadow} />
-      <Graphics
-        y={bobY}
-        scale={breathScale}
-        draw={drawBody}
-        interactive={Boolean(onSelect)}
-        cursor="pointer"
-        pointertap={handlePointerTap}
-      />
+      <Graphics draw={drawShadow} eventMode="none" />
       {selected && <SelectionRing radius={radius + 6} />}
-      {releaseSelected && <SelectionRing radius={radius + 6} color={RELEASE_RING_COLOR} />}
-      {matchesRequest && <Graphics x={radius * 0.75} y={-radius * 0.95} draw={drawMatchBadge} />}
+      {releaseSelected && <SelectionRing radius={radius + 6} color={0xf08c81} release />}
+      <Container ref={body} interactive={Boolean(onSelect)} hitArea={hitArea} cursor="pointer" pointertap={handlePointerTap}>
+        <Graphics ref={awake} draw={drawBody} eventMode="none" />
+        <Graphics ref={asleep} draw={drawBlink} visible={false} eventMode="none" />
+      </Container>
+      {matchesRequest && <Graphics x={radius + 10} y={-radius - 12} draw={drawMatchBadge} interactive={Boolean(onSelect)} hitArea={MATCH_BADGE_HIT_AREA} cursor="pointer" pointertap={handlePointerTap} />}
     </Container>
   );
 };

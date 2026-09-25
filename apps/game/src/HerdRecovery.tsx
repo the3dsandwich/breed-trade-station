@@ -6,7 +6,7 @@ export const HerdRecovery = () => {
   const canBreed = useAppSelector((state) => hasBreedingPair(state.puffs.byId));
   if (canBreed) return null;
   return (
-    <section aria-label="Start over" className="puff-inspector">
+    <section aria-label="Start over" className="puff-inspector herd-recovery">
       <p>Your herd needs a male and a female to breed. This saved game is missing a breeding pair.</p>
       <p>You can start a new game. This clears all your Puffs, Gold, pens, and requests.</p>
       <button onClick={confirmRestartGame}>Start a new game</button>

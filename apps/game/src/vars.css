@@ -1,12 +1,19 @@
 :root {
-  --color-bg: #1c1c1c;
-  --color-text: whitesmoke;
-
-  /* transitions-dev motion tokens -- shared scale, see
-     https://transitions.dev. Only the base scale is installed since
-     none of the packaged 21 transitions currently match anything in
-     the DOM (most of the app's motion lives in the PixiJS canvas,
-     which CSS can't reach). */
+  color-scheme: dark;
+  --color-bg: #171522;
+  --color-text: #f3ead8;
+  --color-panel: #2e2944;
+  --color-panel-deep: #242035;
+  --color-edge: #625571;
+  --color-muted: #c1b3cd;
+  --color-gold: #f5d780;
+  --color-sprout: #b6e3ad;
+  --color-coral: #ffb4a4;
+  --color-paper: #eee0bd;
+  --color-ink: #382d40;
+  --font-label: "Lucida Console", Monaco, monospace;
+  --pixel-frame: 0 3px 0 #100e1a, 0 0 0 1px #100e1a, inset 0 1px 0 #ffffff0d;
+  /* Existing transitions-dev base tokens. Creature motion lives in Pixi. */
   --duration-quick: 150ms;
   --duration-fast: 250ms;
   --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);

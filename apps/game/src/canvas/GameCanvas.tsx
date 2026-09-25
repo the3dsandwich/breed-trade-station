@@ -1,6 +1,5 @@
 import { Stage, Graphics } from "@pixi/react";
 import { useCallback, useMemo } from "react";
-import type * as PIXI from "pixi.js";
 import { deriveTraits, puffSatisfiesRequest } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { puffAssignedToPen, puffUnassigned } from "../store/pensSlice";
@@ -13,10 +12,11 @@ import { PuffSprite } from "./PuffSprite";
 import { PenView } from "./PenView";
 import { gridSlotInPen } from "./penLayout";
 import { ContextBridge } from "./ContextBridge";
+import { drawPasture } from "./drawPasture";
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const CANVAS_BG = 0x262626;
+const CANVAS_BG = 0x252237;
 
 const PASTURE_MARGIN = 50;
 const PASTURE_BOTTOM = 340;
@@ -98,12 +98,6 @@ export const GameCanvas = () => {
     dispatch(selectionCleared());
   }, [dispatch, releaseModeActive, puffToPen, selectedPuffId]);
 
-  const drawBackground = useCallback((g: PIXI.Graphics) => {
-    g.clear();
-    g.beginFill(CANVAS_BG);
-    g.drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    g.endFill();
-  }, []);
 
   return (
     <ContextBridge
@@ -111,14 +105,14 @@ export const GameCanvas = () => {
         <Stage
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
-          options={{ background: CANVAS_BG, antialias: true }}
+          options={{ background: CANVAS_BG, antialias: false, resolution: 1, autoDensity: false }}
         >
           {children}
         </Stage>
       )}
     >
       <Graphics
-        draw={drawBackground}
+        draw={drawPasture}
         interactive
         cursor="default"
         pointertap={handleBackgroundTap}

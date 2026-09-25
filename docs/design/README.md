@@ -12,3 +12,5 @@ Examples of what belongs here:
 - Progression and order system design
 
 Does not belong here: source analysis of prior work (→ `docs/research/`), technical stack decisions (→ `docs/architecture/`).
+
+- [Dusk Ranch visual direction](visual-direction.md) — pixel art, readable traits, motion and small-screen layout.
