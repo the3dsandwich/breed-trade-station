@@ -74,13 +74,13 @@ The browser test command starts the local game server for you.
 
 ## Daily development loop
 
-The project has a small Codex/Claude workflow for one tested game improvement at
-a time, with before/after screenshots and a PR for human review. You can also
-follow up on a PR immediately. Daily scheduling stays disabled until the pilot
-passes and the runner is merged.
+The daily timer sends work into the existing Codex project conversation. The
+agent can explore the source, play the game, involve Claude, and prepare a small
+PR with screenshots. Results and follow-ups stay in that conversation. Keep the
+Codex session open; delayed tasks skip game work outside the daytime window.
 
 See the [daily loop guide](docs/architecture/daily-loop.md) for setup, limits,
-reports, and the current security limits.
+reports, and the difference between queued work and completed work.
 
 ## What is built
 

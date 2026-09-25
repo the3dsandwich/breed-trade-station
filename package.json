@@ -10,7 +10,7 @@
     "lint": "turbo run lint",
     "linux:stage": "bash scripts/linux/stage.sh",
     "linux:build": "bash scripts/linux/build.sh",
-    "loop": "python3 ai/loop/run.py",
+    "loop": "python3 ai/loop/session.py",
     "loop:test": "python3 -m unittest discover -s ai/loop -p \"test_*.py\"",
     "loop:timer": "python3 ai/loop/install_timer.py"
   },

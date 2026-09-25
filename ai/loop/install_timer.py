@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -25,10 +26,9 @@ def run(*args: str) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--enable", action="store_true", help="Enable the timer after a successful pilot and merge")
+    mode.add_argument("--enable", action="store_true", help="Enable delivery to the bound existing conversation")
     mode.add_argument("--disable", action="store_true", help="Disable future timer starts; does not interrupt an active round")
     parser.add_argument("--output-dir", type=Path, help="Write templates here only, without changing systemd")
-    parser.add_argument("--key-dir", type=Path, default=Path.home() / ".local/share/breed-trade-station/flatpak-signing")
     args = parser.parse_args()
     if args.output_dir and (args.enable or args.disable):
         parser.error("--output-dir cannot be combined with --enable or --disable")
@@ -38,8 +38,7 @@ def main() -> int:
         return 0
 
     repo = Path(__file__).resolve().parents[2]
-    key_dir = args.key_dir.expanduser().absolute()
-    required = ("codex", "claude", "pnpm", "node", "git", "gh")
+    required = ("codex",)
     tool_dirs = []
     for tool in required:
         binary = shutil.which(tool)
@@ -50,8 +49,9 @@ def main() -> int:
     paths = list(dict.fromkeys(tool_dirs + [str(Path(sys.executable).parent), "/usr/local/bin", "/usr/bin", "/bin"]))
     replacements = {
         "REPO": str(repo), "PYTHON": sys.executable,
-        "RUNNER": str(repo / "ai/loop/run.py"), "KEY_DIR": str(key_dir),
-        "PATH_ENV": "PATH=" + ":".join(paths), "INACCESSIBLE": "-" + str(key_dir),
+        "RUNNER": str(repo / "ai/loop/session.py"),
+        "PATH_ENV": "PATH=" + ":".join(paths),
+        "STATE_ENV": "BTS_LOOP_STATE=" + str(Path(os.environ.get("BTS_LOOP_STATE", Path.home() / ".local/state/breed-trade-station-loop")).expanduser().resolve()),
     }
     template_dir = repo / "ai/loop/systemd"
     service = (template_dir / (UNIT + ".service.in")).read_text()
@@ -66,15 +66,23 @@ def main() -> int:
     if args.output_dir:
         print(f"Wrote and checked units in {destination}. No timer was installed or enabled.")
         return 0
+    # Retire only the old override installed by this project. Keep its source
+    # as a local backup; the full agent reads visual-direction/focus.md directly.
+    old_override = destination / (UNIT + ".service.d/50-visual-focus.conf")
+    if old_override.exists():
+        backup = Path.home() / ".local/state/breed-trade-station-loop/retired"
+        backup.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(old_override, backup / "50-visual-focus.conf")
+        old_override.unlink()
     run("systemctl", "--user", "daemon-reload")
     # Default is disabled even if an earlier install enabled it.
     run("systemctl", "--user", "disable", "--now", UNIT + ".timer")
     if args.enable:
-        run(sys.executable, str(repo / "ai/loop/run.py"), "enable-check")
+        run(sys.executable, str(repo / "ai/loop/session.py"), "check")
         run("systemctl", "--user", "enable", "--now", UNIT + ".timer")
-        print("Timer enabled: 09:30 Taipei daily. Missed runs are skipped.")
+        print("Timer enabled: send work to the bound conversation at 09:30 Taipei daily. Keep that Codex session open.")
     else:
-        print("Timer installed and DISABLED. Enable only after the pilot passes and the code is merged.")
+        print("Timer installed and DISABLED. Bind the target conversation, test delivery, then enable.")
     return 0
 
 

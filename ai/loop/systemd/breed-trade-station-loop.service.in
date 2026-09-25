@@ -1,19 +1,16 @@
 [Unit]
-Description=One Breed Trade Station development round
+Description=Send the daily game task to the existing Codex conversation
 
 [Service]
 Type=exec
 WorkingDirectory=@REPO@
 Environment=@PATH_ENV@
-ExecStartPre=@PYTHON@ @RUNNER@ enable-check
-ExecStart=@PYTHON@ @RUNNER@ run --scheduled
-RuntimeMaxSec=90min
-TimeoutStopSec=30s
-KillMode=control-group
-SendSIGKILL=yes
+Environment=@STATE_ENV@
+ExecStartPre=@PYTHON@ @RUNNER@ check
+ExecStart=@PYTHON@ @RUNNER@ dispatch
+RuntimeMaxSec=2min
+TimeoutStopSec=10s
 Restart=no
 UMask=0077
-PrivateUsers=yes
-InaccessiblePaths=@INACCESSIBLE@
 StandardOutput=journal
 StandardError=journal
