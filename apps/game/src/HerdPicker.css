@@ -6,7 +6,11 @@
   font-size: 12px;
 }
 
-.herd-picker summary {
+.herd-picker-trigger {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  text-align: left;
   min-height: 44px;
   padding: 14px 12px;
   color: var(--color-gold);
@@ -14,29 +18,36 @@
   cursor: pointer;
 }
 
-.herd-picker summary:focus-visible {
+.herd-picker-trigger:focus-visible {
   outline: 3px solid var(--color-gold);
   outline-offset: 3px;
 }
 
 .herd-picker-help {
   margin: 0;
-  padding: 6px 12px 10px;
+  padding: 4px 18px 10px;
   color: var(--color-muted);
   line-height: 1.5;
 }
 
 .herd-picker-list {
-  max-height: 280px;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   overflow-y: auto;
   overscroll-behavior: contain;
   list-style: none;
   margin: 0;
-  padding: 6px 10px 10px;
+  padding: 8px 18px 18px;
 }
 
-.herd-picker-list li + li {
-  margin-top: 8px;
+.herd-picker-list li {
+  min-width: 0;
+}
+
+.herd-picker-list button {
+  height: 100%;
 }
 
 .herd-picker-list button {
@@ -83,5 +94,64 @@
 @media (max-width: 1180px) {
   .herd-picker {
     order: 2;
+  }
+}
+
+.herd-dialog {
+  width: min(680px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  color: var(--color-text);
+  background: var(--color-panel);
+  border: 2px solid var(--color-edge);
+  box-shadow: var(--pixel-frame);
+  overflow: hidden;
+}
+
+.herd-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.herd-dialog::backdrop {
+  background: #100e1acc;
+}
+
+.herd-dialog-header, .herd-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  flex-shrink: 0;
+}
+
+.herd-dialog-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.herd-dialog-header .panel-kicker {
+  margin: 0 0 6px;
+  color: var(--color-gold);
+}
+
+.herd-dialog-close, .herd-dialog-footer button {
+  min-height: 44px;
+  padding: 8px 12px;
+  color: var(--color-gold);
+  border: 1px solid var(--color-edge);
+  background: var(--color-panel-deep);
+  cursor: pointer;
+}
+
+.herd-dialog-footer {
+  border-top: 1px solid var(--color-edge);
+}
+
+@media (max-width: 520px) {
+  .herd-picker-list {
+    grid-template-columns: 1fr;
   }
 }
