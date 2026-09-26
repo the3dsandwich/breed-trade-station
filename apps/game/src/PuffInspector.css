@@ -141,6 +141,52 @@
   word-break: break-all;
 }
 
+.puff-inspector-movement {
+  border-top: 1px solid #b8a17d;
+  margin-top: 14px;
+  padding-top: 12px;
+}
+
+.puff-inspector-movement p {
+  margin: 0 0 8px;
+  font-weight: 650;
+}
+
+.puff-inspector-movement p:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+.puff-inspector-destinations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.puff-inspector-movement button {
+  min-height: 44px;
+  padding: 8px;
+  color: var(--color-ink);
+  background: #e4d1ab;
+  border: 1px solid #947456;
+}
+
+.puff-inspector-movement button:hover:not(:disabled) {
+  background: #d8bf93;
+}
+
+.puff-inspector-destinations span {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.puff-inspector-pasture {
+  width: 100%;
+  margin-top: 8px;
+}
+
 @media (max-width: 1180px) {
   .puff-inspector-empty {
     min-height: 100px;
