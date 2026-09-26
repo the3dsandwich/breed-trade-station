@@ -39,7 +39,7 @@ async function keyboardActivate(page: Page, target: Locator) {
   throw new Error(`Could not reach control with Tab: ${await target.textContent()}`);
 }
 
-const summary = (page: Page) => page.locator(".herd-picker summary");
+const summary = (page: Page) => page.locator("#herd-picker-summary");
 const row = (page: Page, id: string) => page.locator(".herd-picker").getByRole("button", { name: new RegExp(`ID: ${id}\\b`) });
 const pen = (page: Page, index: number) => page.getByRole("region", { name: `Pen ${index} breeding status` });
 async function choose(page: Page, id: string) {
@@ -86,9 +86,12 @@ test("picker bulk selection keeps last-parent protection and cancels cleanly", a
   await summary(page).click();
   await row(page, "BB").click();
   await expect(row(page, "BB")).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Done choosing", exact: true }).click();
+  await expect(summary(page)).toBeFocused();
   await expect(page.getByRole("button", { name: "Release 1", exact: true })).toBeDisabled();
   await expect(page.locator(".release-controls")).toContainText("Keep at least one female");
   await page.getByRole("button", { name: "Cancel bulk release", exact: true }).click();
+  await summary(page).click();
   await expect(row(page, "BB")).toHaveAttribute("aria-pressed", "false");
   await row(page, "CC").click();
   await page.getByRole("button", { name: "Fulfill request for 20g", exact: true }).click();
@@ -102,7 +105,22 @@ test(`${width}px picker fits, keeps selection, and Escape returns focus`, async 
   await page.setViewportSize({ width, height: 844 });
   await openHerd(page);
   await choose(page, "BB");
+  const journalBefore = (await page.locator(".puff-inspector").boundingBox())!;
   await summary(page).click();
+  const dialog = page.getByRole("dialog", { name: "Choose a Puff", exact: true });
+  await expect(dialog).toBeVisible();
+  const bounds = (await dialog.boundingBox())!;
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(844);
+  expect((await page.locator(".puff-inspector").boundingBox())!.y).toBe(journalBefore.y);
+  // Native modal blocks background controls. Chromium may briefly focus the
+  // browser chrome (activeElement is body) between the last and first button.
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press("Tab");
+    expect(await dialog.evaluate(el => el.matches(":modal") &&
+      (el.contains(document.activeElement) || document.activeElement === document.body))).toBe(true);
+  }
   expect((await row(page, "BB").boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await row(page, "BB").click();
   await expect(page.locator(".puff-inspector-id")).toHaveText("BB");

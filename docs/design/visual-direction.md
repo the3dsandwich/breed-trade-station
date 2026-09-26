@@ -56,18 +56,24 @@ needs, and make a breeding plan without repeatedly opening Puff details?
 
 ## Choosing the next breeding pair
 
-The next small experiment adds a collapsed **Choose a Puff** list above the
-journal. Every living Puff is available, including animals hidden behind
+The **Choose a Puff** button above the journal opens a popup list. Every living
+Puff is available, including animals hidden behind
 another sprite. Rows show sex, body size and color, eyes, ears, location, and
 whether a request matches. IDs distinguish otherwise identical Puffs. The list
-keeps the herd's insertion order, adds newborns at the end, and scrolls within
-a fixed height. It does not rank parents or predict inherited traits.
+keeps the herd's insertion order and adds newborns at the end. The popup fits
+the screen, with two columns on desktop and one on phones. Only its list
+scrolls; opening it does not push the journal or other panels down. It does
+not rank parents or predict inherited traits.
 
 Choosing a row selects that Puff, closes the list, and returns focus to the
-summary. Choosing the current Puff keeps it selected. Escape also closes the
-list. In bulk-release mode, rows instead toggle the existing release batch
-and stay open; the existing confirm button and last-parent protection still
-apply. Nothing is released by choosing a row.
+button. Choosing the current Puff keeps it selected. Escape also closes the
+list, as does its visible Close button. The native dialog blocks keyboard
+access and clicks on the pasture and panels behind it. The game
+clock continues as before. In bulk-release mode, rows instead toggle the
+existing release batch
+and stay open. A marked count and **Done choosing** button let players close
+the popup before using the existing confirmation controls. Last-parent
+protection still applies. Nothing is released by choosing a row.
 
 The journal now has **Move to Pen** and **Return to pasture** buttons. Current
 and full pens are disabled with a written reason. Moving keeps the Puff
