@@ -9,7 +9,7 @@ export const PenStatusPanel = () => {
   return (
     <section className="pen-status-panel" aria-label="Breeding pens">
       <h2>Breed Puffs</h2>
-      <p>Click a Puff, then click a pen to move it there.</p>
+      <p>Choose a Puff, then move it to a pen from its journal.</p>
       <p>Each pen needs a male, a female, and a free space for a baby.</p>
       {pens.order.map((id) => {
         const pen = pens.byId[id];

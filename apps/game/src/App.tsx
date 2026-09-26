@@ -1,6 +1,7 @@
 import { Provider } from "react-redux";
 import { GameCanvas } from "./canvas/GameCanvas";
 import { PenStatusPanel } from "./PenStatusPanel";
+import { HerdPicker } from "./HerdPicker";
 import { PuffInspector } from "./PuffInspector";
 import { GoldDisplay } from "./GoldDisplay";
 import { RequestsPanel } from "./RequestsPanel";
@@ -48,6 +49,7 @@ const Game = () => {
         <div className="sidebar">
           <GoldDisplay />
           <HerdRecovery />
+          <HerdPicker />
           <PuffInspector />
           <RequestsPanel />
           <ReleaseControls />

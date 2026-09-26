@@ -1,9 +1,11 @@
 import { deriveTraits, puffSatisfiesRequest, type Sex } from "@bts/shared";
+import { useRef } from "react";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { releasePuffs, fulfillRequest } from "./store/gameActions";
 import "./PuffInspector.css";
 import { TRAIT_LABELS, traitValueLabel } from "./traitLabels";
 import { removalBlockedReason } from "./store/removalRules";
+import { puffAssignedToPen, puffUnassigned } from "./store/pensSlice";
 
 const SEX_DISPLAY: Record<Sex, { label: string; symbol: string; className: string }> = {
   M: { label: traitValueLabel("sex", "M"), symbol: "♂", className: "puff-inspector-sex-male" },
@@ -21,11 +23,13 @@ export const PuffInspector = () => {
   );
   const blockedReason = useAppSelector((state) => removalBlockedReason(state.puffs.byId, selectedPuffId ? [selectedPuffId] : []));
   const requests = useAppSelector((state) => state.requests);
+  const pens = useAppSelector((state) => state.pens);
+  const locationStatus = useRef<HTMLParagraphElement>(null);
 
   if (releaseModeActive) {
     return (
       <aside className="puff-inspector puff-inspector-empty">
-        <p>Release mode: tap Puffs on the canvas to add them to the batch.</p>
+        <p>Release mode: use Choose a Puff or tap Puffs on the canvas to mark them for release. Confirm below when ready.</p>
       </aside>
     );
   }
@@ -42,6 +46,7 @@ export const PuffInspector = () => {
 
   const traits = deriveTraits(puff.genes);
   const sex = SEX_DISPLAY[traits.sex];
+  const currentPen = pens.order.map((id) => pens.byId[id]).find((pen) => pen.occupantIds.includes(puff.id));
   const matchingRequests = requests.order
     .map((id) => requests.byId[id])
     .filter((request) => puffSatisfiesRequest(traits, request));
@@ -71,7 +76,10 @@ export const PuffInspector = () => {
               key={request.id}
               className="puff-inspector-fulfill-button"
               disabled={!!blockedReason}
-              onClick={() => dispatch(fulfillRequest(puff.id, request))}
+              onClick={() => {
+                dispatch(fulfillRequest(puff.id, request));
+                document.getElementById("herd-picker-summary")?.focus();
+              }}
             >
               Fulfill request for {request.reward}g
             </button>
@@ -80,9 +88,34 @@ export const PuffInspector = () => {
       )}
 
       {blockedReason && <p role="status">{blockedReason}</p>}
-      <button disabled={!!blockedReason} className="puff-inspector-release-button" onClick={() => dispatch(releasePuffs([puff.id]))}>
+      <button disabled={!!blockedReason} className="puff-inspector-release-button" onClick={() => {
+        dispatch(releasePuffs([puff.id]));
+        document.getElementById("herd-picker-summary")?.focus();
+      }}>
         Release
       </button>
+
+      <div className="puff-inspector-movement" role="group" aria-label="Move this Puff">
+        <p ref={locationStatus} tabIndex={-1} role="status">Location: {currentPen?.name ?? "Pasture"}</p>
+        <div className="puff-inspector-destinations">
+          {pens.order.map((id) => {
+            const pen = pens.byId[id];
+            const current = currentPen?.id === id;
+            const full = pen.occupantIds.length >= pen.capacity;
+            return <button key={id} type="button" disabled={current || full} onClick={() => {
+              dispatch(puffAssignedToPen({ puffId: puff.id, penId: id }));
+              locationStatus.current?.focus();
+            }}>
+              {current ? `In ${pen.name}` : full ? `${pen.name} full` : `Move to ${pen.name}`}
+              <span>{pen.occupantIds.length}/{pen.capacity} spaces used</span>
+            </button>;
+          })}
+        </div>
+        {currentPen && <button type="button" className="puff-inspector-pasture" onClick={() => {
+          dispatch(puffUnassigned({ puffId: puff.id }));
+          locationStatus.current?.focus();
+        }}>Return to pasture</button>}
+      </div>
 
       <p className="puff-inspector-id">{puff.id}</p>
     </aside>

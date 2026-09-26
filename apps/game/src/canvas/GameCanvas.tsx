@@ -1,4 +1,5 @@
 import { Stage, Graphics } from "@pixi/react";
+import { AccessibilityManager, extensions } from "pixi.js";
 import { useCallback, useMemo } from "react";
 import { deriveTraits, puffSatisfiesRequest } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -13,6 +14,11 @@ import { PenView } from "./PenView";
 import { gridSlotInPen } from "./penLayout";
 import { ContextBridge } from "./ContextBridge";
 import { drawPasture } from "./drawPasture";
+
+// Keyboard controls live in the DOM picker/journal. No canvas objects use
+// Pixi's accessibility overlay, whose fixed 800px width overflows on phones
+// whenever Tab activates it, even when it contains no controls.
+extensions.remove(AccessibilityManager);
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;

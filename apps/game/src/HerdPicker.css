@@ -1,0 +1,87 @@
+.herd-picker {
+  color: var(--color-text);
+  background: var(--color-panel);
+  border: 1px solid var(--color-edge);
+  box-shadow: var(--pixel-frame);
+  font-size: 12px;
+}
+
+.herd-picker summary {
+  min-height: 44px;
+  padding: 14px 12px;
+  color: var(--color-gold);
+  font: 700 12px var(--font-label);
+  cursor: pointer;
+}
+
+.herd-picker summary:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+.herd-picker-help {
+  margin: 0;
+  padding: 0 12px 10px;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.herd-picker-list {
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  margin: 0;
+  padding: 6px 10px 10px;
+}
+
+.herd-picker-list li + li {
+  margin-top: 8px;
+}
+
+.herd-picker-list button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px;
+  background: var(--color-panel-deep);
+  color: var(--color-text);
+  border: 1px solid var(--color-edge);
+  text-align: left;
+  line-height: 1.4;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.herd-picker-list button:hover {
+  border-color: var(--color-muted);
+}
+
+.herd-picker-list button[aria-pressed="true"] {
+  border-color: var(--color-gold);
+  box-shadow: inset 3px 0 var(--color-gold);
+}
+
+.herd-picker-location {
+  color: var(--color-gold);
+}
+
+.herd-picker-match {
+  color: var(--color-sprout);
+}
+
+.herd-picker-id {
+  width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--color-muted);
+  font: 10px var(--font-label);
+}
+
+@media (max-width: 1180px) {
+  .herd-picker {
+    order: 2;
+  }
+}

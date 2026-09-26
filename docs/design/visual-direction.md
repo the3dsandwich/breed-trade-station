@@ -48,10 +48,50 @@ its playtester checked the implementation. Before/after screenshots use the
 same saved starter herd. This is a short playtest, not proof of long-term fun.
 
 The fixed board still makes Puffs small on phones, and overlapping Puffs can
-be hard to select. Canvas animals are still not keyboard navigable. These
-are existing interaction limits; the new DOM details and focus styles do not
-solve them. A later round should explore an accessible herd list or zoomed
-inspection, without losing the open-ranch feeling.
+be hard to select directly. Canvas animals themselves are not keyboard
+navigable; the journal now supplies another way to choose and move them.
 
 Next play question: can a player spot a useful parent, read what a request
 needs, and make a breeding plan without repeatedly opening Puff details?
+
+## Choosing the next breeding pair
+
+The next small experiment adds a collapsed **Choose a Puff** list above the
+journal. Every living Puff is available, including animals hidden behind
+another sprite. Rows show sex, body size and color, eyes, ears, location, and
+whether a request matches. IDs distinguish otherwise identical Puffs. The list
+keeps the herd's insertion order, adds newborns at the end, and scrolls within
+a fixed height. It does not rank parents or predict inherited traits.
+
+Choosing a row selects that Puff, closes the list, and returns focus to the
+summary. Choosing the current Puff keeps it selected. Escape also closes the
+list. In bulk-release mode, rows instead toggle the existing release batch
+and stay open; the existing confirm button and last-parent protection still
+apply. Nothing is released by choosing a row.
+
+The journal now has **Move to Pen** and **Return to pasture** buttons. Current
+and full pens are disabled with a written reason. Moving keeps the Puff
+selected and focuses its updated location. Sale or single release returns
+focus to the picker. Players can choose and place parents using Tab and Enter,
+while existing canvas clicks still work. These controls use the same pen and
+selection actions; genetics, breeding, economy and saved data are unchanged.
+
+Pixi's unused accessibility overlay is disabled before the renderer starts.
+It added an empty 800-pixel-wide layer on Tab and widened the phone page,
+even though no canvas objects had opted into it. Real HTML controls now
+provide Puff selection and movement. If future canvas objects opt into Pixi
+accessibility, revisit the overlay sizing rather than simply re-enabling it.
+
+### Why this slice
+
+The baseline carried save had nine Puffs, one full pen and one empty pen.
+Every tested real-save pasture Puff could be clicked at its exact center,
+but sex required opening each Puff's journal and phone bodies were tiny. A
+separate prepared fixture placed two Puffs at exactly the same location and
+confirmed that one covered the other. This fixture is not earned progression.
+
+Hypothesis: letting players compare visible traits and choose any Puff will
+make it easier to clear a full pen and form a useful next pair. Observe whether
+a player uses the list to choose parents for an unmet request, rather than
+just moving animals at random. A short successful breeding test alone does
+not establish long-term engagement.
