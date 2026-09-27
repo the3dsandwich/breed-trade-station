@@ -2,7 +2,7 @@ import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { createPuff, deriveTraits, meiosis, type Puff, type PuffId } from "@bts/shared";
 import { createLocalId } from "./id";
 import { gameTick, gameTickCatchup } from "./clockSlice";
-import { puffBorn } from "./puffsSlice";
+import { puffBorn, birthRecorded } from "./puffsSlice";
 import { puffAssignedToPen, breedingProgressReset, breedingProgressAdvanced } from "./pensSlice";
 import { BREEDING_DURATION_MS, isBreedingEligible } from "./breedingRules";
 import { STARVING_BREEDING_MULTIPLIER } from "./economySlice";
@@ -55,6 +55,16 @@ startAppListening({
       const child = createPuff(createLocalId(), meiosis(parentA.genes, parentB.genes), Date.now());
 
       listenerApi.dispatch(puffBorn(child));
+      // Record the parents actually chosen, not whoever happens to be in the pen
+      // later. Visible traits remain readable even after these Puffs leave.
+      listenerApi.dispatch(birthRecorded({
+        child: { id: child.id, traits: deriveTraits(child.genes) },
+        father: { id: parentA.id, traits: deriveTraits(parentA.genes) },
+        mother: { id: parentB.id, traits: deriveTraits(parentB.genes) },
+        penId,
+        penName: pen.name,
+        catchup: gameTickCatchup.match(action),
+      }));
       listenerApi.dispatch(puffAssignedToPen({ puffId: child.id, penId }));
       listenerApi.dispatch(breedingProgressReset({ penId }));
     }

@@ -101,3 +101,34 @@ make it easier to clear a full pen and form a useful next pair. Observe whether
 a player uses the list to choose parents for an unmet request, rather than
 just moving animals at random. A short successful breeding test alone does
 not establish long-term engagement.
+
+## Recent birth records
+
+Goal-driven playtests found that a small pen creates a useful keeper/sale
+choice, but players had to remember long IDs outside the game to learn from
+the outcome. Increasing pen capacity would postpone that sorting. This slice
+keeps capacity, birth location and all breeding/economy rules unchanged.
+
+The existing Puff popup now has **Your Puffs** and **Recent births** views.
+Each birth record shows the baby, its actual mother and father, their visible
+traits at birth, and the pen. It records the chosen parents, which can include
+an earlier baby; it does not guess from the pen's current occupants. Records
+show observed results, not hidden alleles or promised breeding odds.
+
+The latest 20 records survive save/reload and the sale or release of any
+recorded Puff. Numbers count recorded births, not the herd's entire history.
+Older saves start with no records; earlier lineage is unknown. Catchup births
+say they happened while away with an unknown exact time. This is a small recent
+history, not a permanent family tree.
+
+**Open baby journal** selects a living child and closes the popup. A child
+that has left the herd stays in the record but cannot be selected. During bulk
+release, this action is disabled with an explanation; reading records does
+not add a Puff to the release batch. Escape and Close retain the existing
+focus behavior. Parents stack vertically on phones, and history scrolls
+inside the popup without adding another permanent sidebar panel.
+
+Next play question: can a player explain which cross produced a useful Puff
+and choose the next breeding experiment using these records alone? Test that
+before adding pen capacity or automatic movement of newborns. Per-pen result
+management and the separate bulk-release mode surprise remain future work.

@@ -3,6 +3,7 @@ import { deriveTraits, puffSatisfiesRequest } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { puffSelectionToggled, releaseBatchMembershipToggled } from "./store/selectionSlice";
 import { traitValueLabel } from "./traitLabels";
+import { RecentBirths } from "./RecentBirths";
 import "./HerdPicker.css";
 
 export const HerdPicker = () => {
@@ -14,6 +15,8 @@ export const HerdPicker = () => {
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState<"herd" | "births">("herd");
+  const birthCount = useAppSelector((state) => state.puffs.recentBirths?.length ?? 0);
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
@@ -26,7 +29,7 @@ export const HerdPicker = () => {
     <div className="herd-picker">
       <button type="button" id="herd-picker-summary" className="herd-picker-trigger" ref={trigger}
         aria-haspopup="dialog" aria-controls="herd-dialog" aria-expanded={open}
-        onClick={() => { dialog.current?.showModal(); setOpen(true); }}>
+        onClick={() => { setView("herd"); dialog.current?.showModal(); setOpen(true); }}>
         Choose a Puff · {Object.keys(puffs).length}
       </button>
       <dialog id="herd-dialog" className="herd-dialog" ref={dialog}
@@ -39,10 +42,14 @@ export const HerdPicker = () => {
           </div>
           <button type="button" className="herd-dialog-close" onClick={closePicker}>Close</button>
         </header>
+        <div className="herd-dialog-views" role="group" aria-label="Herd views">
+          <button type="button" aria-pressed={view === "herd"} onClick={() => setView("herd")}>Your Puffs</button>
+          <button type="button" aria-pressed={view === "births"} onClick={() => setView("births")}>Recent births{birthCount > 0 ? ` · ${birthCount}` : ""}</button>
+        </div>
         <p id="herd-dialog-help" className="herd-picker-help">
-          {releaseModeActive ? "Mark Puffs for bulk release. Close this list to review and confirm." : "Compare your Puffs. Choose one to open its journal."}
+          {view === "births" ? "See each baby and the parents who produced it." : releaseModeActive ? "Mark Puffs for bulk release. Close this list to review and confirm." : "Compare your Puffs. Choose one to open its journal."}
         </p>
-        <ul className="herd-picker-list" aria-label="Your Puffs">
+        {view === "births" ? <RecentBirths onChoose={closePicker} /> : <ul className="herd-picker-list" aria-label="Your Puffs">
           {Object.values(puffs).map((puff) => {
             const traits = deriveTraits(puff.genes);
             const pen = pens.order.map((id) => pens.byId[id]).find((pen) => pen.occupantIds.includes(puff.id));
@@ -66,8 +73,8 @@ export const HerdPicker = () => {
               </li>
             );
           })}
-        </ul>
-        {Object.keys(puffs).length === 0 && <p className="herd-picker-help">Your pasture is empty.</p>}
+        </ul>}
+        {view === "herd" && Object.keys(puffs).length === 0 && <p className="herd-picker-help">Your pasture is empty.</p>}
         {releaseModeActive && <footer className="herd-dialog-footer">
           <span role="status">{releaseBatch.length} marked for release</span>
           <button type="button" onClick={closePicker}>Done choosing</button>

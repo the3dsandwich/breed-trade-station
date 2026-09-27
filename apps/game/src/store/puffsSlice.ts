@@ -1,9 +1,29 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { createPuff, randomGenes, type Puff, type PuffId } from "@bts/shared";
+import { createPuff, randomGenes, type Puff, type PuffId, type PuffTraits } from "@bts/shared";
 import { createLocalId } from "./id";
+
+export interface BirthPuffSnapshot {
+  id: PuffId;
+  traits: PuffTraits;
+}
+
+export interface BirthRecord {
+  number: number;
+  child: BirthPuffSnapshot;
+  mother: BirthPuffSnapshot;
+  father: BirthPuffSnapshot;
+  penId: string;
+  penName: string;
+  catchup: boolean;
+}
+
+export const RECENT_BIRTH_LIMIT = 20;
 
 export interface PuffsState {
   byId: Record<PuffId, Puff>;
+  // Optional so saves made before birth records still load without invented history.
+  recentBirths?: BirthRecord[];
+  birthCount?: number;
 }
 
 const initialState: PuffsState = { byId: {} };
@@ -24,11 +44,16 @@ const puffsSlice = createSlice({
     puffBorn: (state, action: PayloadAction<Puff>) => {
       state.byId[action.payload.id] = action.payload;
     },
+    birthRecorded: (state, action: PayloadAction<Omit<BirthRecord, "number">>) => {
+      const number = (state.birthCount ?? 0) + 1;
+      state.birthCount = number;
+      state.recentBirths = [{ ...action.payload, number }, ...(state.recentBirths ?? [])].slice(0, RECENT_BIRTH_LIMIT);
+    },
     puffRemoved: (state, action: PayloadAction<{ puffId: PuffId }>) => {
       delete state.byId[action.payload.puffId];
     },
   },
 });
 
-export const { puffsSpawned, puffBorn, puffRemoved } = puffsSlice.actions;
+export const { puffsSpawned, puffBorn, puffRemoved, birthRecorded } = puffsSlice.actions;
 export const puffsReducer = puffsSlice.reducer;
