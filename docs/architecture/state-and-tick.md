@@ -165,7 +165,8 @@ Server tick implementation is deferred to backend architecture decisions.
 
 State is serialized to localStorage on every `SAVE` event (every 30 seconds) and immediately on app close. On startup, Redux rehydrates from localStorage before sending `START` to the worker.
 
-Autosave, page unload, and tick-engine cleanup all call `saveGameState`. It updates `clock.lastSavedAt` before taking the snapshot, so a reload does not count time already played as offline time. Only the five saved slices are included; selection stays temporary. The development reset can still suppress the next save.
+Autosave, page unload, and tick-engine cleanup all call `saveGameState`. It updates `clock.lastSavedAt` before taking the snapshot, so a reload does not count time already played as offline time. Only the five saved slices are included; selection stays temporary. Recent
+birth records are stored inside the existing `puffs` slice. The development reset can still suppress the next save.
 
 Only client-owned slices are persisted to localStorage. Market state is always re-fetched from the server on startup.
 
@@ -179,3 +180,20 @@ Only client-owned slices are persisted to localStorage. Market state is always r
 - Server tick implementation details
 - Fast-forward as a player-facing game feature (vs. debug only)
 - Offline progress cap (whether there is a maximum catchup duration)
+
+### Bounded birth history
+
+`PuffsState` has optional `recentBirths` and `birthCount` fields. Legacy saves
+with only `byId` keep working and do not gain guessed history. On a real
+breeding event, the middleware records the baby and the exact selected
+male/female parents as IDs plus visible-trait snapshots. It also records the
+pen ID/name and whether the event came from offline catchup. It makes no
+additional random choices and does not change the breeding sequence.
+
+The reducer assigns a monotonically increasing record number and keeps the
+newest 20 entries. The counter persists when older entries are trimmed. Puff
+removal does not remove records; the UI checks the living herd before allowing
+a child to be selected. Snapshot traits remain available after any recorded
+Puff is removed. Whole-game restart clears these fields with the rest of the
+save. Catchup still generates at most one birth per eligible pen; the UI does
+not assign a precise historical time to that simulated birth.
