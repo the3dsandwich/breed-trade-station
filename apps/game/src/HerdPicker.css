@@ -158,6 +158,7 @@
 
 .herd-dialog-views {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 0 18px 10px;
   flex-shrink: 0;
@@ -233,4 +234,96 @@
 
 @media (max-width: 520px) {
   .birth-parents { grid-template-columns: 1fr; }
+}
+
+.pen-occupants {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 18px 18px;
+}
+
+.pen-occupants-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--color-muted);
+}
+
+.pen-occupants select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--color-edge);
+  color: var(--color-text);
+  background: var(--color-panel-deep);
+  font: inherit;
+}
+
+.pen-occupants select:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+.pen-occupants h3 {
+  margin: 16px 0 8px;
+  color: var(--color-gold);
+  font-size: 14px;
+}
+
+.pen-occupants-help, .pen-occupants-notice {
+  margin: 0 0 10px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.pen-occupants-notice:empty {
+  margin: 0;
+}
+
+.pen-occupants-notice {
+  color: var(--color-sprout);
+}
+
+.pen-occupants-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pen-occupant {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--color-edge);
+  background: var(--color-panel-deep);
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.pen-occupant h4, .pen-occupant p {
+  margin: 0 0 8px;
+}
+
+.pen-occupant-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pen-occupant button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-edge);
+  background: var(--color-panel);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.pen-occupant button:disabled {
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+  .pen-occupants-cards { grid-template-columns: 1fr; }
 }

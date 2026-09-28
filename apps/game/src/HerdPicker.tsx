@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { puffSelectionToggled, releaseBatchMembershipToggled } from "./store/selectionSlice";
 import { traitValueLabel } from "./traitLabels";
 import { RecentBirths } from "./RecentBirths";
+import { PenOccupants } from "./PenOccupants";
 import "./HerdPicker.css";
 
 export const HerdPicker = () => {
@@ -15,7 +16,8 @@ export const HerdPicker = () => {
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"herd" | "births">("herd");
+  const [view, setView] = useState<"herd" | "births" | "pens">("herd");
+  const [selectedPenId, setSelectedPenId] = useState<string | null>(null);
   const birthCount = useAppSelector((state) => state.puffs.recentBirths?.length ?? 0);
   useEffect(() => {
     if (!open) return;
@@ -45,11 +47,12 @@ export const HerdPicker = () => {
         <div className="herd-dialog-views" role="group" aria-label="Herd views">
           <button type="button" aria-pressed={view === "herd"} onClick={() => setView("herd")}>Your Puffs</button>
           <button type="button" aria-pressed={view === "births"} onClick={() => setView("births")}>Recent births{birthCount > 0 ? ` · ${birthCount}` : ""}</button>
+          <button type="button" aria-pressed={view === "pens"} onClick={() => setView("pens")}>Pens</button>
         </div>
         <p id="herd-dialog-help" className="herd-picker-help">
-          {view === "births" ? "See each baby and the parents who produced it." : releaseModeActive ? "Mark Puffs for bulk release. Close this list to review and confirm." : "Compare your Puffs. Choose one to open its journal."}
+          {view === "pens" ? releaseModeActive ? "Read this pen. Finish bulk release before opening journals or moving Puffs." : "Review one pen and move Puffs to pasture to make room. Breeding continues while this is open." : view === "births" ? "See each baby and the parents who produced it." : releaseModeActive ? "Mark Puffs for bulk release. Close this list to review and confirm." : "Compare your Puffs. Choose one to open its journal."}
         </p>
-        {view === "births" ? <RecentBirths onChoose={closePicker} /> : <ul className="herd-picker-list" aria-label="Your Puffs">
+        {view === "pens" ? <PenOccupants selectedPenId={selectedPenId} onPenChange={setSelectedPenId} onChoose={closePicker} /> : view === "births" ? <RecentBirths onChoose={closePicker} /> : <ul className="herd-picker-list" aria-label="Your Puffs">
           {Object.values(puffs).map((puff) => {
             const traits = deriveTraits(puff.genes);
             const pen = pens.order.map((id) => pens.byId[id]).find((pen) => pen.occupantIds.includes(puff.id));

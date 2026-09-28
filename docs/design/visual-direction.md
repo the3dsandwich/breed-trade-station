@@ -109,7 +109,7 @@ choice, but players had to remember long IDs outside the game to learn from
 the outcome. Increasing pen capacity would postpone that sorting. This slice
 keeps capacity, birth location and all breeding/economy rules unchanged.
 
-The existing Puff popup now has **Your Puffs** and **Recent births** views.
+The Puff popup includes **Your Puffs** and **Recent births** views.
 Each birth record shows the baby, its actual mother and father, their visible
 traits at birth, and the pen. It records the chosen parents, which can include
 an earlier baby; it does not guess from the pen's current occupants. Records
@@ -131,4 +131,37 @@ inside the popup without adding another permanent sidebar panel.
 Next play question: can a player explain which cross produced a useful Puff
 and choose the next breeding experiment using these records alone? Test that
 before adding pen capacity or automatic movement of newborns. Per-pen result
-management and the separate bulk-release mode surprise remain future work.
+management is described below; the separate bulk-release mode surprise remains
+future work.
+
+## Handling one pen at a time
+
+The **Pens** view in the same popup shows one pen's current occupants, its
+used spaces, and the existing breeding status. Choose a pen from the list
+to compare its Puffs without searching the whole herd. The pen choice stays
+while switching between popup views; it is temporary UI state, not saved
+game progress. Reopening the popup still starts at Your Puffs.
+
+Each occupant offers **Open journal** and **Move to pasture**. Opening the
+journal keeps the existing selection/focus behavior and offers the normal
+sale, release and assignment controls. Moving to pasture keeps the popup
+open, refreshes the occupants, returns focus to the pen chooser, and announces
+the move. It does not sell, release or remove the Puff from the herd.
+
+A **Born here · Birth N** label appears only when a retained birth record
+identifies this Puff as born in this pen. Moving an animal from another pen
+does not change its birthplace. Missing older records remain unknown. The
+label does not mean a Puff cannot breed: newborns still join the breeding
+pool immediately under the current rules.
+
+Breeding and upkeep keep running. Clearing a place can allow another birth,
+so the list and count stay live. There is no empty-pen or move-all automation,
+new capacity rule, or fixed parent-pair assignment. During bulk release the
+pen view is read-only, with a clear explanation; its controls cannot change
+the release batch or move marked animals.
+
+Baseline carried play required repeated trips through the birth list and
+journal to handle two known offspring. This experiment keeps that decision
+inside one pen's list. Next test: can players keep useful breeding stock,
+make space deliberately, and continue toward an unmet request with less
+bookkeeping? A lower click count alone is not proof of long-term enjoyment.
