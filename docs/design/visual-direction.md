@@ -165,3 +165,39 @@ journal to handle two known offspring. This experiment keeps that decision
 inside one pen's list. Next test: can players keep useful breeding stock,
 make space deliberately, and continue toward an unmet request with less
 bookkeeping? A lower click count alone is not proof of long-term enjoyment.
+
+## Comparing one pair's results
+
+Goal-driven play toward an Extra-large request revealed two ways the parent
+pool changed during a trial: an extra birth happened while moving parents,
+and a newborn became the father of the next baby. Two births in one pen are
+not necessarily two results from the same pair. The player used outside ID
+notes to reconstruct those trials from the full birth list.
+
+**Show this pair's births** filters Recent births by the exact recorded mother
+and father IDs, across pens. Identical-looking parents remain different
+animals. **Show all births** clears the filter. The heading receives keyboard
+focus after either action, and the list scrolls to the top. If a live birth
+removes the focused oldest card, focus returns to that heading without
+interrupting someone who has moved to another control. Leaving Recent
+births resets this temporary filter; it does not change the save.
+
+The count describes observed results within the latest 20 retained records.
+It is not lifetime history, a success rate, or a prediction. New matching
+births appear live. If all results for the selected pair fall out of the
+20-record window, the view explains that none remain and still offers Show
+all births. No earlier history is guessed.
+
+Each recorded mother and father can open its journal while it is still in
+the herd. Removed parents keep their trait snapshots with a clear unavailable
+message. As with the baby link, opening an already selected parent keeps it
+selected. Bulk-release mode disables journal links but allows reading and
+filtering without changing the release batch.
+
+This helps players distinguish the crosses they actually observed. It does
+not tell them which parent to use or expose hidden genes. Three exploratory
+pairings in the baseline produced variation but no Extra-large Puff; that
+short result does not establish impossibility. The next question is whether
+players can form and test a useful breeding idea, and recognize progress
+toward a request across generations. Easier history reading alone does not
+establish an engaging reason to return.

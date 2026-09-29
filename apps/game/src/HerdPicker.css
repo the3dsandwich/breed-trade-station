@@ -164,7 +164,7 @@
   flex-shrink: 0;
 }
 
-.herd-dialog-views button, .birth-record button {
+.herd-dialog-views button, .birth-record button, .birth-history-summary button {
   min-height: 44px;
   padding: 8px 12px;
   color: var(--color-text);
@@ -326,4 +326,29 @@
 
 @media (max-width: 520px) {
   .pen-occupants-cards { grid-template-columns: 1fr; }
+}
+
+.birth-history-summary {
+  overflow-wrap: anywhere;
+  margin-bottom: 12px;
+}
+
+.birth-history-summary h3 {
+  margin: 4px 0 10px;
+  color: var(--color-gold);
+  font-size: 14px;
+}
+
+.birth-history-summary h3:focus, .recent-births button:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+.birth-record header button {
+  margin-bottom: 12px;
+}
+
+.birth-puff > button, .birth-puff > .birth-record-help {
+  display: block;
+  margin-top: 8px;
 }
