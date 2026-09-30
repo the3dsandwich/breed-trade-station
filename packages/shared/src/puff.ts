@@ -10,6 +10,8 @@ export interface Puff {
   genes: GeneArray;
   bornAt: number;
   matured: boolean;
+  // Game-clock deadline. Missing on legacy Puffs and starters, which are ready.
+  breedingReadyAt?: number;
 }
 
 export type BodySize = "XS" | "S" | "M" | "L" | "XL";

@@ -137,7 +137,7 @@ Breeding speed is a trait. Lifespan is a trait. Both are heritable.
 
 There is no freeze mechanic. Animals age and die. Death self-regulates the total population and ensures the player must keep breeding rather than accumulating a static herd.
 
-**Implementation:** true Mendelian meiosis is live in `packages/shared` and wired into `apps/game` — each parent contributes one randomly-segregated allele per gene locus, with a small (placeholder, pending playtesting) per-allele mutation chance. A pen with 2+ occupants and open capacity accumulates breeding progress each tick, including offline catchup; on completion it picks one random M and one random F occupant as parents (same-sex pens hold progress at the cap until a compatible mate is placed) and the offspring joins the same pen immediately. A very long catchup gap fires at most one birth per pen — it does not simulate multiple breeding cycles that would have happened in between. Not yet implemented: breeding speed/lifespan as heritable traits, aging, maturity (newborns are immediately breeding-eligible), and death.
+**Implementation:** true Mendelian meiosis is live in `packages/shared` and wired into `apps/game` — each parent contributes one randomly-segregated allele per gene locus, with a small (placeholder, pending playtesting) per-allele mutation chance. A pen with 2+ occupants and open capacity accumulates breeding progress each tick, including offline catchup; on completion it picks one random M and one random F occupant as parents (same-sex pens hold progress at the cap until a compatible mate is placed) and the offspring joins the same pen immediately. A very long catchup gap fires at most one birth per pen — it does not simulate multiple breeding cycles that would have happened in between. Newborns now need one minute of game time to grow before they can breed (see Growing Puffs below). Not yet implemented: breeding speed/lifespan as heritable traits, full aging, and death.
 
 ---
 
@@ -182,7 +182,7 @@ Two markets exist, both asynchronous. Listings remain active until purchased by 
 
 ### Breeding help in the prototype
 
-The game shows a short guide: click a Puff, then a pen to move it. Breeding needs a male, a female, and room for a baby. Each pen also has readable text showing its used spaces and what it needs next. A full pen asks the player to make room; an empty or same-sex pen asks for the missing parents. Only a compatible pair with room shows breeding progress and a rough countdown. At zero Gold, the countdown uses the existing three-times-faster breeding rate. These hints do not change breeding rules.
+The game shows a short guide: click a Puff, then a pen to move it. Breeding needs a grown male, a grown female, and room for a baby. Each pen also has readable text showing its used spaces and what it needs next. A full pen asks the player to make room; an empty or same-sex pen asks for the missing parents. Only a compatible pair with room shows breeding progress and a rough countdown. At zero Gold, the countdown uses the existing three-times-faster breeding rate. These hints do not change breeding rules.
 
 ### Keeping a breeding pair (playtest round 2)
 
@@ -193,3 +193,29 @@ New games start with at least one female and one male who can pass on either sex
 ### Readable controls and small screens
 
 Puff details and sale/release buttons sit directly below Gold in the sidebar. Breeding help and live pen status sit below the play area. Requests and Puff details use full trait names and values, such as “Eye color: Red”; save files and genetics keep their existing codes. The play area keeps its 800×600 shape and shrinks to fit narrow screens, with the sidebar stacked below it.
+
+### Growing Puffs
+
+New births spend 60 seconds of game time **Young** before joining the possible
+parents in their pen. The goal is to keep the first few births tied to the
+adults the player placed, giving time to inspect a baby before it can change
+the next cross. One minute is a playtest value, not final balance. It also
+makes testing a promising offspring slower; watch for idle waiting.
+
+Young Puffs still take up pen space and have their normal visible traits.
+They can be moved, sold for a matching request, or released under the existing
+last-male/last-female safeguards. The herd list, pen view and journal show
+when they can breed. A pen waiting for a young mate shows a growth countdown.
+A full pen still stops births, and adult pairs still breed at the same rate.
+This does not prevent a pen with several adults from refilling during moves.
+
+Growth uses game time, including time away. Zero Gold speeds up adult
+breeding but does not shorten growth. Existing saved Puffs and newly seeded
+starter Puffs are ready immediately; old birth dates do not create a new wait.
+The next birth receives the new growth deadline.
+
+Breeding progress is added only for the part of a tick with at least two
+grown occupants. Existing stored progress stays, including the old same-sex
+adult bank. A mate becoming grown can therefore use progress already stored
+in that pen; there is no promise of an extra full cycle after growth. Genetics,
+pen capacity, birth placement, rewards and upkeep otherwise stay the same.

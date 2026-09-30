@@ -197,3 +197,23 @@ a child to be selected. Snapshot traits remain available after any recorded
 Puff is removed. Whole-game restart clears these fields with the rest of the
 save. Catchup still generates at most one birth per eligible pen; the UI does
 not assign a precise historical time to that simulated birth.
+
+### Newborn growth deadline
+
+`Puff.breedingReadyAt` is an optional deadline in `clock.gameTime` milliseconds.
+A missing deadline means ready, so older saves and starter animals keep working
+even when the old, unused `matured` flag is false. Readiness does not use the
+wall-clock `bornAt` field and does not require per-tick Puff mutations.
+
+The breeding listener sees the clock after each tick. New babies get a deadline
+60 seconds after that game time. Existing young Puffs grow during catchup. A
+new catchup baby conservatively starts its growth at the end of catchup, since
+the game does not simulate its exact historical birth time. The one-birth-per-
+pen catchup cap remains.
+
+For progress, the listener intersects the tick interval with the time after
+the second occupant became ready. This avoids granting a whole offline gap
+as breeding time to Puffs who only just grew. Parent selection filters to
+ready occupants; all occupants still count toward capacity. Existing progress
+is kept, including same-sex adult banks. The deadline saves with the Puff
+and does not change on moves or reload. New game reset clears it with the herd.
