@@ -1,3 +1,4 @@
+import { PuffGrowthStatus } from "./PuffGrowthStatus";
 import { deriveTraits, puffSatisfiesRequest, type Sex } from "@bts/shared";
 import { useRef } from "react";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -58,6 +59,7 @@ export const PuffInspector = () => {
         <span className="puff-inspector-sex-symbol">{sex.symbol}</span>
         <span>{sex.label}</span>
       </div>
+      <p><PuffGrowthStatus puff={puff} /></p>
       <dl className="puff-inspector-traits">
         <dt>{TRAIT_LABELS.bodySize}</dt>
         <dd>{traitValueLabel("bodySize", traits.bodySize)}</dd>

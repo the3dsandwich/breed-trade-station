@@ -1,3 +1,4 @@
+import { PuffGrowthStatus } from "./PuffGrowthStatus";
 import { useRef, useState } from "react";
 import { deriveTraits, puffSatisfiesRequest } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -17,6 +18,7 @@ export const PenOccupants = ({ selectedPenId, onPenChange, onChoose }: {
   const records = useAppSelector((state) => state.puffs.recentBirths);
   const requests = useAppSelector((state) => state.requests);
   const gold = useAppSelector((state) => state.economy.gold);
+  const gameTime = useAppSelector((state) => state.clock.gameTime);
   const { selectedPuffId, releaseModeActive } = useAppSelector((state) => state.selection);
   const selector = useRef<HTMLSelectElement>(null);
   const [notice, setNotice] = useState("");
@@ -34,7 +36,7 @@ export const PenOccupants = ({ selectedPenId, onPenChange, onChoose }: {
           {availablePens.map((option) => <option key={option.id} value={option.id}>{option.name} · {option.occupantIds.length}/{option.capacity} spaces used</option>)}
         </select>
         <h3>{pen.name} · {pen.occupantIds.length}/{pen.capacity} spaces used</h3>
-        <p className="pen-occupants-help">{getPenStatus(pen, puffs, gold).text}</p>
+        <p className="pen-occupants-help">{getPenStatus(pen, puffs, gold, gameTime).text}</p>
         {releaseModeActive && <p className="pen-occupants-help">Finish bulk release before opening journals or moving Puffs. You can still read this pen.</p>}
         <p className="pen-occupants-notice" role="status">{notice}</p>
         {pen.occupantIds.length === 0 && <p className="pen-occupants-help">This pen is empty. Choose a Puff from Your Puffs, then use its journal to move it here.</p>}
@@ -47,6 +49,7 @@ export const PenOccupants = ({ selectedPenId, onPenChange, onChoose }: {
             return <article className="pen-occupant" key={id} aria-label={`Puff ${id}`}>
               <h4>{traitValueLabel("sex", traits.sex)} · {traitValueLabel("bodySize", traits.bodySize)} · {traitValueLabel("bodyColor", traits.bodyColor)}</h4>
               <p>{traitValueLabel("eyeColor", traits.eyeColor)} eyes · {traitValueLabel("earSize", traits.earSize)} ears</p>
+              <p><PuffGrowthStatus puff={puff} /></p>
               {birth && <p className="herd-picker-location">Born here · Birth {birth.number}</p>}
               {requests.order.some((requestId) => puffSatisfiesRequest(traits, requests.byId[requestId])) && <p className="herd-picker-match">✓ Request match</p>}
               <p className="herd-picker-id">ID: {id}</p>

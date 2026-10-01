@@ -151,8 +151,8 @@ the move. It does not sell, release or remove the Puff from the herd.
 A **Born here · Birth N** label appears only when a retained birth record
 identifies this Puff as born in this pen. Moving an animal from another pen
 does not change its birthplace. Missing older records remain unknown. The
-label does not mean a Puff cannot breed: newborns still join the breeding
-pool immediately under the current rules.
+label does not mean a Puff cannot breed: newborns joined the breeding
+pool immediately in this earlier slice. See Growing Puffs below for the new rule.
 
 Breeding and upkeep keep running. Clearing a place can allow another birth,
 so the list and count stay live. There is no empty-pen or move-all automation,
@@ -201,3 +201,17 @@ short result does not establish impossibility. The next question is whether
 players can form and test a useful breeding idea, and recognize progress
 toward a request across generations. Easier history reading alone does not
 establish an engaging reason to return.
+
+## Growing Puffs
+
+The herd chooser, current pen cards and Puff journal show **Young · can breed
+in about Ns** or **Grown · ready to breed**. Young animals keep their normal
+trait appearance; shrinking their art would confuse inherited size with age.
+These are plain text labels, not an announcement every second. Existing
+keyboard controls, popup focus and reduced-motion behavior stay the same.
+
+The pen status uses the same game-time readiness check as breeding. When the
+needed sex is present but still young, it shows a wait instead of asking for
+an animal the player already placed. See the growing rule in core-mechanics.md.
+This is a parent-stability experiment, not a solution to adult pens refilling
+while the player moves animals.

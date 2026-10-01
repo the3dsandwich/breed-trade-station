@@ -1,3 +1,4 @@
+import { PuffGrowthStatus } from "./PuffGrowthStatus";
 import { useEffect, useRef, useState } from "react";
 import { deriveTraits, puffSatisfiesRequest } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -69,6 +70,7 @@ export const HerdPicker = () => {
                 }}>
                   <strong>{traitValueLabel("sex", traits.sex)} · {traitValueLabel("bodySize", traits.bodySize)} · {traitValueLabel("bodyColor", traits.bodyColor)}</strong>
                   <span>{traitValueLabel("eyeColor", traits.eyeColor)} eyes · {traitValueLabel("earSize", traits.earSize)} ears</span>
+                  <PuffGrowthStatus puff={puff} />
                   <span className="herd-picker-location">{pen?.name ?? "Pasture"}{chosen ? releaseModeActive ? " · To release" : " · Selected" : ""}</span>
                   {requests.order.some((id) => puffSatisfiesRequest(traits, requests.byId[id])) && <span className="herd-picker-match">✓ Request match</span>}
                   <span className="herd-picker-id" title={puff.id}>ID: {puff.id}</span>

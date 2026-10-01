@@ -34,3 +34,20 @@ describe("pen status", () => {
     expect(getPenStatus(pen(["m", "f"], 8000), puffs, 100).text).toContain("next tick");
   });
 });
+
+
+describe("growing pen status", () => {
+  const growing = { ...puffs, f: { ...puffs.f, breedingReadyAt: 60_000 } };
+  it("shows growth before breeding, even with banked progress and no Gold", () => {
+    const status = getPenStatus(pen(["m", "f"], 8000), growing, 0, 59_001);
+    expect(status.text).toContain("Waiting for young Puffs to grow: 1s");
+    expect(status.progress).toBeUndefined();
+    expect(getPenStatus(pen(["m", "f"], 8000), growing, 0, 60_000).text).toContain("next tick");
+  });
+  it("keeps full pens first and only waits for the earliest compatible pair", () => {
+    expect(getPenStatus(pen(["m", "f"], 0, 2), growing, 100, 0).text).toContain("Pen full");
+    const extraFemale = { ...growing, f2: { ...puffs.f, id: "f2", breedingReadyAt: 40_000 } };
+    expect(getPenStatus(pen(["m", "f", "f2"]), extraFemale, 100, 39_000).text).toContain("grow: 1s");
+    expect(getPenStatus(pen(["m", "f", "f2"]), extraFemale, 100, 40_000).text).toContain("Baby in about 8s");
+  });
+});
