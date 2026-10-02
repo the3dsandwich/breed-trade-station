@@ -54,7 +54,7 @@ export const Trader = () => {
         <p id="trader-help">Buy <strong>one Puff per day</strong> for {TRADER_PRICE}g. It joins your pasture, grown and ready to breed. Choose traits to try with your herd; babies may differ.</p>
         <p className="trader-wallet">You have {gold}g · Stock for {trader?.day}</p>
         <p className="trader-notice" tabIndex={-1} ref={notice}>{message}</p>
-        {futureStock ? <p className="trader-limit">Your device date is earlier than this stock. Buying resumes on {trader?.day}.</p>
+        {futureStock ? <p className="trader-limit">Your device date is earlier than this stock ({trader?.day}). Check your device date before buying.</p>
           : trader?.purchasedPuffId ? <p className="trader-limit">You bought today's Puff. New choices arrive on the next local day.</p>
           : releaseMode ? <p className="trader-limit">Finish bulk release before buying.</p>
           : gold < TRADER_PRICE ? <p className="trader-limit">Earn {TRADER_PRICE - gold}g more from requests or releasing spare Puffs.</p> : null}

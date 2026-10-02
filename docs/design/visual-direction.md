@@ -227,8 +227,8 @@ art or motion, and Puff trait rendering is unchanged.
 
 The price, one-Puff-per-day limit, current Gold and stock date appear before the
 offers. Unavailable purchases explain missing Gold, bulk-release mode or an
-already-used visit. A device date earlier than saved stock explains when buying
-can resume. Buying focuses a short success notice after its text appears. A
+already-used visit. A device date earlier than saved stock explains why buying
+is locked. Buying focuses a short success notice after its text appears. A
 daily stock change also explains the new choices through a focused notice,
 so removing old offer buttons does not strand keyboard focus. Closing or Escape
 returns focus to the wallet button; the bought Puff stays selected in its journal.

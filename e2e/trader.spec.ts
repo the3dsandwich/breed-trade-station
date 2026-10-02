@@ -106,7 +106,7 @@ test('daily stock changes restore focus and a backward date explains the purchas
   await expect(trader(page).locator('.trader-notice')).toHaveText('New daily stock has arrived. Please review the new choices.');
   await expect(trader(page).locator('.trader-notice')).toBeFocused();
   await page.clock.setFixedTime(new Date(2026,9,2,23,59,50));
-  await expect(trader(page)).toContainText('Your device date is earlier than this stock. Buying resumes on 2026-10-03.');
+  await expect(trader(page)).toContainText('Your device date is earlier than this stock (2026-10-03). Check your device date before buying.');
   for (const button of await trader(page).locator('.trader-offer button').all()) await expect(button).toBeDisabled();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', {name:'Visit trader · Puffs 15g',exact:true})).toBeFocused();
