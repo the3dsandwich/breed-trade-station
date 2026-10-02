@@ -1,0 +1,53 @@
+.trader { margin-top: 12px; }
+.trader button {
+  min-height: 44px;
+  padding: 10px 12px;
+  color: var(--color-gold);
+  background: var(--color-panel-deep);
+  border: 1px solid var(--color-edge);
+  cursor: pointer;
+}
+.trader-trigger { width: 100%; font-weight: 700; }
+.trader-teaser, .gold-upkeep {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.trader-dialog {
+  width: min(760px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid var(--color-edge);
+  color: var(--color-text);
+  background: var(--color-panel);
+  box-shadow: var(--pixel-frame);
+}
+.trader-dialog[open] { display: flex; flex-direction: column; }
+.trader-dialog::backdrop { background: #100e1acc; }
+.trader-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--color-edge);
+}
+.trader-header h2 { margin: 0; font-size: 20px; }
+.trader-header .panel-kicker { margin: 0 0 6px; color: var(--color-gold); }
+.trader-content { overflow-y: auto; overscroll-behavior: contain; padding: 0 18px 18px; line-height: 1.5; font-size: 13px; }
+.trader-wallet { color: var(--color-gold); }
+.trader-notice { color: var(--color-sprout); }
+.trader-notice:empty { margin: 0; }
+.trader-notice:focus { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+.trader-limit, .trader-footnote { color: var(--color-muted); }
+.trader-offers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.trader-offer { min-width: 0; padding: 12px; background: var(--color-panel-deep); border: 1px solid var(--color-edge); }
+.trader-offer h3 { margin: 0 0 12px; color: var(--color-gold); font-size: 14px; }
+.trader-offer p { margin: 0 0 8px; }
+.trader-grown { color: var(--color-sprout); }
+.trader button:disabled { color: var(--color-muted); cursor: not-allowed; }
+@media (max-width: 600px) { .trader-offers { grid-template-columns: 1fr; } }

@@ -217,3 +217,30 @@ as breeding time to Puffs who only just grew. Parent selection filters to
 ready occupants; all occupants still count toward capacity. Existing progress
 is kept, including same-sex adult banks. The deadline saves with the Puff
 and does not change on moves or reload. New game reset clears it with the herd.
+
+### Local NPC trader
+
+`economy.trader` is optional saved state: a local `YYYY-MM-DD` day, three complete
+Puff offers, and an optional purchased Puff ID. Keeping it inside economy retains
+the five saved slices. Old saves receive their first stock on startup without
+changing their herd or balance. Stock generation fixes Large/Female, Small/Male,
+and Medium slots, then keeps the generated Puff IDs and genes for that visit.
+
+Startup and economy ticks/catchup refresh stock only when the local date is later
+than its saved day. A gap generates one set, not one set per missed day. No
+refresh happens for a backward date. The purchase thunk refreshes first, then
+requires the submitted day and offer to still match today's stock. A stale
+midnight click therefore shows new offers without buying a replacement.
+
+The thunk rejects missing offers, used visits, insufficient/non-finite Gold,
+release mode, an existing herd ID, and a mismatched day. One synchronous
+`traderPurchaseCompleted` event updates economy, puffs and selection together.
+It deducts the fixed price, records the chosen ID, adds the exact saved Puff and
+selects it. It does not assign a pen or write a birth record. Purchased stock has
+no growth deadline, so it is ready under the existing readiness rule.
+
+Upkeep now uses a 300,000ms trial interval, still charging every elapsed interval
+and keeping its remainder. Old saved remainders remain valid. No balance, clock,
+or release/reward migration is needed. The wallet derives the next-charge text
+from that same accumulator. Local date controls stock only; game time still
+controls breeding, growth and upkeep.

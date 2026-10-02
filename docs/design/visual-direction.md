@@ -215,3 +215,27 @@ needed sex is present but still young, it shows a wait instead of asking for
 an animal the player already placed. See the growing rule in core-mechanics.md.
 This is a parent-stability experiment, not a solution to adult pens refilling
 while the player moves animals.
+
+## Visiting trader
+
+A compact **Visit trader · Puffs 15g** button lives in the Gold wallet, alongside the
+herd's upkeep charge and countdown. It opens a native dialog instead of adding
+three permanent stock cards to the sidebar. The dialog uses the existing
+plum/cream/gold palette, visible text traits, and 44px controls. Cards fit three
+columns on desktop and stack inside a scrolling area on phones. There is no new
+art or motion, and Puff trait rendering is unchanged.
+
+The price, one-Puff-per-day limit, current Gold and stock date appear before the
+offers. Unavailable purchases explain missing Gold, bulk-release mode or an
+already-used visit. A device date earlier than saved stock explains when buying
+can resume. Buying focuses a short success notice after its text appears. A
+daily stock change also explains the new choices through a focused notice,
+so removing old offer buttons does not strand keyboard focus. Closing or Escape
+returns focus to the wallet button; the bought Puff stays selected in its journal.
+The native dialog keeps focus inside while open. Breeding and upkeep continue,
+so the wallet countdown is a warning of a pending charge, not a payment grace
+period. Stock uses the device's local date, stated in the dialog.
+
+This is a first test of earning Gold for new breeding stock. A completed purchase
+and a successful birth show that the loop works; they do not prove players will
+want to return each day.
