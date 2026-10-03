@@ -18,6 +18,15 @@ const createTestStore = () =>
   });
 
 describe("economy middleware", () => {
+  it("gives an eight-Puff herd five minutes before its first 8g upkeep bill", () => {
+    const store = createTestStore();
+    for (let i = 0; i < 8; i++) store.dispatch(puffBorn(createPuff(`p${i}`, GENES, 0)));
+    store.dispatch(gameTick({ delta: 299999 }));
+    expect(store.getState().economy.gold).toBe(50);
+    store.dispatch(gameTick({ delta: 1 }));
+    expect(store.getState().economy.gold).toBe(42);
+  });
+
   it("does not deduct gold before the upkeep interval elapses", () => {
     const store = createTestStore();
     store.dispatch(puffBorn(createPuff("p1", GENES, 0)));

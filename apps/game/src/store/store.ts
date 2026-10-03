@@ -10,6 +10,7 @@ import { loadPersistedState } from "./persistence";
 import { breedingMiddleware } from "./breedingMiddleware";
 import { economyMiddleware } from "./economyMiddleware";
 import { createLocalId } from "./id";
+import { refreshTraderStock } from "./traderActions";
 
 const INITIAL_PUFF_COUNT = 8;
 const INITIAL_PENS = [
@@ -46,6 +47,8 @@ if (!persisted?.requests?.order.length) {
   );
   store.dispatch(requestsSeeded(initialRequests));
 }
+
+store.dispatch(refreshTraderStock());
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

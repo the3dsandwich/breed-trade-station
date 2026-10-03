@@ -63,7 +63,9 @@ The puzzle is breeding an animal that satisfies the trait requirements. The gene
 
 ## Gold and Upkeep
 
-Gold is the single shared resource spent and earned throughout Requests, Release, and — eventually — the Market. There is no separate upkeep currency.
+Gold is the single shared resource spent and earned throughout Requests, Release,
+and the first NPC trader. The larger sell/rent market is still planned. There is
+no separate upkeep currency.
 
 - Every living animal costs a small, flat amount of Gold in upkeep. This is deducted in a periodic batch on an interval, not continuously every tick — a readable, occasional deduction rather than a constant flicker of tiny ones. Unlike breeding's deliberate one-cycle cap on a long offline catchup gap, upkeep is a flat linear cost, so a long gap correctly charges for every interval that elapsed, not just one.
 - Gold is clamped at zero; the player never goes into debt.
@@ -73,6 +75,14 @@ Gold is the single shared resource spent and earned throughout Requests, Release
 This Gold/upkeep economy is unrelated to the separate "resource types" that fund pen upgrades (Core Loop step 3, still deferred) — those are a different, still-undecided resource layer.
 
 Exact upkeep cost per animal, the deduction interval, the starting Gold balance, and the starving-rate multiplier are placeholders pending playtesting balance, same as breeding's duration and mutation-rate constants.
+
+The current trial charges **1g per Puff every five minutes**, changed from ten
+seconds when the trader was added. Returning play earned 16g by releasing eight
+spares, then lost it all at the next upkeep charge less than three seconds later.
+The slower interval gives more room to choose a purchase. It is not a new grace
+period after a sale: a sale just before a charge can still lose Gold immediately.
+The wallet shows the current herd's charge and time until it is due. Long offline
+gaps still charge every elapsed interval; returning with zero Gold remains possible.
 
 ---
 
@@ -142,6 +152,37 @@ There is no freeze mechanic. Animals age and die. Death self-regulates the total
 ---
 
 ## Market
+
+### First NPC trader — live trial
+
+The wallet opens a visiting trader with three saved offers: a **Large female**,
+a **Small male**, and a **Medium Puff of random sex**. Other visible traits vary.
+These give players new breeding choices without selling Extra-small or
+Extra-large animals directly. The player sees the same visible traits as in
+their herd, not genes or predicted offspring odds. The size/sex slots are fixed;
+the trader is not yet tailored to requests or inferred herd progress.
+
+Buy **one Puff for 15g per local calendar day**. The chosen animal joins pasture,
+grown and selected in the journal, ready to move into a pen. Buying does not count
+as a birth. Purchase is unavailable during bulk release, and the game checks
+Gold and the daily limit again when the player clicks.
+
+Offers and the used purchase stay saved across reloads. A later local date brings
+one new set, whether the game stayed open or was closed. Missed days do not bank
+purchases. Moving the device date backward does not refresh stock or allow buying
+from a future-dated visit. The single-player prototype trusts the device clock;
+advancing it is not prevented. Restart clears stock along with the whole save.
+
+A bought Puff may happen to satisfy a current request. That is allowed; the
+one-per-day purchase bounds immediate resale. Releasing it pays only the normal
+2g. The trader does not remove the need to breed rare body sizes. Price, stock
+mix, daily limit, and upkeep are trial values, not proven long-term balance.
+
+Next play question: does a bought parent create a useful breeding experiment,
+and does tomorrow's stock add a reason to return? Also watch whether fixed size
+and sex slots become repetitive or slower upkeep makes surplus Gold meaningless.
+
+### Planned sell and rent markets
 
 Two markets exist, both asynchronous. Listings remain active until purchased by another player or by an NPC bot.
 

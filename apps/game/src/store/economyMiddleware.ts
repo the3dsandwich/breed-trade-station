@@ -1,6 +1,7 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { gameTick, gameTickCatchup } from "./clockSlice";
 import { goldAdjusted, upkeepAccumulatorAdvanced, UPKEEP_INTERVAL_MS, UPKEEP_PER_PUFF } from "./economySlice";
+import { refreshTraderStock } from "./traderActions";
 import type { RootState, AppDispatch } from "./store";
 
 export const economyMiddleware = createListenerMiddleware();
@@ -15,6 +16,8 @@ const startAppListening = economyMiddleware.startListening.withTypes<RootState, 
 startAppListening({
   matcher: isAnyOf(gameTick, gameTickCatchup),
   effect: (action, listenerApi) => {
+    // The worker keeps this check alive across local midnight and on resume.
+    listenerApi.dispatch(refreshTraderStock());
     const elapsed = gameTick.match(action) ? action.payload.delta : gameTickCatchup.match(action) ? action.payload.elapsed : 0;
     listenerApi.dispatch(upkeepAccumulatorAdvanced({ delta: elapsed }));
 

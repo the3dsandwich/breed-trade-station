@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { PuffId } from "@bts/shared";
+import { traderPurchaseCompleted } from "./traderRules";
 
 // Deliberately not part of PersistedState -- selection is ephemeral UI
 // state, not something that should survive a reload.
@@ -38,6 +39,11 @@ const selectionSlice = createSlice({
     releaseBatchCleared: (state) => {
       state.releaseBatch = [];
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(traderPurchaseCompleted, (state, action) => {
+      state.selectedPuffId = action.payload.puff.id;
+    });
   },
 });
 

@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { createPuff, randomGenes, type Puff, type PuffId, type PuffTraits } from "@bts/shared";
 import { createLocalId } from "./id";
+import { traderPurchaseCompleted } from "./traderRules";
 
 export interface BirthPuffSnapshot {
   id: PuffId;
@@ -52,6 +53,11 @@ const puffsSlice = createSlice({
     puffRemoved: (state, action: PayloadAction<{ puffId: PuffId }>) => {
       delete state.byId[action.payload.puffId];
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(traderPurchaseCompleted, (state, action) => {
+      state.byId[action.payload.puff.id] = action.payload.puff;
+    });
   },
 });
 
