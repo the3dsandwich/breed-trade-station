@@ -1,0 +1,40 @@
+.manage-pens button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-edge);
+  background: var(--color-panel-deep);
+  color: var(--color-gold);
+  cursor: pointer;
+  font-size: 13px;
+}
+.manage-pens button:disabled { cursor: default; color: var(--color-muted); opacity: .65; }
+.manage-pens dialog {
+  width: min(680px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 2px solid var(--color-edge);
+  background: var(--color-panel);
+  color: var(--color-text);
+  box-shadow: var(--pixel-frame);
+}
+.manage-pens dialog[open] { display: flex; flex-direction: column; }
+.manage-pens dialog::backdrop { background: #100e1acc; }
+.manage-pens header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px; border-bottom: 1px solid var(--color-edge); }
+.manage-pens header h2 { font: bold 22px system-ui, sans-serif; margin: 6px 0 0; }
+.manage-pens header .panel-kicker { margin: 0; color: var(--color-gold); }
+.manage-pens-content { overflow-y: auto; padding: 0 18px 18px; min-height: 0; font-size: 13px; line-height: 1.5; }
+.manage-pens-content article { padding: 16px; border: 1px solid var(--color-edge); background: var(--color-panel-deep); }
+.manage-pens-content h3 { margin: 16px 0 8px; font-size: 15px; }
+.manage-pens-content article h3 { margin-top: 0; }
+.manage-pens-content article button { width: 100%; }
+.manage-pens-content p { color: var(--color-muted); }
+.manage-pens-content .manage-pens-wallet, .manage-pens-content .manage-pens-notice { color: var(--color-gold); }
+.manage-pens-notice:empty { margin: 0; }
+.manage-pens-notice:focus { outline: 2px solid var(--color-gold); outline-offset: 4px; }
+.manage-pens-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.manage-pens-footnote { font-size: 12px; }
+@media (max-width: 520px) {
+  .manage-pens-grid { grid-template-columns: 1fr; }
+  .manage-pens header { padding: 14px; }
+  .manage-pens-content { padding: 0 14px 14px; }
+}

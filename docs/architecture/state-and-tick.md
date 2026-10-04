@@ -265,3 +265,27 @@ the selected Puff, batch and bulk mode explicitly. It never toggles the mode.
 Rejected or empty releases return false without changing selection or paying
 Gold. The bulk UI restores focus to its surviving toggle after success. Keeper
 marks use the normal save path and do not change the clock or tick listeners.
+
+
+## Pen purchases
+
+`penExpansionRules` supplies limits and quotes. `buildPen` and `expandPen`
+check the current balance, release mode and the displayed count/capacity and
+price. A stale quote or insufficient/non-finite balance changes nothing.
+Each accepted purchase dispatches one shared event handled by both the Gold
+and pen slices, so subscribers never see a pen bought without its payment.
+New IDs use the first unused `pen-N`; new pens start empty at capacity four.
+Expansion preserves occupants and breeding progress. Existing breeding logic
+already visits every pen and reads its capacity, including during catchup.
+
+No new saved slice or migration is needed. Pens and Gold use normal periodic
+and unload saving. Older saves retain their pens; unusual existing capacities
+are not reduced. An integer legacy capacity of three through seven can grow
+by two (capped at eight), using the next applicable expansion price. Invalid
+capacities cannot be upgraded. Purchase limits do not delete legacy pens.
+
+`ranchLayout` arranges pens in two columns and adds rows to the canvas. A row
+uses its largest pen's height: 190px for four spaces, 240px for six, 320px for
+eight. Slots and pointer targets use these same rectangles. Original pasture
+coordinates and the initial 800x600 canvas stay unchanged. The ground and
+canvas height grow together; CSS scales the whole board to the screen width.

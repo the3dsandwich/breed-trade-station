@@ -1,10 +1,10 @@
 import type { Graphics } from "pixi.js";
 
-// Decoration only: keep the whole 800x600 surface and all pasture coordinates.
-export function drawPasture(g: Graphics) {
+// Extend the ground for new rows without moving the free pasture.
+export function drawPasture(g: Graphics, height = 600) {
   g.clear();
   const rect = (x: number, y: number, w: number, h: number, color: number) => g.beginFill(color).drawRect(x, y, w, h).endFill();
-  rect(0, 0, 800, 600, 0x252237);
+  rect(0, 0, 800, height, 0x252237);
   rect(0, 0, 800, 28, 0x1c1b2e);
   rect(0, 28, 800, 2, 0x393048);
   // A miniature moon and stars live in the trim, clear of the free herd.
@@ -23,7 +23,7 @@ export function drawPasture(g: Graphics) {
     if (i % 4 === 0) rect(x - x % 2 + 4, y - y % 2 - 2, 4, 2, 0x302a40);
   }
   // Moss and warm flowers on the outer verge; never cover the pen centers.
-  for (const x of [10, 782]) for (let y = 62; y < 560; y += 66) {
+  for (const x of [10, 782]) for (let y = 62; y < height - 40; y += 66) {
     rect(x, y + 8, 2, 12, 0x587263);
     rect(x - 4, y + 12, 4, 2, 0x587263);
     rect(x + 2, y + 8, 4, 2, 0x587263);
@@ -35,6 +35,6 @@ export function drawPasture(g: Graphics) {
     rect(x, 360, 26, 8, 0x3c344b);
     rect(x + 2, 360, 22, 2, 0x4d4058);
   }
-  rect(24, 588, 752, 2, 0x49394d);
-  rect(36, 592, 728, 2, 0x302a40);
+  rect(24, height - 12, 752, 2, 0x49394d);
+  rect(36, height - 8, 728, 2, 0x302a40);
 }

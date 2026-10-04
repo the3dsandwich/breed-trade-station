@@ -1,5 +1,6 @@
 import { Provider } from "react-redux";
 import { GameCanvas } from "./canvas/GameCanvas";
+import { ManagePens } from "./ManagePens";
 import { PenStatusPanel } from "./PenStatusPanel";
 import { HerdPicker } from "./HerdPicker";
 import { PuffInspector } from "./PuffInspector";
@@ -36,6 +37,7 @@ const Game = () => {
             <div className="pasture-heading">
               <h2>Your pasture</h2>
               <span className="herd-count">{herdSize} Puffs</span>
+              <ManagePens />
             </div>
             <GameCanvas />
             <div className="pasture-legend" role="group" aria-label="Puff markers">

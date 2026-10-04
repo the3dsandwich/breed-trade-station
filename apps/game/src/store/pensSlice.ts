@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { PuffId } from "@bts/shared";
 import { BREEDING_DURATION_MS } from "./breedingRules";
+import { penBuilt, penExpanded } from "./penExpansionRules";
 
 export type PenId = string;
 
@@ -60,6 +61,16 @@ const pensSlice = createSlice({
       // An older save may predate this field.
       pen.breedingProgress = Math.min((pen.breedingProgress ?? 0) + action.payload.amount, BREEDING_DURATION_MS);
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(penBuilt, (state, action) => {
+      const { pen } = action.payload;
+      state.byId[pen.id] = pen;
+      state.order.push(pen.id);
+    });
+    builder.addCase(penExpanded, (state, action) => {
+      state.byId[action.payload.penId].capacity = action.payload.capacity;
+    });
   },
 });
 
