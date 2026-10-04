@@ -352,6 +352,8 @@ button:focus-visible {
   }
 
   .pasture-heading {
+    flex-wrap: wrap;
+    gap: 8px;
     padding: 10px 12px;
   }
 

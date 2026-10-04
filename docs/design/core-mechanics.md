@@ -72,7 +72,7 @@ no separate upkeep currency.
 - At zero Gold, animals are **starving**: breeding speeds up rather than stopping or slowing, with a clear UI indicator. This is deliberately self-correcting — Gold is already floored at zero, so animals born during a shortage don't cost anything more right now, and they're exactly the new supply the player needs to Release or fulfill Requests with to earn their way back out. A slowdown was tried first and rejected: it throttled the player's only recovery mechanism precisely when they needed it most.
 - Fulfilling Requests and using Release are the two ways to bring Gold back up.
 
-This Gold/upkeep economy is unrelated to the separate "resource types" that fund pen upgrades (Core Loop step 3, still deferred) — those are a different, still-undecided resource layer.
+The planned construction-resource layer (Core Loop step 3) remains undecided. The first playable pen purchases use Gold as a balance trial; see Building and expanding pens below. This does not implement builder affinities or resource production.
 
 Exact upkeep cost per animal, the deduction interval, the starting Gold balance, and the starving-rate multiplier are placeholders pending playtesting balance, same as breeding's duration and mutation-rate constants.
 
@@ -157,7 +157,7 @@ Pens are the primary organizational unit. Each pen has a fixed animal capacity. 
 - Whether pens are generic (any animal, any purpose) or specialized (breeding pen vs. production pen) is deferred
 - The affinity model does not require specialized pens — any pen can do all three things based on who is in it
 
-**Implementation:** a first pass is live in `apps/game` — 2 generic pens, capacity 4 each (placeholder numbers, not a tuned balance decision). Assignment is tap-to-select a Puff, then tap a pen; drag-and-drop is planned but not yet built. Pen upgrades, capacity progression, and pen-affinity aggregation are not implemented — pens currently only hold Puffs.
+**Implementation:** new games start with 2 generic pens, capacity 4 each. Players can buy additional pens and capacity with Gold, as described below. Assignment uses the journal or canvas; drag-and-drop and pen-affinity aggregation are not built.
 
 ---
 
@@ -286,3 +286,33 @@ grown occupants. Existing stored progress stays, including the old same-sex
 adult bank. A mate becoming grown can therefore use progress already stored
 in that pen; there is no promise of an extra full cycle after growth. Genetics,
 pen capacity, birth placement, rewards and upkeep otherwise stay the same.
+
+
+## Building and expanding pens
+
+Players asked to work on several breeding goals at once. **Manage pens** in the
+ranch header opens a popup with two choices:
+
+- A new pen starts empty with four spaces. It supports another independent
+  group of parents. Pens three through six cost 25g, 50g, 75g and 100g.
+- Expanding a pen keeps its occupants and adds two spaces: four to six costs
+  20g, and six to eight costs 40g. This gives more room for offspring before
+  sorting, not another independent parent pair within the same pen.
+
+The initial limits are six pens and eight spaces per pen. These prices and
+limits are a playtest trial. Gold is used now so this works with existing
+requests and releases; the future builder/resource system is still deferred.
+Purchases take effect immediately. Empty capacity has no upkeep. Existing
+Puffs retain their normal upkeep, keeper marks and growth rules. Babies stay
+in their birth pen; all grown males and females there remain eligible parents.
+No automatic movement, fixed pairing, new genes or speed bonuses are added.
+
+The popup shows current Gold, the price, used space, limits and any missing
+Gold. Building is disabled during bulk release. Requests and upkeep continue
+while it is open, so the purchase checks the latest balance and quote again.
+Saved pens load with their existing size and occupants; no reset is needed.
+
+Returning players at zero Gold must earn purchases. Check how much repetitive
+breeding/releasing this requires, whether valuable parents survive the choice,
+and whether extra pens make three distinct goals easier to pursue. More room
+alone does not prove better long-term progression.

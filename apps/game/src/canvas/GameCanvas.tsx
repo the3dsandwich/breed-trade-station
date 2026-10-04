@@ -11,7 +11,7 @@ import {
 } from "../store/selectionSlice";
 import { PuffSprite } from "./PuffSprite";
 import { PenView } from "./PenView";
-import { gridSlotInPen } from "./penLayout";
+import { gridSlotInPen, ranchLayout } from "./penLayout";
 import { ContextBridge } from "./ContextBridge";
 import { drawPasture } from "./drawPasture";
 
@@ -21,17 +21,10 @@ import { drawPasture } from "./drawPasture";
 extensions.remove(AccessibilityManager);
 
 const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 600;
 const CANVAS_BG = 0x252237;
 
 const PASTURE_MARGIN = 50;
 const PASTURE_BOTTOM = 340;
-
-const PEN_Y = 380;
-const PEN_WIDTH = 340;
-const PEN_HEIGHT = 190;
-const PEN_GAP = 40;
-const PEN_START_X = 40;
 
 // Puffs don't have a pen/layout system-independent position yet, so an
 // unassigned Puff's spot in the pasture is derived deterministically from
@@ -60,6 +53,9 @@ export const GameCanvas = () => {
   const releaseModeActive = useAppSelector((state) => state.selection.releaseModeActive);
   const releaseBatch = useAppSelector((state) => state.selection.releaseBatch);
   const requests = useAppSelector((state) => state.requests);
+
+  const layout = useMemo(() => ranchLayout(pens.order.map((id) => pens.byId[id].capacity)), [pens]);
+  const drawGround = useCallback((g: Parameters<typeof drawPasture>[0]) => drawPasture(g, layout.height), [layout.height]);
 
   const puffToPen = useMemo(() => {
     const map = new Map<string, string>();
@@ -110,7 +106,7 @@ export const GameCanvas = () => {
       render={(children) => (
         <Stage
           width={CANVAS_WIDTH}
-          height={CANVAS_HEIGHT}
+          height={layout.height}
           options={{ background: CANVAS_BG, antialias: false, resolution: 1, autoDensity: false }}
         >
           {children}
@@ -118,7 +114,7 @@ export const GameCanvas = () => {
       )}
     >
       <Graphics
-        draw={drawPasture}
+        draw={drawGround}
         interactive
         cursor="default"
         pointertap={handleBackgroundTap}
@@ -128,10 +124,7 @@ export const GameCanvas = () => {
         <PenView
           key={penId}
           pen={pens.byId[penId]}
-          x={PEN_START_X + index * (PEN_WIDTH + PEN_GAP)}
-          y={PEN_Y}
-          width={PEN_WIDTH}
-          height={PEN_HEIGHT}
+          {...layout.pens[index]}
           highlighted={
             !releaseModeActive &&
             Boolean(selectedPuffId) &&
@@ -149,10 +142,10 @@ export const GameCanvas = () => {
         if (penId) {
           const pen = pens.byId[penId];
           const slotIndex = pen.occupantIds.indexOf(puff.id);
-          const penX = PEN_START_X + pens.order.indexOf(penId) * (PEN_WIDTH + PEN_GAP);
-          const { dx, dy } = gridSlotInPen(slotIndex, pen.capacity, PEN_WIDTH, PEN_HEIGHT);
-          x = penX + dx;
-          y = PEN_Y + dy;
+          const rect = layout.pens[pens.order.indexOf(penId)];
+          const { dx, dy } = gridSlotInPen(slotIndex, pen.capacity, rect.width, rect.height);
+          x = rect.x + dx;
+          y = rect.y + dy;
         } else {
           const position = pasturePositionFor(puff.id);
           x = position.x;

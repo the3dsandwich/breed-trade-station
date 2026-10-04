@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { penBuilt, penExpanded } from "./penExpansionRules";
 import { traderPurchaseCompleted, TRADER_PRICE, type TraderStock } from "./traderRules";
 
 // Placeholders pending playtesting balance (see core-mechanics.md Gold and Upkeep deferrals).
@@ -40,6 +41,12 @@ const economySlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(penBuilt, (state, action) => {
+      state.gold -= action.payload.cost;
+    });
+    builder.addCase(penExpanded, (state, action) => {
+      state.gold -= action.payload.cost;
+    });
     builder.addCase(traderPurchaseCompleted, (state, action) => {
       state.gold -= TRADER_PRICE;
       if (state.trader) state.trader.purchasedPuffId = action.payload.puff.id;

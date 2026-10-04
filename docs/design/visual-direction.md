@@ -260,3 +260,19 @@ returning player kept outside ID notes while choosing eight spares. The mark
 records that decision in the game; it does not choose parents or prevent a Puff
 from having offspring. Observe whether the player can find the intended stock
 and revise their keep decisions as the herd changes.
+
+
+## Room for parallel goals
+
+The ranch header has a **Manage pens** button. Its native popup follows the
+existing Dusk Ranch borders and colors. One card buys an empty four-space pen;
+individual cards show occupied space and the next capacity price. The cards
+stack on phones and scroll inside the popup. The main page keeps only the
+entry button. Purchase feedback receives focus after it appears; Close and
+Escape return focus to Manage pens. Background scrolling is locked while open.
+
+New pens appear in two-column rows below the existing pens. Expanded pens get
+taller so full-size sprites and their markers have room. The canvas grows
+vertically rather than placing extra pens beyond its right edge. New pens also
+appear automatically in journals, the Pens chooser and breeding status list.
+No new motion is introduced. The existing reduced-motion controls still apply.
