@@ -92,6 +92,32 @@ Release lets the player remove animals while keeping at least one male and one f
 
 Release supports both a single-animal flow (select one, release it) and a bulk flow (select several, confirm once) so clearing out multiple unwanted animals doesn't mean repeating the single-select loop one at a time.
 
+### Remembering keepers
+
+The journal's **Keep this Puff** toggle records a player's decision to keep a
+useful animal. A **Keeper** label appears in the herd and pen lists, and the mark
+survives save/reload. No Puffs are marked automatically, including bought stock
+and children of keepers. This is a management choice, not an inherited trait or
+a claim that an animal is a better parent.
+
+Keepers cannot be released or used to fulfill a request. Turn off the journal
+toggle before deliberately letting one go; the last-male/last-female rule still
+applies afterward. A bulk selection containing a keeper removes nothing and
+explains the block. The player can deselect that Puff and release the spares.
+Movement, breeding, growth, pen space and upkeep are unchanged.
+
+A successful release now ends bulk-release mode and clears its selection, so
+the next Puff click opens its journal and the trader is usable immediately.
+Blocked or empty attempts keep the selection for correction. Release still
+pays the same 2g per Puff.
+
+Returning play motivated this: preserving useful parents while selecting eight
+spares required an external list of IDs. No accidental loss occurred in that
+baseline. This trial brings those keep decisions into the game; names, filters,
+automatic ranking and new pen capacity are separate questions. Watch whether
+players revise their keepers as new offspring appear, rather than marking every
+Puff and avoiding the keep-versus-sell decision.
+
 ---
 
 ## Animal Affinities

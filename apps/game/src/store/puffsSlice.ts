@@ -25,6 +25,8 @@ export interface PuffsState {
   // Optional so saves made before birth records still load without invented history.
   recentBirths?: BirthRecord[];
   birthCount?: number;
+  // Older saves have no marks until the player chooses a keeper.
+  keeperIds?: PuffId[];
 }
 
 const initialState: PuffsState = { byId: {} };
@@ -33,6 +35,14 @@ const puffsSlice = createSlice({
   name: "puffs",
   initialState,
   reducers: {
+    puffKeeperToggled: (state, action: PayloadAction<{ puffId: PuffId }>) => {
+      const { puffId } = action.payload;
+      if (!state.byId[puffId]) return;
+      const keepers = state.keeperIds ?? [];
+      state.keeperIds = keepers.includes(puffId)
+        ? keepers.filter((id) => id !== puffId)
+        : [...keepers, puffId];
+    },
     puffsSpawned: (state, action: PayloadAction<{ count: number; starterPair?: boolean }>) => {
       for (let i = 0; i < action.payload.count; i++) {
         const genes = randomGenes();
@@ -52,6 +62,7 @@ const puffsSlice = createSlice({
     },
     puffRemoved: (state, action: PayloadAction<{ puffId: PuffId }>) => {
       delete state.byId[action.payload.puffId];
+      if (state.keeperIds) state.keeperIds = state.keeperIds.filter((id) => id !== action.payload.puffId);
     },
   },
   extraReducers: (builder) => {
@@ -61,5 +72,5 @@ const puffsSlice = createSlice({
   },
 });
 
-export const { puffsSpawned, puffBorn, puffRemoved, birthRecorded } = puffsSlice.actions;
+export const { puffsSpawned, puffBorn, puffRemoved, birthRecorded, puffKeeperToggled } = puffsSlice.actions;
 export const puffsReducer = puffsSlice.reducer;

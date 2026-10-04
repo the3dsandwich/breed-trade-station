@@ -1,0 +1,42 @@
+.keeper-badge {
+  display: inline-block;
+  width: fit-content;
+  padding: 2px 7px;
+  color: var(--color-sprout);
+  border: 1px solid var(--color-sprout);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.keeper-controls {
+  margin: 14px 0;
+  padding-block: 12px;
+  border-block: 1px solid #887351;
+}
+
+.puff-inspector .keeper-controls button {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 2px solid #776247;
+  color: var(--color-ink);
+  background: #f7ecd2;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.puff-inspector .keeper-controls button[aria-pressed="true"] {
+  background: #405939;
+  color: #f4f3dc;
+  border-color: #405939;
+}
+
+.puff-inspector .keeper-controls button:focus-visible {
+  outline-color: var(--color-ink);
+}
+
+.keeper-controls p {
+  margin: 10px 0 0;
+  line-height: 1.5;
+  font-size: 12px;
+}

@@ -1,4 +1,5 @@
 import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { useRef } from "react";
 import { releaseModeToggled } from "./store/selectionSlice";
 import { releasePuffs } from "./store/gameActions";
 import "./ReleaseControls.css";
@@ -11,11 +12,14 @@ export const ReleaseControls = () => {
   const dispatch = useAppDispatch();
   const releaseModeActive = useAppSelector((state) => state.selection.releaseModeActive);
   const releaseBatch = useAppSelector((state) => state.selection.releaseBatch);
-  const blockedReason = useAppSelector((state) => removalBlockedReason(state.puffs.byId, releaseBatch));
+  const blockedReason = useAppSelector((state) => removalBlockedReason(state.puffs.byId, releaseBatch, state.puffs.keeperIds));
+  const hasKeeper = useAppSelector((state) => state.puffs.keeperIds?.some((id) => state.puffs.byId[id] && releaseBatch.includes(id)) ?? false);
+  const toggle = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="release-controls">
       <button
+        ref={toggle}
         className={`release-controls-toggle${releaseModeActive ? " is-active" : ""}`}
         onClick={() => dispatch(releaseModeToggled())}
       >
@@ -27,11 +31,14 @@ export const ReleaseControls = () => {
           <button
             className="release-controls-confirm"
             disabled={releaseBatch.length === 0 || !!blockedReason}
-            onClick={() => dispatch(releasePuffs(releaseBatch))}
+            aria-describedby="bulk-release-reason"
+            onClick={() => {
+              if (dispatch(releasePuffs(releaseBatch))) toggle.current?.focus();
+            }}
           >
             Release {releaseBatch.length || ""}
           </button>
-          {blockedReason && <p role="status">{blockedReason} Remove it from your selection first.</p>}
+          <p id="bulk-release-reason" role="status">{hasKeeper ? "This selection includes a keeper. Open Choose a Puff and deselect its Keeper row to release only the other Puffs." : blockedReason ? `${blockedReason} Remove it from your selection first.` : ""}</p>
         </>
       )}
     </div>

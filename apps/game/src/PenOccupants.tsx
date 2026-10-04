@@ -1,4 +1,5 @@
 import { PuffGrowthStatus } from "./PuffGrowthStatus";
+import { KeeperBadge } from "./KeeperControls";
 import { useRef, useState } from "react";
 import { deriveTraits, puffSatisfiesRequest } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -50,6 +51,7 @@ export const PenOccupants = ({ selectedPenId, onPenChange, onChoose }: {
               <h4>{traitValueLabel("sex", traits.sex)} · {traitValueLabel("bodySize", traits.bodySize)} · {traitValueLabel("bodyColor", traits.bodyColor)}</h4>
               <p>{traitValueLabel("eyeColor", traits.eyeColor)} eyes · {traitValueLabel("earSize", traits.earSize)} ears</p>
               <p><PuffGrowthStatus puff={puff} /></p>
+              <KeeperBadge puffId={puff.id} />
               {birth && <p className="herd-picker-location">Born here · Birth {birth.number}</p>}
               {requests.order.some((requestId) => puffSatisfiesRequest(traits, requests.byId[requestId])) && <p className="herd-picker-match">✓ Request match</p>}
               <p className="herd-picker-id">ID: {id}</p>
