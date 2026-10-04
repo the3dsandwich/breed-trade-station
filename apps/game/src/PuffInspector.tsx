@@ -1,4 +1,5 @@
 import { PuffGrowthStatus } from "./PuffGrowthStatus";
+import { KeeperControls } from "./KeeperControls";
 import { deriveTraits, puffSatisfiesRequest, type Sex } from "@bts/shared";
 import { useRef } from "react";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -22,7 +23,7 @@ export const PuffInspector = () => {
   const puff = useAppSelector((state) =>
     selectedPuffId ? state.puffs.byId[selectedPuffId] : undefined
   );
-  const blockedReason = useAppSelector((state) => removalBlockedReason(state.puffs.byId, selectedPuffId ? [selectedPuffId] : []));
+  const blockedReason = useAppSelector((state) => removalBlockedReason(state.puffs.byId, selectedPuffId ? [selectedPuffId] : [], state.puffs.keeperIds));
   const requests = useAppSelector((state) => state.requests);
   const pens = useAppSelector((state) => state.pens);
   const locationStatus = useRef<HTMLParagraphElement>(null);
@@ -71,13 +72,15 @@ export const PuffInspector = () => {
         <dd>{traitValueLabel("earSize", traits.earSize)}</dd>
       </dl>
 
+      <KeeperControls puffId={puff.id} />
+
       {matchingRequests.length > 0 && (
         <div className="puff-inspector-matches">
           {matchingRequests.map((request) => (
             <button
               key={request.id}
               className="puff-inspector-fulfill-button"
-              disabled={!!blockedReason}
+              disabled={!!blockedReason} aria-describedby="puff-removal-reason"
               onClick={() => {
                 dispatch(fulfillRequest(puff.id, request));
                 document.getElementById("herd-picker-summary")?.focus();
@@ -89,8 +92,8 @@ export const PuffInspector = () => {
         </div>
       )}
 
-      {blockedReason && <p role="status">{blockedReason}</p>}
-      <button disabled={!!blockedReason} className="puff-inspector-release-button" onClick={() => {
+      <p id="puff-removal-reason" role="status">{blockedReason ?? ""}</p>
+      <button disabled={!!blockedReason} aria-describedby="puff-removal-reason" className="puff-inspector-release-button" onClick={() => {
         dispatch(releasePuffs([puff.id]));
         document.getElementById("herd-picker-summary")?.focus();
       }}>

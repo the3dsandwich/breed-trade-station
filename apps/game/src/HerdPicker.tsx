@@ -1,4 +1,5 @@
 import { PuffGrowthStatus } from "./PuffGrowthStatus";
+import { KeeperBadge } from "./KeeperControls";
 import { useEffect, useRef, useState } from "react";
 import { deriveTraits, puffSatisfiesRequest } from "@bts/shared";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -51,7 +52,7 @@ export const HerdPicker = () => {
           <button type="button" aria-pressed={view === "pens"} onClick={() => setView("pens")}>Pens</button>
         </div>
         <p id="herd-dialog-help" className="herd-picker-help">
-          {view === "pens" ? releaseModeActive ? "Read this pen. Finish bulk release before opening journals or moving Puffs." : "Review one pen and move Puffs to pasture to make room. Breeding continues while this is open." : view === "births" ? "See each baby and the parents who produced it." : releaseModeActive ? "Mark Puffs for bulk release. Close this list to review and confirm." : "Compare your Puffs. Choose one to open its journal."}
+          {view === "pens" ? releaseModeActive ? "Read this pen. Finish bulk release before opening journals or moving Puffs." : "Review one pen and move Puffs to pasture to make room. Breeding continues while this is open." : view === "births" ? "See each baby and the parents who produced it." : releaseModeActive ? "Mark Puffs for bulk release. Keepers block release until removed from this selection. Close this list to review and confirm." : "Compare your Puffs. Choose one to open its journal."}
         </p>
         {view === "pens" ? <PenOccupants selectedPenId={selectedPenId} onPenChange={setSelectedPenId} onChoose={closePicker} /> : view === "births" ? <RecentBirths onChoose={closePicker} /> : <ul className="herd-picker-list" aria-label="Your Puffs">
           {Object.values(puffs).map((puff) => {
@@ -71,6 +72,7 @@ export const HerdPicker = () => {
                   <strong>{traitValueLabel("sex", traits.sex)} · {traitValueLabel("bodySize", traits.bodySize)} · {traitValueLabel("bodyColor", traits.bodyColor)}</strong>
                   <span>{traitValueLabel("eyeColor", traits.eyeColor)} eyes · {traitValueLabel("earSize", traits.earSize)} ears</span>
                   <PuffGrowthStatus puff={puff} />
+                  <KeeperBadge puffId={puff.id} />
                   <span className="herd-picker-location">{pen?.name ?? "Pasture"}{chosen ? releaseModeActive ? " · To release" : " · Selected" : ""}</span>
                   {requests.order.some((id) => puffSatisfiesRequest(traits, requests.byId[id])) && <span className="herd-picker-match">✓ Request match</span>}
                   <span className="herd-picker-id" title={puff.id}>ID: {puff.id}</span>

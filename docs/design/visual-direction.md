@@ -131,8 +131,8 @@ inside the popup without adding another permanent sidebar panel.
 Next play question: can a player explain which cross produced a useful Puff
 and choose the next breeding experiment using these records alone? Test that
 before adding pen capacity or automatic movement of newborns. Per-pen result
-management is described below; the separate bulk-release mode surprise remains
-future work.
+management is described below. The keeper controls described later also end
+bulk-release mode after a successful release.
 
 ## Handling one pen at a time
 
@@ -239,3 +239,24 @@ period. Stock uses the device's local date, stated in the dialog.
 This is a first test of earning Gold for new breeding stock. A completed purchase
 and a successful birth show that the loop works; they do not prove players will
 want to return each day.
+
+## Keeper decisions in the journal
+
+**Keep this Puff** is a pressed/unpressed journal button with a short explanation:
+keepers cannot be sold or released, but still move and breed. Its plain text
+label stays the same when toggled, and keyboard focus stays on the button.
+A bordered **Keeper** text label appears in the existing herd and pen cards.
+Color is an extra cue; the word carries the meaning. The journal keeps its cream
+paper style, while list labels use the existing green accent. No canvas marker,
+new tab, sorting, animation or inherited-trait art is added.
+
+Sale and release buttons explain a keeper block. Bulk selection still works
+from the canvas or chooser, including selecting a keeper; the complete batch is
+blocked with a reason until corrected. Successful bulk release returns to normal
+selection and focuses its toggle. A blocked attempt keeps the batch and mode.
+
+The goal is to remember a player's breeding plan across sessions. The October 4
+returning player kept outside ID notes while choosing eight spares. The mark
+records that decision in the game; it does not choose parents or prevent a Puff
+from having offspring. Observe whether the player can find the intended stock
+and revise their keep decisions as the herd changes.

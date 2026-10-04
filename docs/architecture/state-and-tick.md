@@ -244,3 +244,24 @@ and keeping its remainder. Old saved remainders remain valid. No balance, clock,
 or release/reward migration is needed. The wallet derives the next-charge text
 from that same accumulator. Local date controls stock only; game time still
 controls breeding, growth and upkeep.
+
+### Player keeper marks
+
+`puffs.keeperIds?: PuffId[]` stores the player's keeper choices inside the
+existing saved puffs slice. Missing means no marks, so old saves need no
+migration. `puffKeeperToggled` accepts only a living Puff ID and adds or removes
+that ID. Internal Puff removal cleans its mark. New births and trader purchases
+do not add keeper IDs; genes and the shared Puff model are unchanged.
+
+`removalBlockedReason` accepts the keeper IDs alongside the herd and requested
+removals. A living keeper blocks the entire selection before last-sex checks.
+Both release and request thunks read the current marks at action time, and the
+inspector and bulk controls use the same guard to explain disabled actions.
+Canvas and herd-list selection may include a keeper; selection alone removes
+nothing, and confirmation stays blocked until it is corrected.
+
+Successful `releasePuffs` returns true and dispatches `releaseFinished`, clearing
+the selected Puff, batch and bulk mode explicitly. It never toggles the mode.
+Rejected or empty releases return false without changing selection or paying
+Gold. The bulk UI restores focus to its surviving toggle after success. Keeper
+marks use the normal save path and do not change the clock or tick listeners.

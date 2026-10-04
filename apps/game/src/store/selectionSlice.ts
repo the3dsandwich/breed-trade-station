@@ -36,6 +36,11 @@ const selectionSlice = createSlice({
         ? state.releaseBatch.filter((id) => id !== puffId)
         : [...state.releaseBatch, puffId];
     },
+    releaseFinished: (state) => {
+      state.selectedPuffId = null;
+      state.releaseBatch = [];
+      state.releaseModeActive = false;
+    },
     releaseBatchCleared: (state) => {
       state.releaseBatch = [];
     },
@@ -53,5 +58,6 @@ export const {
   releaseModeToggled,
   releaseBatchMembershipToggled,
   releaseBatchCleared,
+  releaseFinished,
 } = selectionSlice.actions;
 export const selectionReducer = selectionSlice.reducer;
