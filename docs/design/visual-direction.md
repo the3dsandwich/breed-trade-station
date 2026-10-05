@@ -276,3 +276,23 @@ taller so full-size sprites and their markers have room. The canvas grows
 vertically rather than placing extra pens beyond its right edge. New pens also
 appear automatically in journals, the Pens chooser and breeding status list.
 No new motion is introduced. The existing reduced-motion controls still apply.
+
+
+## Choosing spares inside a pen
+
+Each occupant card in the normal Pens view has an explicit release checkbox,
+with the Puff ID in its accessible name. A selected card uses a coral border
+and a checked box; color is not the only cue. Keeper labels and traits stay
+visible. The player still decides which babies to retain.
+
+Below the cards, a confirmation shows the count and Gold reward, plus any
+keeper or last-parent blocker. A note flags selected request matches, since
+the card badges may have scrolled out of view. The footer sits in normal scrolling flow so
+it cannot cover the last phone card. Success focuses a persistent result
+message and updates the same pen list. Closing, changing pens or leaving the
+view clears choices; movement drops the moved Puff's mark. During global
+bulk release there are no local checkboxes or confirmation controls.
+
+This uses the existing palette and 44px controls, without new motion or art.
+Desktop and phone play should check whether reviewing and releasing in one
+place reduces repeated ID lookup while keeping decisions deliberate.

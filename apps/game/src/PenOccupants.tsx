@@ -1,3 +1,4 @@
+import { PenReleaseControls } from "./PenReleaseControls";
 import { PuffGrowthStatus } from "./PuffGrowthStatus";
 import { KeeperBadge } from "./KeeperControls";
 import { useRef, useState } from "react";
@@ -41,13 +42,14 @@ export const PenOccupants = ({ selectedPenId, onPenChange, onChoose }: {
         {releaseModeActive && <p className="pen-occupants-help">Finish bulk release before opening journals or moving Puffs. You can still read this pen.</p>}
         <p className="pen-occupants-notice" role="status">{notice}</p>
         {pen.occupantIds.length === 0 && <p className="pen-occupants-help">This pen is empty. Choose a Puff from Your Puffs, then use its journal to move it here.</p>}
-        <div className="pen-occupants-cards">
+        <PenReleaseControls key={pen.id} penId={pen.id}>
+          {({ selectedIds, toggle }) => <div className="pen-occupants-cards">
           {pen.occupantIds.map((id) => {
             const puff = puffs[id];
             if (!puff) return null;
             const traits = deriveTraits(puff.genes);
             const birth = records?.find((record) => record.child.id === id && record.penId === pen.id);
-            return <article className="pen-occupant" key={id} aria-label={`Puff ${id}`}>
+            return <article className="pen-occupant" key={id} aria-label={`Puff ${id}`} data-release-selected={selectedIds.includes(id)}>
               <h4>{traitValueLabel("sex", traits.sex)} · {traitValueLabel("bodySize", traits.bodySize)} · {traitValueLabel("bodyColor", traits.bodyColor)}</h4>
               <p>{traitValueLabel("eyeColor", traits.eyeColor)} eyes · {traitValueLabel("earSize", traits.earSize)} ears</p>
               <p><PuffGrowthStatus puff={puff} /></p>
@@ -66,9 +68,14 @@ export const PenOccupants = ({ selectedPenId, onPenChange, onChoose }: {
                   selector.current?.focus();
                 }}>Move to pasture</button>
               </div>
+              {!releaseModeActive && <label className="pen-release-choice">
+                <input type="checkbox" aria-label={`Select ${id} for release`} checked={selectedIds.includes(id)} onChange={() => toggle(id)} />
+                <span>{selectedIds.includes(id) ? "Selected for release" : "Select for release"}</span>
+              </label>}
             </article>;
           })}
-        </div>
+          </div>}
+        </PenReleaseControls>
       </> : <p className="pen-occupants-help">No pens yet.</p>}
     </section>
   );

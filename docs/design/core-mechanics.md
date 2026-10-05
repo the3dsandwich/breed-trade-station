@@ -316,3 +316,27 @@ Returning players at zero Gold must earn purchases. Check how much repetitive
 breeding/releasing this requires, whether valuable parents survive the choice,
 and whether extra pens make three distinct goals easier to pursue. More room
 alone does not prove better long-term progression.
+
+
+### Release spares while reviewing one pen
+
+The Pens view now lets the player select individual occupants and confirm a
+release without finding them again in the full herd list. Nothing is selected
+automatically. The button shows the exact count and normal 2g-per-Puff reward.
+If a chosen Puff matches a request, the summary points out that a request sale
+may pay more; it does not block a deliberate release.
+Keeper and last-male/female protection still block the whole batch; unchecking
+a protected Puff lets the player release only the others.
+
+Choices apply only to the current pen and clear when switching pens, leaving
+the view, closing the popup or completing a release. Moving a marked Puff to
+pasture drops its mark. New babies arrive unselected. The popup stays open
+after success, with a focused result message and the remaining occupants.
+Global bulk release still makes this pen view read-only.
+
+This shortens the path from judging an offspring to acting on that decision.
+It does not empty pens automatically, choose useful parents, move babies at
+birth or add space. On October 5, the returning player completed both an
+Extra-small/Red request and an Extra-large request before this change; the
+observed problem was repeated lookup of already-chosen spares, not impossible
+goals. Watch whether easier handling leaves more attention for the next cross.

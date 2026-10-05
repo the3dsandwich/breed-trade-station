@@ -289,3 +289,18 @@ uses its largest pen's height: 190px for four spaces, 240px for six, 320px for
 eight. Slots and pointer targets use these same rectangles. Original pasture
 coordinates and the initial 800x600 canvas stay unchanged. The ground and
 canvas height grow together; CSS scales the whole board to the screen width.
+
+
+### Temporary release choices in a pen
+
+`PenReleaseControls`, keyed by pen ID, owns a local list of marked occupant
+IDs. It is not part of the save or the global release selection. Pen changes
+reset it; HerdPicker mounts the pen view only while open, so closing and view
+changes also discard marks. A move or removal prunes the affected IDs; births
+never add a mark. Global bulk mode hides and clears these local controls.
+
+The confirmation reads current pen membership and keeper rules again before
+calling the existing `releasePuffs` thunk. A changed batch asks the player to
+review it; it is not silently replaced by a different batch. No duplicate
+removal, reward or breeding implementation is added. A successful release
+clears marks and focuses its message after rendering; the popup remains open.
