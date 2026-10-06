@@ -296,3 +296,12 @@ bulk release there are no local checkboxes or confirmation controls.
 This uses the existing palette and 44px controls, without new motion or art.
 Desktop and phone play should check whether reviewing and releasing in one
 place reduces repeated ID lookup while keeping decisions deliberate.
+
+## Current parent counts
+
+The existing pen status areas show a short count of grown males and females.
+This is useful on phones, where some occupant cards are off-screen. A short
+note explains the choice of parents when several grown animals could take part.
+The full-pen or growth message stays visible beside it, so possible parents
+are not confused with an active breeding cycle. Counts use ordinary text and
+normal scrolling flow, with no new panel, controls, motion or live announcements.

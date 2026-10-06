@@ -340,3 +340,21 @@ birth or add space. On October 5, the returning player completed both an
 Extra-small/Red request and an Extra-large request before this change; the
 observed problem was repeated lookup of already-chosen spares, not impossible
 goals. Watch whether easier handling leaves more attention for the next cross.
+
+### Seeing who can become a parent
+
+Each pen's status shows how many grown males and females are inside, including
+when the pen is full. Young Puffs join those counts when they finish growing.
+When more than one male or female is available alongside the other sex, a short
+note explains that any grown male and female can become parents once there is
+room for a baby. The counts do not mean a full pen can breed.
+
+This helps players notice when offspring have joined a breeding group. In the
+October 6 fresh playtest, an old pen resumed breeding with a grown son after
+the original father moved to a new pen. Birth history explained the result,
+but the current group was harder to see at a glance. The returning player also
+had grown spares become parents while rearranging an expanded pen.
+
+This is information only: no fixed pairs, excluded parents, automatic movement,
+new odds or save changes. The player still chooses which animals share a pen
+and learns from the actual parents recorded in birth history.

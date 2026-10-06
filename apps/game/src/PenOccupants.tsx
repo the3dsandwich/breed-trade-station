@@ -1,3 +1,4 @@
+import { PenParentSummary } from "./PenParentSummary";
 import { PenReleaseControls } from "./PenReleaseControls";
 import { PuffGrowthStatus } from "./PuffGrowthStatus";
 import { KeeperBadge } from "./KeeperControls";
@@ -39,6 +40,7 @@ export const PenOccupants = ({ selectedPenId, onPenChange, onChoose }: {
         </select>
         <h3>{pen.name} · {pen.occupantIds.length}/{pen.capacity} spaces used</h3>
         <p className="pen-occupants-help">{getPenStatus(pen, puffs, gold, gameTime).text}</p>
+        <PenParentSummary occupantIds={pen.occupantIds} puffs={puffs} gameTime={gameTime} />
         {releaseModeActive && <p className="pen-occupants-help">Finish bulk release before opening journals or moving Puffs. You can still read this pen.</p>}
         <p className="pen-occupants-notice" role="status">{notice}</p>
         {pen.occupantIds.length === 0 && <p className="pen-occupants-help">This pen is empty. Choose a Puff from Your Puffs, then use its journal to move it here.</p>}
