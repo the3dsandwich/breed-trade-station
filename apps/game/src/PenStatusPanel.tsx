@@ -1,3 +1,4 @@
+import { PenParentSummary } from "./PenParentSummary";
 import { useAppSelector } from "./store/hooks";
 import { getPenStatus } from "./store/penStatus";
 import { BREEDING_DURATION_MS } from "./store/breedingRules";
@@ -20,6 +21,7 @@ export const PenStatusPanel = () => {
           <section key={id} aria-label={`${pen.name} breeding status`}>
             <h3>{pen.name} · {pen.occupantIds.length}/{pen.capacity} spaces used</h3>
             <p>{status.text}</p>
+            <PenParentSummary occupantIds={pen.occupantIds} puffs={puffs} gameTime={gameTime} />
             {status.progress !== undefined && (
               <progress aria-label={`${pen.name} breeding progress`} max={BREEDING_DURATION_MS} value={status.progress} />
             )}
