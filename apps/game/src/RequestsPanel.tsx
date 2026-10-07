@@ -1,3 +1,4 @@
+import { PastSales } from "./PastSales";
 import { deriveTraits } from "@bts/shared";
 import { useAppSelector } from "./store/hooks";
 import "./RequestsPanel.css";
@@ -15,7 +16,7 @@ export const RequestsPanel = () => {
 
   return (
     <div className="requests-panel">
-      <div className="requests-panel-heading"><h2 className="requests-panel-title">Requests</h2><span className="panel-kicker">Trade board</span></div>
+      <div className="requests-panel-heading"><h2 className="requests-panel-title">Requests</h2><PastSales /></div>
       {!releaseModeActive && !traits && (
         <p className="requests-panel-hint">Select a Puff to compare its traits with requests.</p>
       )}

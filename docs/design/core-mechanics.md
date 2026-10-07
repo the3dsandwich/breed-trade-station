@@ -358,3 +358,20 @@ had grown spares become parents while rearranging an expanded pen.
 This is information only: no fixed pairs, excluded parents, automatic movement,
 new odds or save changes. The player still chooses which animals share a pen
 and learns from the actual parents recorded in birth history.
+
+### Remembering completed requests
+
+**Past sales** on the request board keeps the latest ten successful request
+sales, newest first. Each receipt shows the completed requirements, Gold earned,
+and the sold Puff's visible traits and ID. This records a result the player
+earned; it does not add another reward or change future requests.
+
+The October 7 returning player finally bred the Black, Large-eared female
+requested across several sessions. Selling her for 35g made room for a new goal,
+but the old request disappeared and its reward could later be spent on upkeep.
+The receipt gives future successes a lasting, readable record beyond the wallet.
+
+Older saves start with an empty history. Earlier sales cannot be reconstructed
+and are not invented. Releases are not request sales and do not appear here.
+The history is limited to ten receipts, not a lifetime collection or achievement
+system. It does not reveal genes, predict offspring or choose the next parents.

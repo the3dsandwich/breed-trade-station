@@ -304,3 +304,21 @@ calling the existing `releasePuffs` thunk. A changed batch asks the player to
 review it; it is not silently replaced by a different batch. No duplicate
 removal, reward or breeding implementation is added. A successful release
 clears marks and focuses its message after rendering; the popup remains open.
+
+### Request sale receipts
+
+`requests.pastSales` is optional saved state containing at most ten receipts,
+newest first. Each snapshot contains the completed request ID, requirements and
+reward, plus the sold Puff's ID and visible traits. It contains no genes or live
+references to the removed Puff. Older saves have no receipts; past sales are
+not reconstructed.
+
+After the existing fulfillment checks pass, `fulfillRequest` supplies the sold
+Puff snapshot to `requestReplaced`. That reducer copies requirements and reward
+from the stored request before replacing it. An already-replaced request does
+nothing; a replacement without a sale snapshot adds no receipt. Releases do
+not write this history. Existing reward and removal rules remain unchanged.
+
+Receipts use the normal requests-slice save path, so no new saved slice or
+migration is needed. The read-only history popup does not change selection,
+repeat a sale or pause the tick engine.
