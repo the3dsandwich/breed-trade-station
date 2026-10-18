@@ -46,12 +46,13 @@ export const fulfillRequest =
     const puff = state.puffs.byId[puffId];
     const storedRequest = state.requests.byId[request.id];
     if (!puff || !storedRequest) return;
-    if (!puffSatisfiesRequest(deriveTraits(puff.genes), storedRequest)) return;
+    const traits = deriveTraits(puff.genes);
+    if (!puffSatisfiesRequest(traits, storedRequest)) return;
     if (removalBlockedReason(state.puffs.byId, [puffId], state.puffs.keeperIds)) return;
 
     dispatch(puffUnassigned({ puffId }));
     dispatch(puffRemoved({ puffId }));
     dispatch(goldAdjusted({ amount: storedRequest.reward }));
-    dispatch(requestReplaced({ oldRequestId: request.id, newRequest: generateRequest(createLocalId()) }));
+    dispatch(requestReplaced({ oldRequestId: request.id, newRequest: generateRequest(createLocalId()), sale: { id: puff.id, traits } }));
     dispatch(selectionCleared());
   };

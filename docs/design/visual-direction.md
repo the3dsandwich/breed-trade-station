@@ -305,3 +305,16 @@ note explains the choice of parents when several grown animals could take part.
 The full-pen or growth message stays visible beside it, so possible parents
 are not confused with an active breeding cycle. Counts use ordinary text and
 normal scrolling flow, with no new panel, controls, motion or live announcements.
+
+## Past request sales
+
+A small **Past sales** button on the request board opens a native popup. Receipts
+use the existing Dusk Ranch colors and show completed requirements, earned Gold
+and the sold Puff's traits. Long IDs wrap, and cards scroll inside the popup on
+phones. The board stays focused on active requests while past results remain
+easy to find.
+
+Close and Escape return focus to the entry button. Background scrolling is
+locked while the popup is open; normal breeding and upkeep continue. The empty
+view explains that earlier sales were not recorded. There is no new animation,
+automatic popup or replay action.
